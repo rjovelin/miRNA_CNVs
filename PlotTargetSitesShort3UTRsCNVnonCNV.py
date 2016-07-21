@@ -202,7 +202,13 @@ fig = plt.figure(1, figsize = (5, 2.5))
 
     
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, Xscale, Data, figure, Title, XLabel = False, YLabel = False):
+def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax):
+    '''
+    (int, int, int, list, figure_object, str, int)
+
+    '''    
+    
+    
     # create subplot in figure
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
@@ -212,16 +218,7 @@ def CreateAx(Columns, Rows, Position, Xscale, Data, figure, Title, XLabel = Fals
     bp = ax.boxplot(Data, showmeans = True, showfliers = False, widths = 0.5,
                     positions = BoxPositions, patch_artist = True) 
     
-    
-          
-    
-    
-    
-    
-    
-    
-    
-    # color CNV boxes in grey
+    # color CNV and non-CNV boxes differently
     i = 0    
     # change box, whisker color to black
     for box in bp['boxes']:
@@ -229,115 +226,81 @@ def CreateAx(Columns, Rows, Position, Xscale, Data, figure, Title, XLabel = Fals
         box.set(color = 'black')
         if i % 2 == 0:
             # CNV data, color box in grey
-            box.set(facecolor = "grey")
+            box.set(facecolor = '#a6cee3')
         else:
-            box.set(facecolor = 'white')
+            box.set(facecolor = '#b2df8a')
         i += 1
-        
     # change whisker color to black
     for wk in bp['whiskers']:
         wk.set(color = 'black', linestyle = '-')
-    
     # change color of the caps
     for cap in bp['caps']:
         cap.set(color = 'black')
-        
     # change the color and line width of the medians
     for median in bp['medians']:
         median.set(color = 'black')
-        
     # change the mean marker and marker
     for mean in bp['means']:
         mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 4)
     
     
-    
-    
-    
+    # write title   
     ax.set_title(Title, size = 10)
     
-    
-    
-    
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
     
     # write label for y axis
-    ytext = ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'grey',  size = 10, ha = 'center', fontname = 'Arial', family = 'sans-serif')
+    ytext = ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 10, ha = 'center', **FigFont)
 
+    # write label for x axis
+    xtickpos = [0.3, 0.11, 1.9, 2.7, 3.5, 4.3]
+    Names = [species_codes[i] for i in species_names]
+    plt.xticks(xtickpos, Names, ha = 'center', fontsize = 10, **FigFont)
 
+    # add a range for the Y axis
+    plt.ylim([0, YMax])
 
-
-
-
-
-
-
-
-# set tick label
-names = []
-for species in species_names:
-    names.append(species_codes[species] + '_CNV')
-    names.append(species_codes[species] + '_non_CNV')
-
-# add labels to x-ticks, rotate and align right, set size to 14
-ax.set_xticklabels(names, rotation = 30, ha = 'right', size = 10, fontname = 'Arial', family = 'sans-serif')
-
-
-# add a light grey horizontal grid to the plot, semi-transparent, 
-ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)  
-
-# hide these grids behind plot objects
-ax.set_axisbelow(True)
-
-
-
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(True)    
+    ax.spines["right"].set_visible(False)    
+    ax.spines["left"].set_visible(False)  
+    # offset the spines
+    for spine in ax.spines.values():
+        spine.set_position(('outward', 5))
     
-    
+    # add a light grey horizontal grid to the plot, semi-transparent, 
+    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
+    # hide these grids behind plot objects
+    ax.set_axisbelow(True)
 
-# do not show lines around figure  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(False)    
-ax.spines["right"].set_visible(False)    
-ax.spines["left"].set_visible(False)  
+    # do not show ticks
+    plt.tick_params(
+        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+        which='both',      # both major and minor ticks are affected
+        bottom='on',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        right = 'off',
+        left = 'off',          
+        labelbottom='on', # labels along the bottom edge are on
+        colors = 'black',
+        labelsize = 10,
+        direction = 'out') # ticks are outside the frame when bottom = 'on'  
+      
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')
+
+      
 
 # create a list with range of x-axis values
 xvals = [i + 0.5 for i in range(len(names) + 1)]
 # Set a buffer around the edge of the x-axis
 plt.xlim([min(xvals)- 0.5, max(xvals)+ 0.5])
 
-# do not show ticks
-plt.tick_params(
-    axis='y',       # changes apply to the x-axis and y-axis (other option : x, y)
-    which='both',      # both major and minor ticks are affected
-    bottom='off',      # ticks along the bottom edge are off
-    top='off',         # ticks along the top edge are off
-    right = 'off',
-    left = 'off',          
-    labelbottom='off', # labels along the bottom edge are off 
-    colors = 'grey',
-    labelsize = 10)
-      
 
-# do not show ticks
-plt.tick_params(
-    axis='x',       # changes apply to the x-axis and y-axis (other option : x, y)
-    which='both',      # both major and minor ticks are affected
-    bottom='off',      # ticks along the bottom edge are off
-    top='off',         # ticks along the top edge are off
-    right = 'off',
-    left = 'off',          
-    labelbottom='on', # labels along the bottom edge are on 
-    colors = 'black',
-    labelsize = 10)
 
-# Set the tick labels font name
-for label in ax.get_yticklabels():
-    label.set_fontname('Arial')
-
-# add title
-if predictor == 'targetscan':
-    plt.title('TargetScan', size = 10, fontname = 'Arial')  
-elif predictor == 'miranda':
-    plt.title('miRanda', size = 10, fontname = 'Arial')
 
 
 # get outputfile
@@ -359,61 +322,9 @@ fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
     
     
     
-    
-    
-    
-    
-    
-    
-    if YLabel == True:
-        # set y axis label
-        ax.set_ylabel('Protein pairs', size = 7, ha = 'center', fontname = 'Helvetica', family = 'sans-serif')
-    if XLabel == True:
-        # set x axis label
-        ax.set_xlabel('Protein distance', size = 7, ha = 'center', fontname = 'Helvetica', family = 'sans-serif')
-
-    # do not show lines around figure, keep bottow line  
-    ax.spines["top"].set_visible(False)    
-    ax.spines["right"].set_visible(False)    
-    ax.spines["left"].set_visible(False)      
-    
-    if BottomLine == True:
-        ax.spines["bottom"].set_visible(True)
-    else:
-        ax.spines["bottom"].set_visible(False)
-    
-        # add a light grey horizontal grid to the plot, semi-transparent, 
-    ax.yaxis.grid(True, linestyle=':', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
-    # hide these grids behind plot objects
-    ax.set_axisbelow(True)    
+  
         
-    if BottomLine == True:
-        # do not show ticks
-        plt.tick_params(
-            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-            which='both',      # both major and minor ticks are affected
-            bottom='on',      # ticks along the bottom edge are off
-            top='off',         # ticks along the top edge are off
-            right = 'off',
-            left = 'off',          
-            labelbottom='on', # labels along the bottom edge are on
-            colors = 'black',
-            labelsize = 7,
-            direction = 'out') # ticks are outside the frame when bottom = 'on'  
-    else:
-        # do not show ticks
-        plt.tick_params(
-            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-            which='both',      # both major and minor ticks are affected
-            bottom='off',      # ticks along the bottom edge are off
-            top='off',         # ticks along the top edge are off
-            right = 'off',
-            left = 'off',          
-            labelbottom='off', # labels along the bottom edge are on
-            colors = 'black',
-            labelsize = 7,
-            direction = 'out') # ticks are outside the frame when bottom = 'on'  
-
+    
     if XLabel == True:
         # determine tick position on x axis
         xpos =  [i /10  for i in range(11)]
