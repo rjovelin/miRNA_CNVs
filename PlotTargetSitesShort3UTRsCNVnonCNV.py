@@ -198,15 +198,21 @@ print('data consolidated in array')
 
 
 # create figure
-fig = plt.figure(1, figsize = (10, 3))
+fig = plt.figure(1, figsize = (8, 3))
+
+# create list of labels and tick positions for the X axis
+xtickpos = [0.35, 0.125, 2.15, 3.05, 3.95, 4.85]
+Names = [species_codes[i] for i in species_names]
+print(Names)
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax):
+def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, SpeciesNames, XScale):
     '''
-    (int, int, int, list, figure_object, str, int)
+    (int, int, int, list, figure_object, str, int, list, list)
     Take the number of a column, and rows in the figure object and the position of
-    the ax in figure, a list of data, a title and a maximum value for the Y axis
-    and return an ax instance in the figure
+    the ax in figure, a list of data, a title, a maximum value for the Y axis,
+    a list with species names and list of X axis tick positions and return an
+    ax instance in the figure
     '''    
     
     
@@ -255,9 +261,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax):
     ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 8, ha = 'center', **FigFont)
 
     # write label for x axis
-    xtickpos = [0.35, 0.125, 2.15, 3.05, 3.95, 4.85]
-    Names = [species_codes[i] for i in species_names]
-    plt.xticks(xtickpos, Names, ha = 'center', fontsize = 8, **FigFont)
+    plt.xticks(XScale, SpeciesNames, ha = 'center', fontsize = 8, **FigFont)
 
     # add a range for the Y axis
     plt.ylim([0, YMax])
@@ -293,8 +297,8 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax):
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')
     
-    # create a margin around the x axis
-    plt.margins(0.05)
+#    # create a margin around the x axis
+#    plt.margins(0.05)
     
     return ax      
 
