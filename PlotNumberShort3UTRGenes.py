@@ -64,7 +64,7 @@ for species in species_names:
     print(CNV_file)
     
     # create a dict {gene : "short" (or "long")}
-    UTR_length = {}
+    UTR_length = sort_genes_3UTR_length(UTR_file, L)
 
  
         
