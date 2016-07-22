@@ -97,21 +97,7 @@ for i in range(len(predictors)):
         UTR_file = species + '_3UTR_length_' + chromos + '.txt'
         print(UTR_file)
         # create a dict {gene : "short" (or "long")}
-        UTR_length = {}
-        infile = open(UTR_file)
-        infile.readline()
-        for line in infile:
-            line = line.rstrip()
-            if line != '':
-                line = line.split('\t')
-                # get gene name, and 3' UTR length
-                gene, L3UTR = line[0], int(line[2])
-                # populate dict
-                if L3UTR < L:
-                    UTR_length[gene] = 'short'
-                elif L3UTR > L:
-                    UTR_length[gene] = 'long'
-        infile.close()                    
+        UTR_length = sort_genes_3UTR_length(UTR_file, L)
         print('UTR length', len(UTR_length))
         
         # initialize inner dict
