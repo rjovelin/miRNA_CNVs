@@ -333,27 +333,34 @@ for species in species_names:
 
 
 # create list of Y and X positions to annotate figure with significance level
-if domain == 'CDS' and L == 15:
+if domain == 'CDS':
     # make a list of Y positions
     YposTargetscan = [0.41, 0.11, 0.16, 0.28, 0.14, 0.21]
     YposMiranda = [0.32, 0.08, 0.11, 0.19, 0.11, 0.16]
     Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
-    
-    for i in range(len(PvalTargetScan)):
-        ax1.text(Xpos[i], YposTargetscan[i], PvalTargetScan[i], horizontalalignment = 'center',
-                 verticalalignment = 'center', color = 'black', size = 8)
+elif domain == '5UTR':
+    # make a list of Y positions
+    YposTargetscan = [0.41, 0.12, 0.17, 0.30, 0.16, 0.24]
+    YposMiranda = [0.32, 0.09, 0.12, 0.21, 0.12, 0.17]
+    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
 
-    for i in range(len(PvalMiranda)):
-        ax2.text(Xpos[i], YposMiranda[i], PvalMiranda[i], horizontalalignment = 'center',
-                 verticalalignment = 'center', color = 'black', size = 8)
+for i in range(len(PvalTargetScan)):
+    ax1.text(Xpos[i], YposTargetscan[i], PvalTargetScan[i], horizontalalignment = 'center',
+             verticalalignment = 'center', color = 'black', size = 8)
+for i in range(len(PvalMiranda)):
+    ax2.text(Xpos[i], YposMiranda[i], PvalMiranda[i], horizontalalignment = 'center',
+             verticalalignment = 'center', color = 'black', size = 8)
 
 # make sure subplots do not overlap
 plt.tight_layout()
 
-## get outputfile
-#outputfile = 'Fig_short3UTR_CNVvsNonCNV_' + domain + '_' + chromos + '_' + cnv_length + '_' + predictor + '_normalized_sites' 
-#print(outputfile)
+# get outputfile
+if L == 15:
+    outputfile = 'PlotShort3UTR_15bp_' + domain + '_' + chromos + '_' + cnv_length + '_NormalizedSites' 
+elif L == 7:
+    outputfile = 'PlotShort3UTR_7bp_' + domain + '_' + chromos + '_' + cnv_length + '_NormalizedSites' 
+print(outputfile)
 
 # save figure
-fig.savefig('truc' + '.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
        
