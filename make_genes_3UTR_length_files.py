@@ -5,27 +5,18 @@ Created on Mon Oct  5 16:31:18 2015
 @author: RJovelin
 """
 
-# usage python3 make_genes_3UTR_length_files.py [True/False]
 
+# use this script to save the 3'UTR length of each gene in a separate file for each species
 
-# sort genes into short 3' UTR or long 3' UTR
-
+# usage python3 make_genes_3UTR_length_files.py 
 
 from CNV_miRNAs import *
 import os
 import sys
 
-# get the option to keep genes on all chromos (False) or only on assembled 
-# nuclear chromosomes only from the command
-
-keep_valid_chromos = sys.argv[1]
-if keep_valid_chromos == 'True':
-    keep_valid_chromos = True
-    chromos = 'valid_chromos'
-elif keep_valid_chromos == 'False':
-    keep_valid_chromos = False
-    chromos = 'all_chromos'
-print(keep_valid_chromos)
+# keep only annotated chromos
+keep_valid_chromos = True
+chromos = 'valid_chromos'
 
 # make a dictionary of species names : species code
 species_names = {'H_sapiens': 'Hsa',  'P_troglodytes': 'Ptr', 'M_mulatta': 'Mmul',
@@ -57,18 +48,12 @@ for species in species_names:
     # open file for writing
     newfile = open(outputfile, 'w')
     # write header
-    newfile.write('gene\t3UTR_type\t3UTR_length\n')
+    newfile.write('gene' + '\t' + '3UTR_length\n')
 
     # loop over gene in UTR_seq:
     for gene in UTR_seq:
-        # check if UTR length < 7bp (minimum requirement for a miRNA target site)
-        if len(UTR_seq[gene]) < 7:
-            # gene has short 3' UTR
-            newfile.write('\t'.join([gene, 'short', str(len(UTR_seq[gene]))]) + '\n')
-        else:
-            # gene is short
-            newfile.write('\t'.join([gene, 'long', str(len(UTR_seq[gene]))]) + '\n')
-            
+        newfile.write('\t'.join([gene, str(len(UTR_seq[gene]))]) + '\n')
+                
     # close file after writing
     newfile.close()
     print('done sorting {0} genes according to UTR length'.format(species))        
