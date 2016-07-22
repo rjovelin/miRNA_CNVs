@@ -7,55 +7,48 @@ Created on Fri Jul 22 16:45:59 2016
 
 # use this script to plot the number of short 3'UTR genes in CNV and non-CNVs for each species
 
+# usage PlotNumberShort3UTRGenes.py [options]
+# [7/15]: 3'UTR length, genes with 3'UTR length < 7bp or < 15bp are considered short 3'UTR genes
 
-# usage make_table_short_3UTR_gene_counts.py [True/False] [long_CNVs/all_CNVs]
-
-
-# determine the number of genes with short (< 7b) 3'UTR in each species 
-
-from CNV_miRNAs import *
+# use Agg backend on server without X server
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib import rc
+rc('mathtext', default='regular')
+# import modules
+import numpy as np
+from scipy import stats
+import math
+import os
 import sys
+# import custom modules
+from CNV_miRNAs import *
 
-# get the option to keep genes on all chromos (False) or only on assembled 
-# nuclear chromosomes only (True) from the command
-keep_valid_chromos = sys.argv[1]
-if keep_valid_chromos == 'True':
-    keep_valid_chromos = True
-    chromos = 'valid_chromos'
-elif keep_valid_chromos == 'False':
-    keep_valid_chromos = False
-    chromos = 'all_chromos'
-print(keep_valid_chromos, chromos)
 
-# get the option to call CNV based on CNV length from the command
-long_CNV = sys.argv[2]
-if long_CNV == 'all_CNVs':
-    cnv_length = 'CNV_all_length'
-elif long_CNV == 'long_CNVs':
-    cnv_length = 'CNV_greater_1Kb'
-print(long_CNV, cnv_length)
-
-# check if all chromos (including unplaced, unlocated, and MT) are used
-# or if only valid chromos are used 
+# use all chromos (including unplaced, unlocated, and MT) or only valid chromos 
 # note: only CNVs on valid chromos are reported in DGV, so if all chromos are
 # used it may introduce a bias by calling non CNV genes genes that cannot be detected
 
+# keep genes on assembled nuclear chromosomes
+chromos = 'valid_chromos'
+# consider all CNVs
+cnv_length = 'CNV_all_length'
 
-# get outputfile
-outputfile = 'Gene_Counts_Short_3UTR_' + cnv_length + '_' + chromos + '.txt'    
-print(outputfile)
 
-# open file for writing
-newfile = open(outputfile, 'w')
+# get the minimum 3'UTR length
+L = int(sys.argv[1])
+assert L in [15, 7], 'minimum 3UTR length is not correct'
+print(L)
 
-# write headers to file
-newfile.write('# Number of genes with short (< 7 bp) 3\'UTR\n')
-newfile.write('\t'.join(['Species', 'Total', 'CNV', 'non-CNV']) + '\n')
+# Count the number of short 3'UTR genes in CNV and non-CNV in each species
+# create a dict {species: [N short 3UTR CNV genes, N short 3UTR non-CNV genes]}
+ShortGenes = {}
 
 # make a dictionary of species names : species code
 species_names = {'H_sapiens': 'Hsa',  'P_troglodytes': 'Ptr', 'M_mulatta': 'Mmul',
-                 'M_musculus': 'Mmus', 'R_norvegicus': 'Rno', 'B_taurus': 'Bta',
-                 'C_familiaris': 'Cfa', 'G_gallus': 'Gga'}
+                 'M_musculus': 'Mmus', 'B_taurus': 'Bta', 'G_gallus': 'Gga'}
 
 # loop over species
 for species in species_names:
@@ -69,6 +62,37 @@ for species in species_names:
     else:
         CNV_file = species + '_' + cnv_length + '_' + chromos + '.txt'
     print(CNV_file)
+    
+    # create a dict {gene : "short" (or "long")}
+    UTR_length = {}
+
+ 
+        
+        infile = open(UTR_file)
+        infile.readline()
+        for line in infile:
+            line = line.rstrip()
+            if line != '':
+                line = line.split('\t')
+                # get gene name, and 3' UTR length
+                gene, L3UTR = line[0], int(line[2])
+                # populate dict
+                if L3UTR < L:
+                    UTR_length[gene] = 'short'
+                elif L3UTR > L:
+                    UTR_length[gene] = 'long'
+        infile.close()                    
+        print('UTR length', len(UTR_length))
+
+
+
+
+
+
+
+    
+    
+    
     
     # sort genes based on CNV status
     CNV_status = sort_genes_CNV_status(CNV_file)
@@ -108,6 +132,128 @@ for species in species_names:
 newfile.close()
 
 
+##############
+
+
+
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Oct 15 10:24:09 2015
+
+@author: RJovelin
+"""
+
+
+# usage count_short_3UTR_DGV.py [True/False] [long_CNVs/all_CNVs]
+
+
+# determine the number of genes with short (< 7b) 3'UTR in each species 
+
+from CNV_miRNAs import *
+import sys
+
+# get the option to keep genes on all chromos (False) or only on assembled 
+# nuclear chromosomes only (True) from the command
+
+# check if all chromos (including unplaced, unlocated, and MT) are used
+# or if only valid chromos are used 
+# note: only CNVs on valid chromos are reported in DGV, so if all chromos are
+# used it may introduce a bias by calling non CNV genes genes that cannot be detected
+
+keep_valid_chromos = sys.argv[1]
+if keep_valid_chromos == 'True':
+    keep_valid_chromos = True
+    chromos = 'valid_chromos'
+elif keep_valid_chromos == 'False':
+    keep_valid_chromos = False
+    chromos = 'all_chromos'
+print(keep_valid_chromos, chromos)   
+
+
+# get the option to call CNV based on CNV length from the command
+long_CNV = sys.argv[2]
+if long_CNV == 'all_CNVs':
+    cnv_length = 'CNV_all_length'
+elif long_CNV == 'long_CNVs':
+    cnv_length = 'CNV_greater_1Kb'
+
+# get UTR file
+UTR_file = 'H_sapiens_3UTR_length_' + chromos + '.txt'
+print(UTR_file)
+
+# make a list of CNV files
+CNV_files = ['H_sapiens_GRCh37_2013-05_' + cnv_length + '_' + chromos + '.txt',
+             'H_sapiens_GRCh37_2013-07_' + cnv_length + '_' + chromos + '.txt',
+             'H_sapiens_GRCh37_2014_' + cnv_length + '_' + chromos + '.txt',
+             'H_sapiens_GRCh37_2015_' + cnv_length + '_' + chromos + '.txt']
+             
+# get outputfile
+outputfile =  'Gene_Counts_DGV_release_short_3UTR_' + cnv_length + '_' + chromos + '.txt'             
+print(outputfile)             
+             
+# open file for writing
+newfile = open(outputfile, 'w')             
+             
+# write headers to file
+newfile.write('# Number of genes with short (< 7 bp) 3\'UTR\n')
+newfile.write('\t'.join(['DGV_release', 'Total', 'CNV', 'non-CNV']) + '\n')
+
+# loop over CNV files
+for filename in CNV_files:
+    print(filename)
+    # sort genes based on CNV status
+    CNV_status = sort_genes_CNV_status(filename)
+    print(len(CNV_status))
+    # sort genes based on 3' UTR length
+    UTR_length = sort_genes_3UTR_length(UTR_file)
+    print(len(UTR_length))
+    # get release version
+    release_version = filename[filename.index('GRCh37'): filename.index('_CNV')]
+    print(release_version)
+    # count total number of genes with short 3'UTR
+    total_short = 0
+    # count CNV genes with short UTR
+    cnv_short = 0
+    # count non-CNV genes with short UTR
+    non_cnv_short = 0    
+    # loop over genes in UTR_length
+    for gene in UTR_length:
+        if UTR_length[gene] == 'short':
+            total_short += 1
+            # check CNV status
+            if CNV_status[gene] == 'CNV':
+                cnv_short += 1
+            elif CNV_status[gene] == 'not_CNV':
+                non_cnv_short += 1
+            
+    print('total short', total_short)
+    print('CNV short', cnv_short)
+    print('non_CNV', non_cnv_short)
+    
+    assert total_short == cnv_short + non_cnv_short, 'sum cnv and non-cnv short is not equal to total short'
+        
+    # write results to file
+    newfile.write('\t'.join([release_version, str(total_short), str(cnv_short), str(non_cnv_short)]) + '\n')
+    
+# close file after writing
+newfile.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#################
+
 
 
 
@@ -129,8 +275,6 @@ Created on Sun Nov  8 10:18:44 2015
 # [long_CNVs/all_CNVs] CNV > 1 Kb or all CNVs
 
 
-
-import os
 import sys
 import matplotlib.pyplot as plt
 from matplotlib import patches as mpatches
