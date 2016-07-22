@@ -251,7 +251,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax):
     FigFont = {'fontname':'Arial'}   
     
     # write label for y axis
-    ytext = ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 10, ha = 'center', **FigFont)
+    ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 10, ha = 'center', **FigFont)
 
     # write label for x axis
     xtickpos = [0.3, 0.11, 1.9, 2.7, 3.5, 4.3]
@@ -291,218 +291,24 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax):
     # Set the tick labels font name
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')
-
-      
-
-# create a list with range of x-axis values
-xvals = [i + 0.5 for i in range(len(names) + 1)]
-# Set a buffer around the edge of the x-axis
-plt.xlim([min(xvals)- 0.5, max(xvals)+ 0.5])
-
-
-
-
-
-# get outputfile
-outputfile = 'Fig_short3UTR_CNVvsNonCNV_' + domain + '_' + chromos + '_' + cnv_length + '_' + predictor + '_normalized_sites' 
-print(outputfile)
-
-# save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
-       
     
+    # create a margin around the x axis
+    plt.margins(0.05)
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-  
-        
-    
-    if XLabel == True:
-        # determine tick position on x axis
-        xpos =  [i /10  for i in range(11)]
-        Dist = ['0', '', '', '', '', '0.5', '', '', '', '', '1']
-        # set up tick positions and labels
-        plt.xticks(xpos, Dist, rotation = 0, fontsize = 7, ha = 'center', fontname = 'Helvetica')
-
-    if YLabel == True:
-        plt.yticks(fontsize = 8)
-  
-    return ax
+    return ax      
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# set width for all subplots    
-width = 0.1
-
-ax1 = CreateAx(4, 5, 1, [i / 10 for i in range(10)], Distances[families[0]], fig, families[0], width, YLabel = True)
-ax2 = CreateAx(4, 5, 2, [i / 10 for i in range(10)], Distances[families[1]], fig, families[1], width)
-ax3 = CreateAx(4, 5, 3, [i / 10 for i in range(10)], Distances[families[2]], fig, families[2], width)
-ax4 = CreateAx(4, 5, 4, [i / 10 for i in range(10)], Distances[families[3]], fig, families[3], width)
-ax5 = CreateAx(4, 5, 5, [i / 10 for i in range(10)], Distances[families[4]], fig, families[4], width, YLabel = True)
-ax6 = CreateAx(4, 5, 6, [i / 10 for i in range(10)], Distances[families[5]], fig, families[5], width)
-ax7 = CreateAx(4, 5, 7, [i / 10 for i in range(10)], Distances[families[6]], fig, families[6], width)
-ax8 = CreateAx(4, 5, 8, [i / 10 for i in range(10)], Distances[families[7]], fig, families[7], width)
-ax9 = CreateAx(4, 5, 9, [i / 10 for i in range(10)], Distances[families[8]], fig, families[8], width, YLabel = True)
-ax10 = CreateAx(4, 5, 10, [i / 10 for i in range(10)], Distances[families[9]], fig, families[9], width)
-ax11 = CreateAx(4, 5, 11, [i / 10 for i in range(10)], Distances[families[10]], fig, families[10], width)
-ax12 = CreateAx(4, 5, 12, [i / 10 for i in range(10)], Distances[families[11]], fig, families[11], width)
-ax13 = CreateAx(4, 5, 13, [i / 10 for i in range(10)], Distances[families[12]], fig, families[12], width, YLabel = True)
-ax14 = CreateAx(4, 5, 14, [i / 10 for i in range(10)], Distances[families[13]], fig, families[13], width)
-ax15 = CreateAx(4, 5, 15, [i / 10 for i in range(10)], Distances[families[14]], fig, families[14], width)
-ax16 = CreateAx(4, 5, 16, [i / 10 for i in range(10)], Distances[families[15]], fig, families[15], width)
-ax17 = CreateAx(4, 5, 17, [i / 10 for i in range(10)], Distances[families[16]], fig, families[16], width, XLabel = True, YLabel = True, BottomLine = True)
-ax18 = CreateAx(4, 5, 18, [i / 10 for i in range(10)], Distances[families[17]], fig, families[17], width, XLabel = True, BottomLine = True)
-ax19 = CreateAx(4, 5, 19, [i / 10 for i in range(10)], Distances[families[18]], fig, families[18], width, XLabel = True, BottomLine = True)
+# plot data for targetscan
+ax1 = CreateAx(2, 1, 1, AllDataTargetscan, fig, 'TargetScan', 0.45)
+ax2 = CreateAx(2, 1, 2, AllDataMiranda, fig, 'miRanda', 0.45)
 
 # make sure subplots do not overlap
 plt.tight_layout()
 
-# save figure
-fig.savefig('ChemoProtDivergenceFamilies.pdf', bbox_inches = 'tight')
-
-
-#################
-
-
-
-
-
-# write label for y axis
-ytext = ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'grey',  size = 10, ha = 'center', fontname = 'Arial', family = 'sans-serif')
-
-# set tick label
-names = []
-for species in species_names:
-    names.append(species_codes[species] + '_CNV')
-    names.append(species_codes[species] + '_non_CNV')
-
-# add labels to x-ticks, rotate and align right, set size to 14
-ax.set_xticklabels(names, rotation = 30, ha = 'right', size = 10, fontname = 'Arial', family = 'sans-serif')
-
-
-# add a light grey horizontal grid to the plot, semi-transparent, 
-ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)  
-
-# hide these grids behind plot objects
-ax.set_axisbelow(True)
-
-# remove top axes and right axes ticks
-ax.get_xaxis().tick_bottom()
-ax.get_yaxis().tick_left()
-
-
-# use a boxplot
-bp = ax.boxplot(all_data, showmeans = True, showfliers = False, widths = 0.7, labels = names, patch_artist = True) 
-    
-# color CNV boxes in grey
-i = 0    
-# change box, whisker color to black
-for box in bp['boxes']:
-    # change line color
-    box.set(color = 'black')
-    if i % 2 == 0:
-        # CNV data, color box in grey
-        box.set(facecolor = "grey")
-    else:
-        box.set(facecolor = 'white')
-    i += 1
-        
-# change whisker color ro black
-for wk in bp['whiskers']:
-    wk.set(color = 'black', linestyle = '-')
-    
-# change color of the caps
-for cap in bp['caps']:
-    cap.set(color = 'black')
-        
-# change the color and line width of the medians
-for median in bp['medians']:
-    median.set(color = 'black')
-        
-# change the mean marker and marker
-for mean in bp['means']:
-    mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 4)
-    
-
-# do not show lines around figure  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(False)    
-ax.spines["right"].set_visible(False)    
-ax.spines["left"].set_visible(False)  
-
-# create a list with range of x-axis values
-xvals = [i + 0.5 for i in range(len(names) + 1)]
-# Set a buffer around the edge of the x-axis
-plt.xlim([min(xvals)- 0.5, max(xvals)+ 0.5])
-
-# do not show ticks
-plt.tick_params(
-    axis='y',       # changes apply to the x-axis and y-axis (other option : x, y)
-    which='both',      # both major and minor ticks are affected
-    bottom='off',      # ticks along the bottom edge are off
-    top='off',         # ticks along the top edge are off
-    right = 'off',
-    left = 'off',          
-    labelbottom='off', # labels along the bottom edge are off 
-    colors = 'grey',
-    labelsize = 10)
-      
-
-# do not show ticks
-plt.tick_params(
-    axis='x',       # changes apply to the x-axis and y-axis (other option : x, y)
-    which='both',      # both major and minor ticks are affected
-    bottom='off',      # ticks along the bottom edge are off
-    top='off',         # ticks along the top edge are off
-    right = 'off',
-    left = 'off',          
-    labelbottom='on', # labels along the bottom edge are on 
-    colors = 'black',
-    labelsize = 10)
-
-# Set the tick labels font name
-for label in ax.get_yticklabels():
-    label.set_fontname('Arial')
-
-# add title
-if predictor == 'targetscan':
-    plt.title('TargetScan', size = 10, fontname = 'Arial')  
-elif predictor == 'miranda':
-    plt.title('miRanda', size = 10, fontname = 'Arial')
-
-
-# get outputfile
-outputfile = 'Fig_short3UTR_CNVvsNonCNV_' + domain + '_' + chromos + '_' + cnv_length + '_' + predictor + '_normalized_sites' 
-print(outputfile)
+## get outputfile
+#outputfile = 'Fig_short3UTR_CNVvsNonCNV_' + domain + '_' + chromos + '_' + cnv_length + '_' + predictor + '_normalized_sites' 
+#print(outputfile)
 
 # save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
-    
-    
-    
-    
-    
-    
-   
+fig.savefig('truc' + '.pdf', bbox_inches = 'tight')
+       
