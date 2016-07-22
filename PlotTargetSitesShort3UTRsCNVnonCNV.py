@@ -198,10 +198,11 @@ print('data consolidated in array')
 
 
 # create figure
-fig = plt.figure(1, figsize = (8, 3))
+fig = plt.figure(1, figsize = (10, 2.5))
 
 # create list of labels and tick positions for the X axis
-xtickpos = [0.35, 0.125, 2.15, 3.05, 3.95, 4.85]
+#xtickpos = [0.35, 1.25, 2.15, 3.05, 3.95, 4.85]
+xtickpos = [0.2, 1.1, 2, 2.5, 3.8, 4.7]
 Names = [species_codes[i] for i in species_names]
 print(Names)
 
@@ -265,7 +266,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, SpeciesNames, X
 
     # add a range for the Y axis
     plt.ylim([0, YMax])
-
+    
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
@@ -297,8 +298,8 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, SpeciesNames, X
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')
     
-#    # create a margin around the x axis
-#    plt.margins(0.05)
+    # create a margin around the x axis
+    plt.margins(0.05)
     
     return ax      
 
