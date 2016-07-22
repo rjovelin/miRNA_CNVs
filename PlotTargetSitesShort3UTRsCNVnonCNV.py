@@ -198,7 +198,7 @@ print('data consolidated in array')
 
 
 # create figure
-fig = plt.figure(1, figsize = (9, 2.5))
+fig = plt.figure(1, figsize = (8, 3))
 
 # create list of labels and tick positions for the X axis
 #xtickpos = [0.35, 1.25, 2.15, 3.05, 3.95, 4.85]
@@ -267,6 +267,8 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, SpeciesNames, X
     # add a range for the Y axis
     plt.ylim([0, YMax])
     
+    plt.xlim([-0.25, 5.15])
+    
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
@@ -307,6 +309,43 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, SpeciesNames, X
 # plot data for targetscan
 ax1 = CreateAx(2, 1, 1, AllDataTargetscan, fig, 'TargetScan', 0.45, Names, xtickpos)
 ax2 = CreateAx(2, 1, 2, AllDataMiranda, fig, 'miRanda', 0.45, Names, xtickpos)
+
+# annotate Graph with significance level
+PvalTargetScan, PvalMiranda = [], []
+for species in species_names:
+    if CompTargetscan[species] >= 0.05:
+        PvalTargetScan.append('')
+    elif CompTargetscan[species] < 0.05 and CompTargetscan[species] >= 0.01:
+        PvalTargetScan.append('*')
+    elif CompTargetscan[species] < 0.01 and CompTargetscan[species] >= 0.001:
+        PvalTargetScan.append('**')
+    elif CompTargetscan[species] < 0.001:
+        PvalTargetScan.append('***')
+for species in species_names:
+    if CompMiranda[species] >= 0.05:
+        PvalMiranda.append('')
+    elif CompMiranda[species] < 0.05 and CompMiranda[species] >= 0.01:
+        PvalMiranda.append('*')
+    elif CompMiranda[species] < 0.01 and CompMiranda[species] >= 0.001:
+        PvalMiranda.append('**')
+    elif CompMiranda[species] < 0.001:
+        PvalMiranda.append('***')
+
+
+# create list of Y and X positions to annotate figure with significance level
+if domain == 'CDS' and L == 15:
+    # make a list of Y positions
+    YposTargetscan = [0.41, 0.11, 0.16, 0.28, 0.14, 0.21]
+    YposMiranda = [0.32, 0.08, 0.11, 0.19, 0.11, 0.16]
+    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
+    
+    for i in range(len(PvalTargetScan)):
+        ax1.text(Xpos[i], YposTargetscan[i], PvalTargetScan[i], horizontalalignment = 'center',
+                 verticalalignment = 'center', color = 'black', size = 8)
+
+    for i in range(len(PvalMiranda)):
+        ax2.text(Xpos[i], YposMiranda[i], PvalMiranda[i], horizontalalignment = 'center',
+                 verticalalignment = 'center', color = 'black', size = 8)
 
 # make sure subplots do not overlap
 plt.tight_layout()
