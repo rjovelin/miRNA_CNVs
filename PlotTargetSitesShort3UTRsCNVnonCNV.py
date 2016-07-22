@@ -146,7 +146,7 @@ for species in targetscan:
     # initialise list value
     SpeciesDataTargetscan[species] = [[], []]
     # populate inner lists with number of miRNA target sites per nucleotide
-    for gene in targetscan:
+    for gene in targetscan[species]:
         if targetscan[species][gene][-1] == 'CNV':
             SpeciesDataTargetscan[species][0].append(targetscan[species][gene][2])
         elif targetscan[species][gene][-1] == 'not_CNV':
@@ -155,7 +155,7 @@ for species in miranda:
     # initialize list values
     SpeciesDataMiranda[species] = [[], []]
     # populate inner lists with number of mirna target sites per nucleotide
-    for gene in miranda:
+    for gene in miranda[species]:
         if miranda[species][gene][-1] == 'CNV':
             SpeciesDataMiranda[species][0].append(miranda[species][gene][2])
         elif miranda[species][gene][-1] == 'not_CNV':
