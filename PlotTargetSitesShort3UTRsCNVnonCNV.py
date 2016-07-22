@@ -198,14 +198,15 @@ print('data consolidated in array')
 
 
 # create figure
-fig = plt.figure(1, figsize = (5, 2.5))
+fig = plt.figure(1, figsize = (10, 3))
 
-    
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax):
     '''
     (int, int, int, list, figure_object, str, int)
-
+    Take the number of a column, and rows in the figure object and the position of
+    the ax in figure, a list of data, a title and a maximum value for the Y axis
+    and return an ax instance in the figure
     '''    
     
     
@@ -213,9 +214,9 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax):
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
     # create a list of positions for the box plot    
-    BoxPositions = [0, 0.6, 0.8, 1.4, 1.6, 2.2, 2.4, 3, 3.2, 3.8, 4, 4.6]
+    BoxPositions = [0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.7, 3.1, 3.6, 4, 4.5, 4.9]
     # use a boxplot
-    bp = ax.boxplot(Data, showmeans = True, showfliers = False, widths = 0.5,
+    bp = ax.boxplot(Data, showmeans = True, showfliers = False, widths = 0.3,
                     positions = BoxPositions, patch_artist = True) 
     
     # color CNV and non-CNV boxes differently
@@ -241,22 +242,22 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax):
         median.set(color = 'black')
     # change the mean marker and marker
     for mean in bp['means']:
-        mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 4)
+        mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 3)
     
     
     # write title   
-    ax.set_title(Title, size = 10)
+    ax.set_title(Title, size = 8)
     
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     
     # write label for y axis
-    ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 10, ha = 'center', **FigFont)
+    ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 8, ha = 'center', **FigFont)
 
     # write label for x axis
-    xtickpos = [0.3, 0.11, 1.9, 2.7, 3.5, 4.3]
+    xtickpos = [0.35, 0.125, 2.15, 3.05, 3.95, 4.85]
     Names = [species_codes[i] for i in species_names]
-    plt.xticks(xtickpos, Names, ha = 'center', fontsize = 10, **FigFont)
+    plt.xticks(xtickpos, Names, ha = 'center', fontsize = 8, **FigFont)
 
     # add a range for the Y axis
     plt.ylim([0, YMax])
@@ -285,7 +286,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax):
         left = 'off',          
         labelbottom='on', # labels along the bottom edge are on
         colors = 'black',
-        labelsize = 10,
+        labelsize = 8,
         direction = 'out') # ticks are outside the frame when bottom = 'on'  
       
     # Set the tick labels font name
