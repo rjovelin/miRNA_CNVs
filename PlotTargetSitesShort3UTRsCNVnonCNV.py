@@ -198,11 +198,11 @@ print('data consolidated in array')
 
 
 # create figure
-fig = plt.figure(1, figsize = (10, 2.5))
+fig = plt.figure(1, figsize = (9, 2.5))
 
 # create list of labels and tick positions for the X axis
 #xtickpos = [0.35, 1.25, 2.15, 3.05, 3.95, 4.85]
-xtickpos = [0.2, 1.1, 2, 2.5, 3.8, 4.7]
+xtickpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
 Names = [species_codes[i] for i in species_names]
 print(Names)
 
