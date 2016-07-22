@@ -304,8 +304,8 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, SpeciesNames, X
 
 
 # plot data for targetscan
-ax1 = CreateAx(2, 1, 1, AllDataTargetscan, fig, 'TargetScan', 0.45)
-ax2 = CreateAx(2, 1, 2, AllDataMiranda, fig, 'miRanda', 0.45)
+ax1 = CreateAx(2, 1, 1, AllDataTargetscan, fig, 'TargetScan', 0.45, Names, xtickpos)
+ax2 = CreateAx(2, 1, 2, AllDataMiranda, fig, 'miRanda', 0.45, Names, xtickpos)
 
 # make sure subplots do not overlap
 plt.tight_layout()
