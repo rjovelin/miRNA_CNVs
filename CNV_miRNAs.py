@@ -1367,11 +1367,11 @@ def make_targetscan_mirfam_input_file(mature_fasta, species, outputfile):
 
 
 # use this function to sort genes according to their 3'UTR length
-def sort_genes_3UTR_length(gene_UTR_length_file):
+def sort_genes_3UTR_length(gene_UTR_length_file, L):
     '''
-    (file) -> dict
+    (file, int) -> dict
     Return a dictionary with gene name : 3'UTR length description pairs, 
-    short if length < 7bp and long if length > 7 bp    
+    short if length < L bp and long if length > L bp    
     '''
 
     # create a dict {gene : "short" (or "long")}
@@ -1387,8 +1387,10 @@ def sort_genes_3UTR_length(gene_UTR_length_file):
         if line != '':
             line = line.split()
             # populate dict
-            genes[line[0]] = line[1]
-    
+            if int(line[1]) < L:
+                genes[line[0]] = 'short'
+            else:
+                genes[line[0]] = 'long'
     # close file
     infile.close()
     
