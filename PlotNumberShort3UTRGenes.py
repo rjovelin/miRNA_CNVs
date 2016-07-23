@@ -120,9 +120,9 @@ bar_width = 0.5
 xtickpos = [0, 0.7, 1.4, 2.1, 2.8, 3.5]
 
 # Create a bar plot for cnv genes
-ax.bar(xtickpos, cnv_genes, width=bar_width, label = 'CNV', color= 'black')
+ax.bar(xtickpos, cnv_genes, width=bar_width, label = 'CNV', color= '#ef8a62')
 # Create a bar plot for non_cnv genes on top of cnv_genes
-ax.bar(xtickpos, non_cnv_genes, width=bar_width, bottom= cnv_genes, label = 'non-CNV', color = 'white')
+ax.bar(xtickpos, non_cnv_genes, width=bar_width, bottom= cnv_genes, label = 'non-CNV', color = '#67a9cf')
 
 # set font for all text in figure
 FigFont = {'fontname':'Arial'} 
