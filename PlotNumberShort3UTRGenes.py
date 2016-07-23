@@ -168,7 +168,10 @@ for label in ax.get_yticklabels():
 plt.margins(0.05)
 
 # get outputfile
-outputfile = 'PlotShort3UTRCountsSpecies_' + cnv_length + '_' + chromos
+if L == 7:
+    outputfile = 'PlotShort3UTRCountsSpecies_7bp_' + cnv_length + '_' + chromos
+elif L == 15:
+    outputfile = 'PlotShort3UTRCountsSpecies_15bp_' + cnv_length + '_' + chromos
 print(outputfile)
   
 # save figure
