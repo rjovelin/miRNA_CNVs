@@ -45,18 +45,9 @@ L = int(sys.argv[1])
 assert L in [15, 7], 'minimum 3UTR length is not correct'
 print(L)
 
-
-# create a dict {rekease: [N short 3UTR CNV genes, N short 3UTR non-CNV genes]}
+# Count the number of short 3'UTR genes in CNV and non-CNV in each release
+# create a dict {release: [N short 3'UTR, N short 3UTR CNV genes, N short 3UTR non-CNV genes]}
 ShortGenes = {}
-
-
-
-
-
-
-
-
-
 
 # get UTR file
 UTR_file = 'H_sapiens_3UTR_length_' + chromos + '.txt'
@@ -67,17 +58,6 @@ CNV_files = ['H_sapiens_GRCh37_2013-05_' + cnv_length + '_' + chromos + '.txt',
              'H_sapiens_GRCh37_2013-07_' + cnv_length + '_' + chromos + '.txt',
              'H_sapiens_GRCh37_2014_' + cnv_length + '_' + chromos + '.txt',
              'H_sapiens_GRCh37_2015_' + cnv_length + '_' + chromos + '.txt']
-             
-# get outputfile
-outputfile =  'Gene_Counts_DGV_release_short_3UTR_' + cnv_length + '_' + chromos + '.txt'             
-print(outputfile)             
-             
-# open file for writing
-newfile = open(outputfile, 'w')             
-             
-# write headers to file
-newfile.write('# Number of genes with short (< 7 bp) 3\'UTR\n')
-newfile.write('\t'.join(['DGV_release', 'Total', 'CNV', 'non-CNV']) + '\n')
 
 # loop over CNV files
 for filename in CNV_files:
@@ -86,7 +66,7 @@ for filename in CNV_files:
     CNV_status = sort_genes_CNV_status(filename)
     print(len(CNV_status))
     # sort genes based on 3' UTR length
-    UTR_length = sort_genes_3UTR_length(UTR_file)
+    UTR_length = sort_genes_3UTR_length(UTR_file, L)
     print(len(UTR_length))
     # get release version
     release_version = filename[filename.index('GRCh37'): filename.index('_CNV')]
@@ -107,17 +87,13 @@ for filename in CNV_files:
             elif CNV_status[gene] == 'not_CNV':
                 non_cnv_short += 1
             
-    print('total short', total_short)
-    print('CNV short', cnv_short)
-    print('non_CNV', non_cnv_short)
-    
+    # check that numbers add up
     assert total_short == cnv_short + non_cnv_short, 'sum cnv and non-cnv short is not equal to total short'
-        
-    # write results to file
-    newfile.write('\t'.join([release_version, str(total_short), str(cnv_short), str(non_cnv_short)]) + '\n')
-    
-# close file after writing
-newfile.close()
+    # populare dict
+    ShortGenes[release_version] = [total_short, cnv_short, non_cnv_short]
+print('got short gene counts for each species')
+
+
 
 
 
