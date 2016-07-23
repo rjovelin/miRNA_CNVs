@@ -67,28 +67,14 @@ for species in species_names:
     UTR_length = sort_genes_3UTR_length(UTR_file, L)
     print('UTR length', len(UTR_length))
 
-
-
-
-
-
-
-    
-    
-    
-    
     # sort genes based on CNV status
     CNV_status = sort_genes_CNV_status(CNV_file)
     print(len(CNV_status))
     
-    
-
     # count total number of genes with short 3'UTR
     total_short = 0
-    # count CNV genes with short UTR
-    cnv_short = 0
-    # count non-CNV genes with short UTR
-    non_cnv_short = 0    
+    # count CNV genes and non-CNV genes with short UTR
+    cnv_short, non_cnv_short = 0, 0
     # loop over genes in UTR_length
     for gene in UTR_length:
         if UTR_length[gene] == 'short':
@@ -98,22 +84,13 @@ for species in species_names:
                 cnv_short += 1
             elif CNV_status[gene] == 'not_CNV':
                 non_cnv_short += 1
-            
-    print('total short', total_short)
-    print('CNV short', cnv_short)
-    print('non_CNV', non_cnv_short)
-    
+    # check that numbers add up        
     assert total_short == cnv_short + non_cnv_short, 'sum cnv and non-cnv short is not equal to total short'
-        
-    # write results to file
-    newfile.write('\t'.join([species, str(total_short), str(cnv_short), str(non_cnv_short)]) + '\n')
-    
-    
-# close file after writing
-newfile.close()
+    # populare dict
+    ShortGenes[species] = [cnv_short, non_cnv_short]
+print('got short gene counts for each species')
 
 
-##############
 
 # -*- coding: utf-8 -*-
 """
