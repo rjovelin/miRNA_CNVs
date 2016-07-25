@@ -66,7 +66,7 @@ elif predictor == 'miranda':
 references = get_DGV_references(CNV_file)
 
 # make a list of pubmed IDs for single population studies
-pubmed = [[Suktitipat_et_al_2014, 25118596], [John_et_al_2014, 26484159], [Thareja_et_al_2015, 25765185], [Alsmadi_et_al_2014, 24896259]]
+pubmed = [['Suktitipat_et_al_2014', '25118596'], ['John_et_al_2014', '26484159'], ['Thareja_et_al_2015', '25765185'], ['Alsmadi_et_al_2014', '24896259']]
 
 # check that reference names correspond to the pubmed IDs
 infile = open(CNV_file)
@@ -87,62 +87,77 @@ for i in range(len(pubmed)):
     StudiesCNV[pubmed[i][0]] = CNV_genes
 print('extracted CNV genes for each study')
 
+# get synonym names for all genes {gene name : [list of synonyms]}
+synonyms = get_synonyms('H_sapiens.gff3')
+print('got gene synonyms', len(synonyms))    
+# get the CDS sequences of the longest mRNAs for each gene {gene : sequence}
+CDS_seq = extract_CDS_sequences('H_sapiens.gff3', 'H_sapiens_genome.txt', 'H_sapiens_valid_chromos.txt', keep_valid_chromos)
+print('extracted CDS sequences', len(CDS_seq))  
 
 
-#
-#    
-#    # check that study includes minimum number of cnv genes
-#    if len(CNV_genes) >= minimum_cnv:
-#        # make temporary cnv_file with CNV genes extracted from DGV
-#        tempfile = open('Temp_cnv_file.txt', 'w')
-#        # dump all CNV genes
-#        for gene in CNV_genes:
-#            tempfile.write(gene + '\n')
-#        tempfile.close()
-#    
-#        # get CNV gene status
-#        CNV_status = get_genes_CNV_status('H_sapiens.gff3', 'H_sapiens_genome.txt', 'H_sapiens_valid_chromos.txt', keep_valid_chromos, 'Temp_cnv_file.txt')    
-#        print('genes with CNV status', len(CNV_status))
-#    
-#        # make a temporary file with CNV status of all genes     
-#        tempfile = open('Temp_CNV_status_file.txt', 'w')
-#        tempfile.write('gene\tCNV_status\n')
-#        for gene in CNV_status:
-#            tempfile.write(gene + '\t' + CNV_status[gene] + '\n')
-#        tempfile.close()
-#    
-#        # make temp summary file with targets and cnv status
-#        make_summary_table_target_sites(predicted_targets, 'Temp_CNV_status_file.txt', 'Temp_summary_targets.txt')
-#                
-#        # count the number of CNV genes for that study
-#        Num_cnv_genes = 0
-#        # open temp summary file for reading
-#        infile = open('Temp_summary_targets.txt', 'r')
-#        # skip header
-#        infile.readline()
-#        # loop over file
-#        for line in infile:
-#            line = line.rstrip()
-#            if line != '':
-#                line = line.split()
-#                if line [-1] == 'CNV':
-#                    Num_cnv_genes += 1
-#        #close file after reading
-#        infile.close()
-#        print('Num CNV genes', Num_cnv_genes)
-#    
-#        # check that study includes minimum number of cnv genes
-#        if Num_cnv_genes >= minimum_cnv:
-#            # parse the summary table into a list
-#            regulation = compare_miRNA_regulation('Temp_summary_targets.txt')
-#    
-#            # write regulation to file
-#            newfile.write(study + '\t')
-#            newfile.write('\t'.join(list(map(Gstr, regulation))) + '\n')
-#    
-#            print('done writing regulation for {0}'.format(study))
-#
-## close file after writing
-#newfile.close()
-#Contact GitHub API Training Shop Blog About
-#© 2016 GitHub, Inc. Terms Privacy Security Status Help
+# create a dict {study: {gene: CNV status}}    
+CNV_status = {}
+for study in StudiesCNV:
+    # initialize dict
+    CNV_status[study] = {}
+    # loop over genes in CDS seq
+    for gene in CDS_seq:
+        # set boolean
+        is_cnv = False
+        # ask if gene in CNV genes
+        if gene in StudiesCNV[study] or gene.upper() in StudiesCNV[study]:
+            # gene is CNV, add gene and status to inner dict
+            CNV_status[study][gene] = 'CNV'
+        else:
+            # ask if any of the gene synonyms are in CNV genes
+            for name in synonyms[gene]:
+                # check if gene in CNV
+                if name in StudiesCNV[study] or name.upper() in StudiesCNV[study]:
+                    # update boolean variable
+                    is_cnv = True
+            # check if gene in CNV
+            if is_cnv == True:
+                CNV_status[study][gene] = 'CNV'
+            elif is_cnv == False:
+                CNV_status[study][gene] == 'not_CNV'
+print('sorted genes according to CNV status')    
+    
+    
+# make a dictionary {study: {gene: [targets, seq_length, normalized_targets, CNV_status]}}
+CNVTargets = {}
+for study in CNV_status:
+    # initialize inner dict
+    CNVTargets[study] = {}
+    # loop over genes with CNV status for given study
+    for gene in CNV_status[study]:
+        # populate with list of targets
+        CNVTargets[study][gene] = list(predicted_targets[gene])
+        # add CNV status
+        CNVTargets[study][gene].append(CNV_status[study][gene])
+print('combined targets and CNV status')
+
+    
+# make a dict with the number of CNV genes for each study
+CNVNum = {}
+for study in CNV_status:
+    CNVNum[study] = 0
+    for gene in CNV_status[study]:
+        if CNV_status[study][gene] == 'CNV':
+            CNVNum[study] += 1
+print('got CNV gene counts for each study')
+for study in CNVNum:
+    print(study, CNVNum[study])
+
+
+##### continue here
+
+
+            # parse the summary table into a list
+            regulation = compare_miRNA_regulation('Temp_summary_targets.txt')
+    
+            # write regulation to file
+            newfile.write(study + '\t')
+            newfile.write('\t'.join(list(map(Gstr, regulation))) + '\n')
+    
+            print('done writing regulation for {0}'.format(study))
+
