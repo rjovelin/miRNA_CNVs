@@ -119,7 +119,7 @@ for study in StudiesCNV:
             if is_cnv == True:
                 CNV_status[study][gene] = 'CNV'
             elif is_cnv == False:
-                CNV_status[study][gene] == 'not_CNV'
+                CNV_status[study][gene] = 'not_CNV'
 print('sorted genes according to CNV status')    
     
     
@@ -149,15 +149,17 @@ for study in CNVNum:
     print(study, CNVNum[study])
 
 
-##### continue here
 
-
-            # parse the summary table into a list
-            regulation = compare_miRNA_regulation('Temp_summary_targets.txt')
-    
-            # write regulation to file
-            newfile.write(study + '\t')
-            newfile.write('\t'.join(list(map(Gstr, regulation))) + '\n')
-    
-            print('done writing regulation for {0}'.format(study))
-
+#
+#
+#
+#
+#            # parse the summary table into a list
+#            regulation = compare_miRNA_regulation('Temp_summary_targets.txt')
+#    
+#            # write regulation to file
+#            newfile.write(study + '\t')
+#            newfile.write('\t'.join(list(map(Gstr, regulation))) + '\n')
+#    
+#            print('done writing regulation for {0}'.format(study))
+#
