@@ -22,6 +22,7 @@ from scipy import stats
 import math
 import os
 import sys
+import random
 # import custom modules
 from CNV_miRNAs import *
 
@@ -139,7 +140,7 @@ for study in CNV_status:
             CNVTargets[study][gene].append(CNV_status[study][gene])
 print('combined targets and CNV status')
 
-    
+
 # make a dict with the number of CNV genes and non-CNV genes for each study
 CNVNum = {}
 for study in CNVTargets:
@@ -152,8 +153,6 @@ for study in CNVTargets:
 print('got CNV gene counts for each study')
 for study in CNVNum:
     print(study, CNVNum[study][0], CNVNum[study][1])
-
-
 
 # create a dict of {species name : [[CNV], [non-CNV]]}
 CNVData = {} 
@@ -185,10 +184,90 @@ for study in StudyNames:
 print('data consolidated in array')
 
 
+# boostrap CNV and non-CNV genes to compare miRNA targets
+# create a dictionary {study: {CNV_status: {num: gene}}} 
+ToSampleFrom = {}
+# loop over studies
+for study in CNVTargets:
+    # initialize dict
+    ToSampleFrom[study] = {}
+    ToSampleFrom[study]['CNV'], ToSampleFrom[study]['not_CNV'] = {}, {}
+    # initialize counters for CNV and non-CNV genes
+    i, j = 0, 0
+    # loop over genes for that study
+    for gene in CNVTargets[study]:
+        if CNVTargets[study][gene][-1] == 'CNV':
+            # populate dict with num : gene pair and update counter
+            ToSampleFrom[study]['CNV'][i] = gene
+            i += 1
+        elif CNVTargets[study][gene][-1] == 'not_CNV':
+            # populate dict with num : gene pair and update counter
+            ToSampleFrom[study]['not_CNV'][j] = gene
+            j += 1
+              
+# check that all genes have been assigned to a number
+for study in ToSampleFrom:
+    assert len(ToSampleFrom[study]['CNV']) == CNVNum[study][0], 'CNV genes counts do not match'
+    assert len(ToSampleFrom[study]['not_CNV']) == CNVNum[study][1], 'non-CNV genes counts do not match'
 
 
+# create a dict for each study with a list with numbers of each different outcomes when comparing targets in CNV and non-CNV genes
+# {study: [# replicates CNV > non-CNV, # replicates CNV < non-CNV, # replicates no differences]}
+BootStrap = {}
+# initialize list values
+for study in ToSampleFrom:
+    BootStrap[study] = [0, 0, 0]
+
+# loop over studies in dict to sample from
+for study in ToSampleFrom:
+    print('bootstraping', study)
+    # set number of replicates
+    replicates = 10000
+    while replicates != 0:
+        # make list of targets for CNV and non-CNV genes
+        repCNVtargets, repNonCNVtargets = [], []
+        # draw 800 CNV genes and 800 non-CNV genes with replacement
+        for i in range(800):
+            # draw a random CNV gene
+            j = random.randint(0, len(ToSampleFrom[study]['CNV']) - 1)
+            k = random.randint(0, len(ToSampleFrom[study]['not_CNV']) - 1)
+            # get the corresponding genes
+            gene1 = ToSampleFrom[study]['CNV'][j]
+            gene2 = ToSampleFrom[study]['not_CNV'][k]            
+            # get the the number of targets for these 2 genes
+            assert CNVTargets[study][gene1][-1] == 'CNV', 'random gene should be CNV'
+            assert CNVTargets[study][gene2][-1] == 'not_CNV', 'random gene should be non-CNV'
+            repCNVtargets.append(CNVTargets[study][gene1][2])
+            repNonCNVtargets.append(CNVTargets[study][gene2][2])
+        # make sure that the correct numbers of genes is drawn
+        assert len(repCNVtargets) == 800, '800 CNV genes should be drawn'
+        assert len(repNonCNVtargets) == 800, '800 non-CNV genes should be drawn'
+        # compare CNV and non-CNV genes
+        Pval = stats.ranksums(repCNVtargets, repNonCNVtargets)[1]
+        # check significance
+        if Pval >= 0.05:
+            # difference is not significance
+            BootStrap[study][2] += 1
+        elif Pval < 0.05:
+            # difference is significance, check if CNV genes have a greater number of targets
+            if np.mean(repCNVtargets) > np.mean(repNonCNVtargets):
+                BootStrap[study][0] += 1
+            elif np.mean(repCNVtargets) < np.mean(repNonCNVtargets):
+                BootStrap[study][1] += 1
+        # update replicate number
+        replicates -= 1
+print('done with boostraping')        
+            
+
+# create parallel list of proportions 
+Greater, Lower, Nodiff = [], [] ,[]
+for study in StudyNames:
+    Greater.append(BootStrap[study][0] / sum(BootStrap[study]))
+    Lower.append(BootStrap[study][1] / sum(BootStrap[study]))
+    Nodiff.append(BootStrap[study][2] / sum(Bootstrap[study]))
 
 
+##### continue here        
 
 
 
@@ -202,7 +281,7 @@ fig = plt.figure(1, figsize = (8, 3))
 xtickpos = [0.2, 1.1, 2, 2.9]
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XScale):
+def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XScale, GraphType):
     '''
     (int, int, int, list, figure_object, str, int, list, list)
     Take the number of a column, and rows in the figure object and the position of
@@ -301,7 +380,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
 
 
 # plot data for targetscan
-ax1 = CreateAx(2, 1, 1, AllDataTargetscan, fig, 'TargetScan', 0.45, Populations, xtickpos)
+ax1 = CreateAx(2, 1, 1, AllData, fig, 'TargetScan', 0.45, Populations, xtickpos)
 #ax2 = CreateAx(2, 1, 2, AllDataMiranda, fig, 'miRanda', 0.45, Names, xtickpos)
 
 ## annotate Graph with significance level
