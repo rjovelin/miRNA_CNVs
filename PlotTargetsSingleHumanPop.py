@@ -264,7 +264,7 @@ Greater, Lower, Nodiff = [], [] ,[]
 for study in StudyNames:
     Greater.append(BootStrap[study][0] / sum(BootStrap[study]))
     Lower.append(BootStrap[study][1] / sum(BootStrap[study]))
-    Nodiff.append(BootStrap[study][2] / sum(Bootstrap[study]))
+    Nodiff.append(BootStrap[study][2] / sum(BootStrap[study]))
 
 # create a list with all the proportion lists
 Proportions = [Greater, Lower, Nodiff]
