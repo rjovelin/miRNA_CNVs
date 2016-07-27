@@ -272,7 +272,7 @@ Proportions = [Greater, Lower, Nodiff]
 # print results to screen
 for study in BootStrap:
     BootStrap[study]
-for i in proportions:
+for i in Proportions:
     print(i)
     assert sum(i) == 1
 
