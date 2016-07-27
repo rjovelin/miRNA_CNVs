@@ -332,17 +332,17 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
         for i in range(len(greater)):
             added.append(nodiff[i] + greater[i])
         # Create a bar plot for proportions of replicates with CNV no diff on top of CNV lower
-        ax.bar([0, 0.4, 0.9, 1.4], nodiff, width = 0.3, label = 'No difference', color= '#f7f7f7')
+        ax.bar([0, 0.4, 0.8, 1.2], nodiff, width = 0.3, label = 'No difference', color= '#f7f7f7')
         # Create a bar plot for proportions of replicates with CNV greater on top of no diff
-        ax.bar([0, 0.4, 0.9, 1.4], greater, width = 0.3, bottom = nodiff, label = 'CNV > non-CNV', color= '#ef8a62')
+        ax.bar([0, 0.4, 0.8, 1.2], greater, width = 0.3, bottom = nodiff, label = 'CNV > non-CNV', color= '#ef8a62')
         # Create a bar plot for proportions of replicates with CNV lower on top of CNV greater
-        ax.bar([0, 0.4, 0.9, 1.4], lower, width = 0.3, bottom= added, label = 'CNV < non-CNV', color = '#67a9cf')
+        ax.bar([0, 0.4, 0.8, 1.2], lower, width = 0.3, bottom= added, label = 'CNV < non-CNV', color = '#67a9cf')
  
         # add legend
         N = mpatches.Patch(facecolor = '#f7f7f7' , edgecolor = 'black', linewidth = 1, label= 'No difference')
         G = mpatches.Patch(facecolor = '#ef8a62' , edgecolor = 'black', linewidth = 1, label= 'CNV > non-CNV')
         L = mpatches.Patch(facecolor = '#67a9cf' , edgecolor = 'black', linewidth = 1, label= 'CNV < non-CNV')
-        plt.legend(handles = [N, G, L], loc = (0.15, 1.2), fontsize = 8, frameon = False, ncol = 3)
+        plt.legend(handles = [N, G, L], loc = (0, 1.05), fontsize = 8, frameon = False, ncol = 3)
 
     # write title   
     ax.set_title(Title + '\n\n', size = 8)
@@ -435,9 +435,9 @@ for i in range(len(Pvalues)):
 
 
 # add subplot label
-ax1.text(0.48, -0.1, 'A', horizontalalignment = 'center',
+ax1.text(-0.1, 0.48, 'A', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-ax1.text(0.48, 4, 'B', horizontalalignment = 'center',
+ax1.text(4, 0.48, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
 
 
