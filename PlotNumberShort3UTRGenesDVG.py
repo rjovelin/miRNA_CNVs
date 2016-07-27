@@ -36,9 +36,11 @@ chromos = 'valid_chromos'
 keep_valid_chromos = True
 # consider all CNVs
 cnv_length = 'CNV_all_length'
+CNV_size = 'all'
 # alternatives
 # chromos = 'all_chromos'
 # cnv_length = 'CNV_greater_1Kb'
+# CNV_size = 'long'
 
 # get the minimum 3'UTR length
 L = int(sys.argv[1])
@@ -101,7 +103,6 @@ labelnames = ['2013a', '2013b', '2014', '2015']
     
 # create list of counts for cnv genes and non-CNV genes parallel to labelnames list
 cnv_genes, non_cnv_genes = [], []
-
 for i in Releases:
     cnv_genes.append(ShortGenes[i][1])
     non_cnv_genes.append(ShortGenes[i][2])
@@ -112,62 +113,37 @@ for i in Releases:
 
 # count short 3'UTR genes for each study of each release of the DGV
 
+# create a dict {release: {study: [pubmedID, total, CNV, non-CNV]}}
+StudiesShortGenes = {}
 
 
-# usage make_table_human_short_3UTR_gene_counts_studies.py [True/False] [long_CNVs/all_CNVs] DGV_file
+# loop over CNV files
+for filename in CNV_files:
+    print(filename)
+    # sort genes based on CNV status
+    CNV_status = sort_genes_CNV_status(filename)
+    print(len(CNV_status))
+    # sort genes based on 3' UTR length
+    UTR_length = sort_genes_3UTR_length(UTR_file, L)
+    print(len(UTR_length))
+    # get release version
+    release_version = filename[filename.index('GRCh37'): filename.index('_CNV')]
+    print(release_version)
+    
+    
+####################### continue here
 
 
-# determine the number of human genes with short (< 7b) 3'UTR in each study for a given version of the DGV
 
-from CNV_miRNAs import *
-import sys
 
-# get the option to keep genes on all chromos (False) or only on assembled 
-# nuclear chromosomes only (True) from the command
-keep_valid_chromos = sys.argv[1]
-if keep_valid_chromos == 'True':
-    keep_valid_chromos = True
-    chromos = 'valid_chromos'
-elif keep_valid_chromos == 'False':
-    keep_valid_chromos = False
-    chromos = 'all_chromos'
-print(keep_valid_chromos, chromos)
 
-# get the option to call a CNV if CNV length > 1 Kb (long_CNVs)
-# or to include all CNVs regardless of length (all_CNVs)
-long_CNV = sys.argv[2]
-if long_CNV == 'all_CNVs':
-    cnv_length = 'CNV_all_length'
-    CNV_size = 'all'
-elif long_CNV == 'long_CNVs':
-    cnv_length = 'CNV_greater_1Kb'
-    CNV_size = 'long'
-print(long_CNV, cnv_length, CNV_size)
 
-# get DGV file from the command
-CNV_file = sys.argv[3]
-print(CNV_file)
 
-# note: only CNVs on valid chromos are reported in DGV, so if all chromos are
-# used it may introduce a bias by calling non CNV genes genes that cannot be detected
 
-# get UTR_file
-UTR_file = 'H_sapiens_3UTR_length_' + chromos + '.txt'
-print(UTR_file)
 
-# get release version
-if '2013' in CNV_file:
-    release_version = 'GRCh37_' + CNV_file[CNV_file.rindex('_') + 1: -7]
-else:
-    release_version = 'GRCh37_' + CNV_file[CNV_file.rindex('_') + 1: -10]
-print(release_version)    
+    
 
-# get outputfile
-outputfile = 'Human_Counts_Short3UTR_' + cnv_length + '_' + chromos + '_' + release_version + '.txt'
-print(outputfile)
 
-# open file for writing
-newfile = open(outputfile, 'w')
 
 # write headers to file
 newfile.write('# Number of Human genes with short (< 7 bp) 3\'UTR\n')
