@@ -322,7 +322,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
 
     elif GraphType == 'bar':
         # Create a bar plot for proportions of replicates with CNV no diff on top of CNV lower
-        ax.bar([0, 0.7, 1.4, 2.1], Data[3], width = 0.5, label = 'No difference', color= '#f7f7f7')
+        ax.bar([0, 0.7, 1.4, 2.1], Data[2], width = 0.5, label = 'No difference', color= '#f7f7f7')
         # Create a bar plot for proportions of replicates with CNV greater on top of no diff
         ax.bar([0, 0.7, 1.4, 2.1], Data[0], width = 0.5, bottom = Data[3], label = 'CNV > non-CNV', color= '#e9a3c9')
         # Create a bar plot for proportions of replicates with CNV lower on top of CNV greater
@@ -403,8 +403,13 @@ ax2 = CreateAx(2, 1, 2, Proportions, fig, figtitle, 0.45, Populations, [0.25, 0.
 
 
 ## annotate Graph with significance level
-#PvalTargetScan, PvalMiranda = [], []
-#for species in species_names:
+#Pvalues = []
+#for study in StudyNames:
+#    
+#    
+#    
+#    
+#    
 #    if CompTargetscan[species] >= 0.05:
 #        PvalTargetScan.append('')
 #    elif CompTargetscan[species] < 0.05 and CompTargetscan[species] >= 0.01:
@@ -422,8 +427,8 @@ ax2 = CreateAx(2, 1, 2, Proportions, fig, figtitle, 0.45, Populations, [0.25, 0.
 #        PvalMiranda.append('**')
 #    elif CompMiranda[species] < 0.001:
 #        PvalMiranda.append('***')
-
-
+#
+#
 ## create list of Y and X positions to annotate figure with significance level
 #if domain == 'CDS':
 #    # make a list of Y positions
@@ -442,6 +447,17 @@ ax2 = CreateAx(2, 1, 2, Proportions, fig, figtitle, 0.45, Populations, [0.25, 0.
 #for i in range(len(PvalMiranda)):
 #    ax2.text(Xpos[i], YposMiranda[i], PvalMiranda[i], horizontalalignment = 'center',
 #             verticalalignment = 'center', color = 'black', size = 8)
+
+
+
+
+
+
+
+
+
+
+
 
 # make sure subplots do not overlap
 plt.tight_layout()
