@@ -339,10 +339,10 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
         ax.bar([0, 0.4, 0.8, 1.2], lower, width = 0.3, bottom= added, label = 'CNV < non-CNV', color = '#67a9cf')
  
         # add legend
-        N = mpatches.Patch(facecolor = '#f7f7f7' , edgecolor = 'black', linewidth = 1, label= 'No difference')
-        G = mpatches.Patch(facecolor = '#ef8a62' , edgecolor = 'black', linewidth = 1, label= 'CNV > non-CNV')
-        L = mpatches.Patch(facecolor = '#67a9cf' , edgecolor = 'black', linewidth = 1, label= 'CNV < non-CNV')
-        plt.legend(handles = [N, G, L], loc = (0, 1.05), fontsize = 8, frameon = False, ncol = 3)
+        N = mpatches.Patch(facecolor = '#f7f7f7' , edgecolor = 'black', linewidth = 1, label= 'No diff.')
+        G = mpatches.Patch(facecolor = '#ef8a62' , edgecolor = 'black', linewidth = 1, label= 'CNV greater')
+        L = mpatches.Patch(facecolor = '#67a9cf' , edgecolor = 'black', linewidth = 1, label= 'CNV lower')
+        plt.legend(handles = [N, G, L], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
 
     # write title   
     ax.set_title(Title + '\n\n', size = 8)
@@ -435,40 +435,19 @@ for i in range(len(Pvalues)):
 
 
 # add subplot label
-ax1.text(-0.1, 0.48, 'A', horizontalalignment = 'center',
+ax1.text(-1, 0.48, 'A', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-ax1.text(4, 0.48, 'B', horizontalalignment = 'center',
+ax1.text(3.5, 0.48, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # make sure subplots do not overlap
 plt.tight_layout()
 
-## get outputfile
-#if L == 15:
-#    outputfile = 'PlotShort3UTR_15bp_' + domain + '_' + chromos + '_' + cnv_length + '_NormalizedSites' 
-#elif L == 7:
-#    outputfile = 'PlotShort3UTR_7bp_' + domain + '_' + chromos + '_' + cnv_length + '_NormalizedSites' 
-#print(outputfile)
+# get outputfile
+outputfile = 'PlotSinglePops_' + predictor + '_' + domain + '_' + chromos + '_' + cnv_length 
+print(outputfile)
 
 # save figure
-fig.savefig('truc' + '.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
        
