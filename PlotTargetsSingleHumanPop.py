@@ -324,7 +324,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
         # Create a bar plot for proportions of replicates with CNV no diff on top of CNV lower
         ax.bar([0, 0.7, 1.4, 2.1], Data[2], width = 0.5, label = 'No difference', color= '#f7f7f7')
         # Create a bar plot for proportions of replicates with CNV greater on top of no diff
-        ax.bar([0, 0.7, 1.4, 2.1], Data[0], width = 0.5, bottom = Data[3], label = 'CNV > non-CNV', color= '#e9a3c9')
+        ax.bar([0, 0.7, 1.4, 2.1], Data[0], width = 0.5, bottom = Data[2], label = 'CNV > non-CNV', color= '#e9a3c9')
         # Create a bar plot for proportions of replicates with CNV lower on top of CNV greater
         ax.bar([0, 0.7, 1.4, 2.1], Data[1], width = 0.5, bottom= Data[0], label = 'CNV < non-CNV', color = '#a1d76a')
     
@@ -399,54 +399,26 @@ ax1 = CreateAx(2, 1, 1, AllData, fig, figtitle, 0.45, Populations, [0.2, 1.1, 2,
 ax2 = CreateAx(2, 1, 2, Proportions, fig, figtitle, 0.45, Populations, [0.25, 0.95, 1.65, 2.35], 'bar')
 
 
+# annotate Graph with significance level
+Pvalues = []
+for study in StudyNames:
+    # compare mirna targets between CNV and non-CNV genes
+    P = stats.ranksums(CNVData[study][0], CNVData[study][1])[1]
+    if P >= 0.05:
+        Pvalues.append('')
+    elif P < 0.05 and P >= 0.01:
+        Pvalues.append('*')
+    elif P < 0.01 and P >= 0.001:
+        Pvalues.append('**')
+    elif P < 0.001:
+        Pvalues.append('***')
+# create list of Y and X positions to annotate figure with significance level
+Ypos = [0.42, 0.42, 0.42, 0.42]
+Xpos = [0.2, 1.1, 2, 2.9]
+for i in range(len(Pvalues)):
+    ax1.text(Xpos[i], Ypos[i], Pvalues[i], horizontalalignment = 'center',
+             verticalalignment = 'center', color = 'black', size = 8)
 
-
-
-## annotate Graph with significance level
-#Pvalues = []
-#for study in StudyNames:
-#    
-#    
-#    
-#    
-#    
-#    if CompTargetscan[species] >= 0.05:
-#        PvalTargetScan.append('')
-#    elif CompTargetscan[species] < 0.05 and CompTargetscan[species] >= 0.01:
-#        PvalTargetScan.append('*')
-#    elif CompTargetscan[species] < 0.01 and CompTargetscan[species] >= 0.001:
-#        PvalTargetScan.append('**')
-#    elif CompTargetscan[species] < 0.001:
-#        PvalTargetScan.append('***')
-#for species in species_names:
-#    if CompMiranda[species] >= 0.05:
-#        PvalMiranda.append('')
-#    elif CompMiranda[species] < 0.05 and CompMiranda[species] >= 0.01:
-#        PvalMiranda.append('*')
-#    elif CompMiranda[species] < 0.01 and CompMiranda[species] >= 0.001:
-#        PvalMiranda.append('**')
-#    elif CompMiranda[species] < 0.001:
-#        PvalMiranda.append('***')
-#
-#
-## create list of Y and X positions to annotate figure with significance level
-#if domain == 'CDS':
-#    # make a list of Y positions
-#    YposTargetscan = [0.41, 0.11, 0.16, 0.28, 0.14, 0.21]
-#    YposMiranda = [0.32, 0.08, 0.11, 0.19, 0.11, 0.16]
-#    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
-#elif domain == '5UTR':
-#    # make a list of Y positions
-#    YposTargetscan = [0.41, 0.12, 0.17, 0.30, 0.16, 0.24]
-#    YposMiranda = [0.32, 0.09, 0.12, 0.21, 0.12, 0.17]
-#    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
-#
-#for i in range(len(PvalTargetScan)):
-#    ax1.text(Xpos[i], YposTargetscan[i], PvalTargetScan[i], horizontalalignment = 'center',
-#             verticalalignment = 'center', color = 'black', size = 8)
-#for i in range(len(PvalMiranda)):
-#    ax2.text(Xpos[i], YposMiranda[i], PvalMiranda[i], horizontalalignment = 'center',
-#             verticalalignment = 'center', color = 'black', size = 8)
 
 
 
