@@ -323,7 +323,13 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
         # change the mean marker and marker
         for mean in bp['means']:
             mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 3)
-
+    
+        # add legend
+        C = mpatches.Patch(facecolor = '#a6cee3' , edgecolor = 'black', linewidth = 1, label= 'CNV')
+        N = mpatches.Patch(facecolor = '#b2df8a' , edgecolor = 'black', linewidth = 1, label= 'non-CNV')
+        plt.legend(handles = [C, N], loc = (0, 1), fontsize = 8, frameon = False, ncol = 2)
+    
+  
     elif GraphType == 'bar':
         # get the list of proportions 
         greater, lower, nodiff = Data[0], Data[1], Data[2]
