@@ -273,9 +273,10 @@ Proportions = [Greater, Lower, Nodiff]
 for study in BootStrap:
     print(BootStrap[study])
 
+
+
 # create figure
 fig = plt.figure(1, figsize = (8, 3))
-
 
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XScale, GraphType):
@@ -331,16 +332,20 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
         for i in range(len(greater)):
             added.append(nodiff[i] + greater[i])
         # Create a bar plot for proportions of replicates with CNV no diff on top of CNV lower
-        ax.bar([0, 0.5, 1, 1.5], nodiff, width = 0.4, label = 'No difference', color= '#f7f7f7')
+        ax.bar([0, 0.4, 0.9, 1.4], nodiff, width = 0.3, label = 'No difference', color= '#f7f7f7')
         # Create a bar plot for proportions of replicates with CNV greater on top of no diff
-        ax.bar([0, 0.5, 1, 1.5], greater, width = 0.4, bottom = nodiff, label = 'CNV > non-CNV', color= '#ef8a62')
+        ax.bar([0, 0.4, 0.9, 1.4], greater, width = 0.3, bottom = nodiff, label = 'CNV > non-CNV', color= '#ef8a62')
         # Create a bar plot for proportions of replicates with CNV lower on top of CNV greater
-        ax.bar([0, 0.5, 1, 1.5], lower, width = 0.4, bottom= added, label = 'CNV < non-CNV', color = '#67a9cf')
+        ax.bar([0, 0.4, 0.9, 1.4], lower, width = 0.3, bottom= added, label = 'CNV < non-CNV', color = '#67a9cf')
  
-
+        # add legend
+        N = mpatches.Patch(facecolor = '#f7f7f7' , edgecolor = 'black', linewidth = 1, label= 'No difference')
+        G = mpatches.Patch(facecolor = '#ef8a62' , edgecolor = 'black', linewidth = 1, label= 'CNV > non-CNV')
+        L = mpatches.Patch(facecolor = '#67a9cf' , edgecolor = 'black', linewidth = 1, label= 'CNV < non-CNV')
+        plt.legend(handles = [N, G, L], loc = (0.15, 1.2), fontsize = 8, frameon = False, ncol = 3)
 
     # write title   
-    ax.set_title(Title, size = 8)
+    ax.set_title(Title + '\n\n', size = 8)
     
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
@@ -405,7 +410,7 @@ elif predictor == 'miranda':
     figtitle = 'miRanda'
 ax1 = CreateAx(2, 1, 1, AllData, fig, figtitle, 0.45, Populations, [0.2, 1.1, 2, 2.9], 'box')
 # plot bars in 2nd subplot
-ax2 = CreateAx(2, 1, 2, Proportions, fig, figtitle, 0.45, Populations, [0.2, 0.7, 1.2, 1.7], 'bar')
+ax2 = CreateAx(2, 1, 2, Proportions, fig, figtitle, 0.45, Populations, [0.15, 0.55, 0.95, 1.35], 'bar')
 
 
 # annotate Graph with significance level
@@ -429,6 +434,31 @@ for i in range(len(Pvalues)):
              verticalalignment = 'center', color = 'black', size = 8)
 
 
+# add subplot label
+ax1.text(0.48, -0.1, 'A', horizontalalignment = 'center',
+         verticalalignment = 'center', color = 'black', size = 10)
+ax1.text(0.48, 4, 'B', horizontalalignment = 'center',
+         verticalalignment = 'center', color = 'black', size = 10)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # make sure subplots do not overlap
 plt.tight_layout()
 
@@ -442,13 +472,3 @@ plt.tight_layout()
 # save figure
 fig.savefig('truc' + '.pdf', bbox_inches = 'tight')
        
-
-
-
-
-
-
-
-
-
-
