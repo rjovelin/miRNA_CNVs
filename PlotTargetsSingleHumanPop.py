@@ -266,19 +266,13 @@ for study in StudyNames:
     Lower.append(BootStrap[study][1] / sum(BootStrap[study]))
     Nodiff.append(BootStrap[study][2] / sum(Bootstrap[study]))
 
-
-##### continue here        
-
-
-
-
+# create a list with all the proportion lists
+Proportions = [Greater, Lower, Nodiff]
 
 
 # create figure
 fig = plt.figure(1, figsize = (8, 3))
 
-# create list of labels and tick positions for the X axis
-xtickpos = [0.2, 1.1, 2, 2.9]
 
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XScale, GraphType):
@@ -293,38 +287,48 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
     # create subplot in figure
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
-    # create a list of positions for the box plot    
-    BoxPositions = [0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.7, 3.1]
-    # use a boxplot
-    bp = ax.boxplot(Data, showmeans = True, showfliers = False, widths = 0.3,
-                    positions = BoxPositions, patch_artist = True) 
     
-    # color CNV and non-CNV boxes differently
-    i = 0    
-    # change box, whisker color to black
-    for box in bp['boxes']:
-        # change line color
-        box.set(color = 'black')
-        if i % 2 == 0:
-            # CNV data, color box in grey
-            box.set(facecolor = '#a6cee3')
-        else:
-            box.set(facecolor = '#b2df8a')
-        i += 1
-    # change whisker color to black
-    for wk in bp['whiskers']:
-        wk.set(color = 'black', linestyle = '-')
-    # change color of the caps
-    for cap in bp['caps']:
-        cap.set(color = 'black')
-    # change the color and line width of the medians
-    for median in bp['medians']:
-        median.set(color = 'black')
-    # change the mean marker and marker
-    for mean in bp['means']:
-        mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 3)
+    if GraphType == 'box':
+        # create a list of positions for the box plot    
+        BoxPositions = [0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.7, 3.1]
+        # use a boxplot
+        bp = ax.boxplot(Data, showmeans = True, showfliers = False, widths = 0.3,
+                        positions = BoxPositions, patch_artist = True) 
     
+        # color CNV and non-CNV boxes differently
+        i = 0    
+        # change box, whisker color to black
+        for box in bp['boxes']:
+            # change line color
+            box.set(color = 'black')
+            if i % 2 == 0:
+                # CNV data, color box in grey
+                box.set(facecolor = '#a6cee3')
+            else:
+                box.set(facecolor = '#b2df8a')
+            i += 1
+        # change whisker color to black
+        for wk in bp['whiskers']:
+            wk.set(color = 'black', linestyle = '-')
+        # change color of the caps
+        for cap in bp['caps']:
+            cap.set(color = 'black')
+        # change the color and line width of the medians
+        for median in bp['medians']:
+            median.set(color = 'black')
+        # change the mean marker and marker
+        for mean in bp['means']:
+            mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 3)
+
+    elif GraphType == 'bar':
+        # Create a bar plot for proportions of replicates with CNV no diff on top of CNV lower
+        ax.bar([0, 0.7, 1.4, 2.1], Data[3], width = 0.5, label = 'No difference', color= '#f7f7f7')
+        # Create a bar plot for proportions of replicates with CNV greater on top of no diff
+        ax.bar([0, 0.7, 1.4, 2.1], Data[0], width = 0.5, bottom = Data[3], label = 'CNV > non-CNV', color= '#e9a3c9')
+        # Create a bar plot for proportions of replicates with CNV lower on top of CNV greater
+        ax.bar([0, 0.7, 1.4, 2.1], Data[1], width = 0.5, bottom= Data[0], label = 'CNV < non-CNV', color = '#a1d76a')
     
+      
     # write title   
     ax.set_title(Title, size = 8)
     
@@ -332,15 +336,18 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
     FigFont = {'fontname':'Arial'}   
     
     # write label for y axis
-    ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 8, ha = 'center', **FigFont)
+    if GraphType == 'box':
+        ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 8, ha = 'center', **FigFont)
+    elif GraphType == 'bar':
+        ax.set_ylabel('Proportion of replicates', color = 'black', size = 8, ha = 'center', **FigFont)
 
     # write label for x axis
     plt.xticks(XScale, LabelNames, ha = 'center', fontsize = 8, **FigFont)
 
-    # add a range for the Y axis
-    plt.ylim([0, YMax])
-    
-    plt.xlim([-0.25, 5.15])
+    # add a range for the Y amd X axes
+    if GraphType == 'box':
+        plt.ylim([0, YMax])
+        plt.xlim([-0.25, 3.35])
     
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
@@ -379,9 +386,21 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
     return ax      
 
 
-# plot data for targetscan
-ax1 = CreateAx(2, 1, 1, AllData, fig, 'TargetScan', 0.45, Populations, xtickpos)
-#ax2 = CreateAx(2, 1, 2, AllDataMiranda, fig, 'miRanda', 0.45, Names, xtickpos)
+
+# plot boxplots for predictor in 1st subplot
+# get title based on predictor algorithm
+if predictor == 'targetscan':
+    figtitle = 'TargetScan'
+elif predictor == 'miranda':
+    figtitle = 'miRanda'
+ax1 = CreateAx(2, 1, 1, AllData, fig, figtitle, 0.45, Populations, [0.2, 1.1, 2, 2.9], 'box')
+
+# plot bars in 2nd subplot
+ax2 = CreateAx(2, 1, 2, Proportions, fig, figtitle, 0.45, Populations, [0.25, 0.95, 1.65, 2.35], 'bar')
+
+
+
+
 
 ## annotate Graph with significance level
 #PvalTargetScan, PvalMiranda = [], []
