@@ -55,6 +55,10 @@ ShortGenes = {}
 UTR_file = 'H_sapiens_3UTR_length_' + chromos + '.txt'
 print(UTR_file)
 
+# sort genes based on 3' UTR length
+UTR_length = sort_genes_3UTR_length(UTR_file, L)
+print(len(UTR_length))
+
 # make a list of CNV files
 CNV_files = ['H_sapiens_GRCh37_2013-05_' + cnv_length + '_' + chromos + '.txt',
              'H_sapiens_GRCh37_2013-07_' + cnv_length + '_' + chromos + '.txt',
@@ -67,9 +71,6 @@ for filename in CNV_files:
     # sort genes based on CNV status
     CNV_status = sort_genes_CNV_status(filename)
     print(len(CNV_status))
-    # sort genes based on 3' UTR length
-    UTR_length = sort_genes_3UTR_length(UTR_file, L)
-    print(len(UTR_length))
     # get release version
     release_version = filename[filename.index('GRCh37'): filename.index('_CNV')]
     print(release_version)
@@ -139,7 +140,6 @@ CDS_seq = extract_CDS_sequences('H_sapiens.gff3', 'H_sapiens_genome.txt', 'H_sap
 print('extracted CDS sequences', len(CDS_seq))  
 
 
-
 # get the CNV genes for each study of each release of the DGV
 # loop over CNV files
 for filename in CNV_files:
@@ -147,9 +147,6 @@ for filename in CNV_files:
     # sort genes based on CNV status
     CNV_status = sort_genes_CNV_status(filename)
     print(len(CNV_status))
-    # sort genes based on 3' UTR length
-    UTR_length = sort_genes_3UTR_length(UTR_file, L)
-    print(len(UTR_length))
     # get release version
     release_version = filename[filename.index('GRCh37'): filename.index('_CNV')]
     print(release_version)
@@ -159,61 +156,47 @@ for filename in CNV_files:
     for study in References[release_version]:
         CNV_genes = get_human_CNV_genes_single_study(filename, study, 'all')
         StudiesCNVGenes[release_version][study] = set(CNV_genes)
+print('got CNV genes for each study')        
         
-        
     
-########## continue here    
-    
-    
-
-
-
-
-    
-    
-
-
-# create a dict {study: {gene: CNV status}}    
-CNV_status = {}
-for study in StudiesCNV:
-    # initialize dict
-    CNV_status[study] = {}
-    # loop over genes in CDS seq
-    for gene in CDS_seq:
-        # set boolean
-        is_cnv = False
-        # ask if gene in CNV genes
-        if gene in StudiesCNV[study] or gene.upper() in StudiesCNV[study]:
-            # gene is CNV, add gene and status to inner dict
-            CNV_status[study][gene] = 'CNV'
-        else:
-            # ask if any of the gene synonyms are in CNV genes
-            for name in synonyms[gene]:
+# create a dict {release: {study: {gene: CNV status}}}    
+CNV_status = {}    
+for release in StudiesCNVGenes:
+    # initialize outer dict
+    CNV_status[release] = {}
+    for study in StudiesCNVGenes[release]:
+        # initialize dict
+        StudiesCNVGenes[release][study] = {}
+        # loop over genes in CDS seq
+        for gene in CDS_seq:
+            # set boolean
+            is_cnv = False
+            # ask if gene in CNV gene
+            if gene in StudiesCNVGenes[release][study] or gene.upper() in StudiesCNVGenes[release][study]:
+                CNV_status[release][study][gene] = 'CNV'
+            else:
+                # ask if any of the gene synonyms are in CNVs
+                for name in synonyms[gene]:
+                    # check if name in CNV
+                    if name in StudiesCNVGenes[release][study] or name.upper() in StudiesCNVGenes[release][study]:
+                        # update boolean
+                        is_cnv = True
                 # check if gene in CNV
-                if name in StudiesCNV[study] or name.upper() in StudiesCNV[study]:
-                    # update boolean variable
-                    is_cnv = True
-            # check if gene in CNV
-            if is_cnv == True:
-                CNV_status[study][gene] = 'CNV'
-            elif is_cnv == False:
-                CNV_status[study][gene] = 'not_CNV'
-print('sorted genes according to CNV status')    
+                if is_cnv == True:
+                    CNV_status[release][study][gene] = 'CNV'
+                elif is_cnv == False:
+                    CNV_status[release][study][gene] = 'not_CNV'
+print('sorted genes according to CNV status')
     
-    
-# make a dictionary {study: {gene: [targets, seq_length, normalized_targets, CNV_status]}}
-CNVTargets = {}
-for study in CNV_status:
-    # initialize inner dict
-    CNVTargets[study] = {}
-    # loop over genes with CNV status for given study
-    for gene in CNV_status[study]:
-        # populate with list of targets
-        if gene in predicted_targets:
-            CNVTargets[study][gene] = list(predicted_targets[gene])
-            # add CNV status
-            CNVTargets[study][gene].append(CNV_status[study][gene])
-print('combined targets and CNV status')
+
+
+
+
+
+
+
+
+
 
 
 # make a dict with the number of CNV genes and non-CNV genes for each study
@@ -546,92 +529,6 @@ $$$$$$$$$$$$$$$
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-    
-# loop over study
-for study in references:
-    print(study)
-    # get the set of CNV genes corresponding to that study
-    CNV_genes = get_human_CNV_genes_single_study(CNV_file, study, CNV_size)
-    
-    print('# CNV genes', len(CNV_genes))    
-    
-    # sort genes based on 3' UTR length
-    UTR_length = sort_genes_3UTR_length(UTR_file)
-    print(len(UTR_length))
-
-    # get the CNV status of all short #' UTR genes
-    # create a dict {gene: CNV status}    
-    CNV_status = {}
-    
-    # loop over gene in UTR_length
-    for gene in UTR_length:
-        # set boolean
-        is_cnv = False
-        # check UTR length
-        if UTR_length[gene] == 'short':
-            # ask if gene in CNV genes
-            if gene in CNV_genes or gene.upper() in CNV_genes:
-                # gene is CNV, add gene and status to dict
-                CNV_status[gene] = 'CNV'
-            else:
-                # ask if any of the gene synonyms are in CNV genes
-                for name in synonyms[gene]:
-                    # check if in CNV genes
-                    if name in CNV_genes or name.upper() in CNV_genes:
-                        # update boolean variable
-                        is_cnv = True
-                # check if gene is CNV
-                if is_cnv == True:
-                    CNV_status[gene] = 'CNV'
-                elif is_cnv == False:
-                    CNV_status[gene] = 'not_CNV'
-    
-    print('# short genes with CNV status', len(CNV_status))
-    
-    # count total number of genes with short 3'UTR
-    total_short = 0
-    # count CNV genes with short UTR
-    cnv_short = 0
-    # count non-CNV genes with short UTR
-    non_cnv_short = 0    
-    
-    # loop over genes in UTR_length
-    for gene in UTR_length:
-        if UTR_length[gene] == 'short':
-            total_short += 1
-            # check CNV status
-            if CNV_status[gene] == 'CNV':
-                cnv_short += 1
-            elif CNV_status[gene] == 'not_CNV':
-                non_cnv_short += 1
-            
-    print('total short', total_short)
-    print('CNV short', cnv_short)
-    print('non_CNV', non_cnv_short)
-    
-    assert total_short == cnv_short + non_cnv_short, 'sum cnv and non-cnv short is not equal to total short'
-        
-    # write results to file
-    newfile.write('\t'.join([study, references[study], str(total_short), str(cnv_short), str(non_cnv_short)]) + '\n')
-    
-    
-# close file after writing
-newfile.close()
-
-Contact GitHub API Training Shop Blog About
-© 2016 GitHub, Inc. Terms Privacy Security Status Help
 
 
 #######################
