@@ -111,8 +111,11 @@ for i in Releases:
 
 ###########################
 
-
 # count short 3'UTR genes for each study of each release of the DGV
+
+# make a list of DGV files
+DGVFiles = ['GRCh37_hg19_variants_2013-05-31.txt', 'GRCh37_hg19_variants_2013-07-23.txt',
+            'GRCh37_hg19_variants_2014-10-16.txt', 'GRCh37_hg19_variants_2015-07-23.txt']
 
 # create a dict {release: {study: [pubmedID, total, CNV, non-CNV]}}
 StudiesShortGenes = {}
@@ -123,9 +126,10 @@ StudiesCNVGenes = {}
 # make a dictionary to match each study to a pubmed ID in each release
 # {release: {reference: pubmedid}}
 References = {}
-for filename in CNV_files:
+for filename in DGVFiles:
     # get release version
-    release_version = filename[filename.index('GRCh37'): filename.index('_CNV')]
+    release_version = filename[filename.index('variants_')+ len('variants_'): filename.index('.txt')]
+    print(release_version)
     References[release_version] = {}
     ref = get_DGV_references(filename)
     References[release_version] = dict(ref)
@@ -141,14 +145,11 @@ print('extracted CDS sequences', len(CDS_seq))
 
 
 # get the CNV genes for each study of each release of the DGV
-# loop over CNV files
-for filename in CNV_files:
+# loop over DGV files
+for filename in DGVFiles:
     print(filename)
-    # sort genes based on CNV status
-    CNV_status = sort_genes_CNV_status(filename)
-    print(len(CNV_status))
     # get release version
-    release_version = filename[filename.index('GRCh37'): filename.index('_CNV')]
+    release_version = filename[filename.index('variants_')+ len('variants_'): filename.index('.txt')]
     print(release_version)
     # initialize outer dict
     StudiesCNVGenes[release_version] = {}
@@ -166,7 +167,7 @@ for release in StudiesCNVGenes:
     CNV_status[release] = {}
     for study in StudiesCNVGenes[release]:
         # initialize dict
-        StudiesCNVGenes[release][study] = {}
+        CNV_status[release][study] = {}
         # loop over genes in CDS seq
         for gene in CDS_seq:
             # set boolean
@@ -188,69 +189,69 @@ for release in StudiesCNVGenes:
                     CNV_status[release][study][gene] = 'not_CNV'
 print('sorted genes according to CNV status')
     
-# create a dict with CNV counts for each study {release: {study: [CNV, non-CNV]}}
-StudiesCNVCounts = {}
+## create a dict with CNV counts for each study {release: {study: [CNV, non-CNV]}}
+#StudiesCNVCounts = {}
+#for release in CNV_status:
+#    StudiesCNVCounts[release] = {}
+#    for study in CNV_status[release]:
+#        cnvcount, noncnvcount = 0, 0
+#        for gene in CNV_status[release][study]:
+#            if CNV_status[release][study][gene] == 'CNV':
+#                cnvcount += 1
+#            elif CNV_status[release][study][gene] == 'not_CNV':
+#                noncnvcount += 1
+#        # populate dict
+#        StudiesCNVCounts[release][study] = [cnvcount, noncnvcount]
+#print('counted CNV and non CNV genes in each study')
+
+
+# create a dict with ratio CNV / non_CNV genes for each study and release
+# {release: [list of ratio CNV / non-CNV genes]}
+StudiesRatio = {}
 for release in CNV_status:
-    StudiesCNVCounts[release] = {}
+    StudiesRatio[release] = []
     for study in CNV_status[release]:
         cnvcount, noncnvcount = 0, 0
         for gene in CNV_status[release][study]:
             if CNV_status[release][study][gene] == 'CNV':
                 cnvcount += 1
-            elif CNV_status[release][study][gene] == 'non_CNV':
+            elif CNV_status[release][study][gene] == 'not_CNV':
                 noncnvcount += 1
         # populate dict
-        StudiesCNVCounts[release][study] = [cnvcount, noncnvcount]
-print('counted CNV and non CNV genes in each study')
+        StudiesRatio[release].append(cnvcount / noncnvcount)
+print('got the CNV / non-CNV gene ratio for each study of each release')
 
-
-
-
-
-
-
+# get the maximum ratio value
+ratio = []
+for i in StudiesRatio:
+    for j in StudiesRatio[i]:
+        ratio.append(j)
+MaxRatio = max(ratio)
 
 # plot the number of studies with ratio of CNV / non-CNV short 3'UTR genes
 # for each release of the DGV
 
 
-
-
-# make a list of files with number of genes with short 3' UTR
-# in CNV and non-CNV for each version of DGV
-
-files = [i for i in os.listdir() if ('Human_Counts_Short3UTR_' + cnv_length + '_' + chromos) in i]
-
-#create a dict with version and list of counts
-ratio = {}
-for filename in files:
-    # grab version
-    version = filename[filename.rindex('_')+1: filename.index('.txt')]
-    # open file for reading
-    infile = open(filename, 'r')
-    # skip 2 first lines
-    infile.readline()
-    infile.readline()
+#create a dict with version and list of counts {release: [n1, n2, etc]}
+Ratio = {}
+for release in StudiesRatio:
     # create a list of 0
-    counts = [0] * 10
-    # loop over file
-    for line in infile:
-        line = line.rstrip()
-        if line != '':
-            line = line.split('\t')
-            cnv = int(line[3])
-            noncnv = int(line[4])
-            freq = cnv / noncnv
-            # get the index in list where value should go
-            pos = int((freq * 100) // 10)
-            counts[pos] += 1
-    # close file
-    infile.close()
-    # populate dict with version : empty list pairs
-    ratio[version] = counts
+    counts = [0] * (((MaxRatio * 100) // 10) + 1)
+    # get the index in list where value should go
+    for freq in StudiesRatio[release]:
+        pos = int((freq * 100) // 10)
+        counts[pos] += 1
+    # populate dict
+    Ratio[release] = counts
     
-# ~1.33x wider than tall
-# Common sizes: (10, 7.5) and (12, 9)    
+    
+
+
+
+
+
+
+    
 plt.figure(figsize=(8, 5.5))    
   
 # Remove the plot frame lines.     
@@ -336,34 +337,15 @@ for year in ratio:
 plt.ylim([-1, round(ymax, -1)])
 
 
-# bbox_inches="tight" removes all the extra whitespace on the edges of the plot    
-plt.savefig("Fig_ratio_CNVnonCNV_DGV.eps", bbox_inches="tight")  
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 
 
 ######################################
+
+# plot real graph below
+
 
 
 # create figure
