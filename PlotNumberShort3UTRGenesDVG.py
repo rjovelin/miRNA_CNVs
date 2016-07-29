@@ -128,7 +128,10 @@ StudiesCNVGenes = {}
 References = {}
 for filename in DGVFiles:
     # get release version
-    release_version = filename[filename.index('variants_')+ len('variants_'): filename.index('.txt')]
+    if '2013' in filename:
+        release_version = filename[:filename.index('_hg19')] + '_' + filename[filename.index('variants_') + len('variants_'): -7]
+    else:
+        release_version = filename[:filename.index('_hg19')] + '_' + filename[filename.index('variants_') + len('variants_'): -10]
     print(release_version)
     References[release_version] = {}
     ref = get_DGV_references(filename)
@@ -149,7 +152,10 @@ print('extracted CDS sequences', len(CDS_seq))
 for filename in DGVFiles:
     print(filename)
     # get release version
-    release_version = filename[filename.index('variants_')+ len('variants_'): filename.index('.txt')]
+    if '2013' in filename:
+        release_version = filename[:filename.index('_hg19')] + '_' + filename[filename.index('variants_') + len('variants_'): -7]
+    else:
+        release_version = filename[:filename.index('_hg19')] + '_' + filename[filename.index('variants_') + len('variants_'): -10]
     print(release_version)
     # initialize outer dict
     StudiesCNVGenes[release_version] = {}
