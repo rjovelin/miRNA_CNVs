@@ -108,6 +108,9 @@ for i in Releases:
     cnv_genes.append(ShortGenes[i][1])
     non_cnv_genes.append(ShortGenes[i][2])
 
+# make a list of cnv data
+CNVData = [cnv_genes, non_cnv_genes]
+
 
 ###########################
 
@@ -251,21 +254,60 @@ for release in StudiesRatio:
     Ratio[release] = counts
     
     
+# make a list of frequency data
+RatioData = [Ratio, Releases]
+
+   
 
 
 
 
 
 
+###### NEED to edit the figure size
+
+# create figure
+fig = plt.figure(1, figsize = (4.3,2.56))
+
+
+
+
+
+
+
+
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XScale, GraphType):
+    '''
+    (int, int, int, list, figure_object, str, int, list, list)
+    Take the number of a column, and rows in the figure object and the position of
+    the ax in figure, a list of data, a title, a maximum value for the Y axis,
+    a list with species names and list of X axis tick positions and return an
+    ax instance in the figure
+    '''    
     
-plt.figure(figsize=(8, 5.5))    
-  
-# Remove the plot frame lines.     
-ax = plt.subplot(111)    
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(True)    
-ax.spines["right"].set_visible(False)    
-ax.spines["left"].set_visible(True)    
+    # create subplot in figure
+    # add a plot to figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    
+    if GraphType == 'bar':
+        # set positions of the x-axis ticks
+        xtickpos = [0, 0.7, 1.4, 2.1]
+        # parse list Data
+        cnv_genes, non_cnv_genes = Data[0], Data[1]
+        # Create a bar plot for cnv genes
+        ax.bar(xtickpos, cnv_genes, width= 0.5, label = 'CNV', color= '#ef8a62')
+        # Create a bar plot for non_cnv genes on top of cnv_genes
+        ax.bar(xtickpos, non_cnv_genes, width= 0.5, bottom= cnv_genes, label = 'non-CNV', color = '#67a9cf')
+
+
+
+
+    elif GraphType == 'line':
+        # parse list data
+        Ratio, Releases = Data[0], Data[1]
+        
+
 
 # find the maximum y value
 maximum = 0
@@ -314,24 +356,6 @@ plt.xlabel('Ratio of number of CNV genes / non-CNV genes', fontname = 'Arial', f
 plt.ylabel('Number of studies in DGV', fontname = 'Arial', fontsize = 16)
 
 
-# do not show ticks
-plt.tick_params(
-    axis='y',       # changes apply to the x-axis and y-axis (other option : x, y)
-    which='both',      # both major and minor ticks are affected
-    bottom='off',      # ticks along the bottom edge are off
-    top='off',         # ticks along the top edge are off
-    right = 'off',
-    left = 'off',          
-    labelbottom='off', # labels along the bottom edge are off 
-    colors = 'grey'
-    )  
-
-# do not show lines around figure  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(False)    
-ax.spines["right"].set_visible(False)    
-ax.spines["left"].set_visible(False) 
-
 # get maximum y value
 ymax = 0
 for year in ratio:
@@ -341,6 +365,210 @@ for year in ratio:
 
 # Set a buffer around the edge
 plt.ylim([-1, round(ymax, -1)])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+#####  INCORPORATE IN FUNCTION
+
+# plot real graph below
+
+
+# set font for all text in figure
+FigFont = {'fontname':'Arial'} 
+
+# add labels to x axis ticks
+plt.xticks(xtickpos, labelnames, **FigFont)
+
+# set axis labels
+ax.set_ylabel('Number of genes\nwith short 3\'UTR', size = 10, ha = 'center', color = 'black', **FigFont)
+
+# do not show lines around figure  
+ax.spines["top"].set_visible(False)    
+ax.spines["bottom"].set_visible(True)    
+ax.spines["right"].set_visible(False)    
+ax.spines["left"].set_visible(False)  
+# offset the spines
+for spine in ax.spines.values():
+    spine.set_position(('outward', 5))
+
+# add a light grey horizontal grid to the plot, semi-transparent, 
+ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)  
+# hide these grids behind plot objects
+ax.set_axisbelow(True)
+
+# do not show ticks
+plt.tick_params(
+    axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+    which='both',      # both major and minor ticks are affected
+    bottom='on',      # ticks along the bottom edge are off
+    top='off',         # ticks along the top edge are off
+    right = 'off',
+    left = 'off',          
+    labelbottom='on', # labels along the bottom edge are on
+    colors = 'black',
+    labelsize = 10,
+    direction = 'out') # ticks are outside the frame when bottom = 'on'  
+      
+# Set the tick labels font name
+for label in ax.get_yticklabels():
+    label.set_fontname('Arial')
+    
+# create a margin around the x axis
+plt.margins(0.05)
+
+# get outputfile
+if L == 7:
+    outputfile = 'PlotShort3UTRCountsDGV_7bp_' + cnv_length + '_' + chromos
+elif L == 15:
+    outputfile = 'PlotShort3UTRCountsDGV_15bp_' + cnv_length + '_' + chromos
+print(outputfile)
+  
+# save figure
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+
+
+
+
+#####    
+    
+    
+    
+    
+
+
+
+
+
+
+
+
+
+########## $$$$$$$$$$$$$$$$$ ###############    
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    elif GraphType == 'bar':
+        # get the list of proportions 
+        greater, lower, nodiff = Data[0], Data[1], Data[2]
+        # make a list with added values for nodiff and greater
+        added = []
+        for i in range(len(greater)):
+            added.append(nodiff[i] + greater[i])
+        # Create a bar plot for proportions of replicates with CNV no diff on top of CNV lower
+        ax.bar([0, 0.4, 0.8, 1.2], nodiff, width = 0.3, label = 'No difference', color= '#f7f7f7')
+        # Create a bar plot for proportions of replicates with CNV greater on top of no diff
+        ax.bar([0, 0.4, 0.8, 1.2], greater, width = 0.3, bottom = nodiff, label = 'CNV > non-CNV', color= '#ef8a62')
+        # Create a bar plot for proportions of replicates with CNV lower on top of CNV greater
+        ax.bar([0, 0.4, 0.8, 1.2], lower, width = 0.3, bottom= added, label = 'CNV < non-CNV', color = '#67a9cf')
+ 
+        # add legend
+        N = mpatches.Patch(facecolor = '#f7f7f7' , edgecolor = 'black', linewidth = 1, label= 'No diff.')
+        G = mpatches.Patch(facecolor = '#ef8a62' , edgecolor = 'black', linewidth = 1, label= 'CNV greater')
+        L = mpatches.Patch(facecolor = '#67a9cf' , edgecolor = 'black', linewidth = 1, label= 'CNV lower')
+        plt.legend(handles = [N, G, L], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # write title   
+    ax.set_title(Title + '\n\n', size = 8)
+    
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
+    
+    # write label for y axis
+    if GraphType == 'box':
+        ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 8, ha = 'center', **FigFont)
+    elif GraphType == 'bar':
+        ax.set_ylabel('Proportion of replicates', color = 'black', size = 8, ha = 'center', **FigFont)
+
+    # write label for x axis
+    plt.xticks(XScale, LabelNames, ha = 'center', fontsize = 8, **FigFont)
+
+    # add a range for the Y amd X axes
+    if GraphType == 'box':
+        plt.ylim([0, YMax])
+        plt.xlim([-0.25, 3.35])
+    
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(True)    
+    ax.spines["right"].set_visible(False)    
+    ax.spines["left"].set_visible(False)  
+    # offset the spines
+    for spine in ax.spines.values():
+        spine.set_position(('outward', 5))
+    
+    # add a light grey horizontal grid to the plot, semi-transparent, 
+    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
+    # hide these grids behind plot objects
+    ax.set_axisbelow(True)
+
+    # do not show ticks
+    plt.tick_params(
+        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+        which='both',      # both major and minor ticks are affected
+        bottom='on',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        right = 'off',
+        left = 'off',          
+        labelbottom='on', # labels along the bottom edge are on
+        colors = 'black',
+        labelsize = 8,
+        direction = 'out') # ticks are outside the frame when bottom = 'on'  
+      
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')
+    
+    # create a margin around the x axis
+    plt.margins(0.05)
+    
+    return ax      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -431,132 +659,4 @@ fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
 ##############
 
 
-
-# create a function to format the subplots
-def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XScale, GraphType):
-    '''
-    (int, int, int, list, figure_object, str, int, list, list)
-    Take the number of a column, and rows in the figure object and the position of
-    the ax in figure, a list of data, a title, a maximum value for the Y axis,
-    a list with species names and list of X axis tick positions and return an
-    ax instance in the figure
-    '''    
-    
-    # create subplot in figure
-    # add a plot to figure (N row, N column, plot N)
-    ax = figure.add_subplot(Rows, Columns, Position)
-    
-    if GraphType == 'box':
-        # create a list of positions for the box plot    
-        BoxPositions = [0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.7, 3.1]
-        # use a boxplot
-        bp = ax.boxplot(Data, showmeans = True, showfliers = False, widths = 0.3,
-                        positions = BoxPositions, patch_artist = True) 
-    
-        # color CNV and non-CNV boxes differently
-        i = 0    
-        # change box, whisker color to black
-        for box in bp['boxes']:
-            # change line color
-            box.set(color = 'black')
-            if i % 2 == 0:
-                # CNV data, color box in grey
-                box.set(facecolor = '#a6cee3')
-            else:
-                box.set(facecolor = '#b2df8a')
-            i += 1
-        # change whisker color to black
-        for wk in bp['whiskers']:
-            wk.set(color = 'black', linestyle = '-')
-        # change color of the caps
-        for cap in bp['caps']:
-            cap.set(color = 'black')
-        # change the color and line width of the medians
-        for median in bp['medians']:
-            median.set(color = 'black')
-        # change the mean marker and marker
-        for mean in bp['means']:
-            mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 3)
-    
-        # add legend
-        C = mpatches.Patch(facecolor = '#a6cee3' , edgecolor = 'black', linewidth = 1, label= 'CNV')
-        N = mpatches.Patch(facecolor = '#b2df8a' , edgecolor = 'black', linewidth = 1, label= 'non-CNV')
-        plt.legend(handles = [C, N], loc = (0, 1), fontsize = 8, frameon = False, ncol = 2)
-    
-  
-    elif GraphType == 'bar':
-        # get the list of proportions 
-        greater, lower, nodiff = Data[0], Data[1], Data[2]
-        # make a list with added values for nodiff and greater
-        added = []
-        for i in range(len(greater)):
-            added.append(nodiff[i] + greater[i])
-        # Create a bar plot for proportions of replicates with CNV no diff on top of CNV lower
-        ax.bar([0, 0.4, 0.8, 1.2], nodiff, width = 0.3, label = 'No difference', color= '#f7f7f7')
-        # Create a bar plot for proportions of replicates with CNV greater on top of no diff
-        ax.bar([0, 0.4, 0.8, 1.2], greater, width = 0.3, bottom = nodiff, label = 'CNV > non-CNV', color= '#ef8a62')
-        # Create a bar plot for proportions of replicates with CNV lower on top of CNV greater
-        ax.bar([0, 0.4, 0.8, 1.2], lower, width = 0.3, bottom= added, label = 'CNV < non-CNV', color = '#67a9cf')
- 
-        # add legend
-        N = mpatches.Patch(facecolor = '#f7f7f7' , edgecolor = 'black', linewidth = 1, label= 'No diff.')
-        G = mpatches.Patch(facecolor = '#ef8a62' , edgecolor = 'black', linewidth = 1, label= 'CNV greater')
-        L = mpatches.Patch(facecolor = '#67a9cf' , edgecolor = 'black', linewidth = 1, label= 'CNV lower')
-        plt.legend(handles = [N, G, L], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
-
-    # write title   
-    ax.set_title(Title + '\n\n', size = 8)
-    
-    # set font for all text in figure
-    FigFont = {'fontname':'Arial'}   
-    
-    # write label for y axis
-    if GraphType == 'box':
-        ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 8, ha = 'center', **FigFont)
-    elif GraphType == 'bar':
-        ax.set_ylabel('Proportion of replicates', color = 'black', size = 8, ha = 'center', **FigFont)
-
-    # write label for x axis
-    plt.xticks(XScale, LabelNames, ha = 'center', fontsize = 8, **FigFont)
-
-    # add a range for the Y amd X axes
-    if GraphType == 'box':
-        plt.ylim([0, YMax])
-        plt.xlim([-0.25, 3.35])
-    
-    # do not show lines around figure  
-    ax.spines["top"].set_visible(False)    
-    ax.spines["bottom"].set_visible(True)    
-    ax.spines["right"].set_visible(False)    
-    ax.spines["left"].set_visible(False)  
-    # offset the spines
-    for spine in ax.spines.values():
-        spine.set_position(('outward', 5))
-    
-    # add a light grey horizontal grid to the plot, semi-transparent, 
-    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
-    # hide these grids behind plot objects
-    ax.set_axisbelow(True)
-
-    # do not show ticks
-    plt.tick_params(
-        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-        which='both',      # both major and minor ticks are affected
-        bottom='on',      # ticks along the bottom edge are off
-        top='off',         # ticks along the top edge are off
-        right = 'off',
-        left = 'off',          
-        labelbottom='on', # labels along the bottom edge are on
-        colors = 'black',
-        labelsize = 8,
-        direction = 'out') # ticks are outside the frame when bottom = 'on'  
-      
-    # Set the tick labels font name
-    for label in ax.get_yticklabels():
-        label.set_fontname('Arial')
-    
-    # create a margin around the x axis
-    plt.margins(0.05)
-    
-    return ax      
 
