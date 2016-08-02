@@ -271,7 +271,7 @@ fig = plt.figure(1, figsize = (8, 2.5))
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, Data, figure, LabelNames, XScale, GraphType):
+def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, GraphType):
     '''
     (int, int, int, list, figure_object, str, int, list, list)
     Take the number of a column, and rows in the figure object and the position of
@@ -309,14 +309,106 @@ def CreateAx(Columns, Rows, Position, Data, figure, LabelNames, XScale, GraphTyp
         Ratio, Releases = Data[0], Data[1]
         for i in range(len(Releases)):
             if '2013-05' in Releases[i]:
-                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.80', marker = 'o', markersize = 10, markeredgewidth = 2, markerfacecolor = '0.80', markeredgecolor = '0.80', lw = 3, label = LabelNames[i]) 
+                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.80', marker = 'o', markersize = 10, markeredgewidth = 1, markerfacecolor = '0.80', markeredgecolor = '0.80', lw = 1.5, label = LabelNames[i]) 
             elif '2013-07' in Releases[i]:
-                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.60', marker = 'o', markersize = 10, markeredgewidth = 2, markerfacecolor = '0.60', markeredgecolor = '0.60', lw = 3, label = LabelNames[i]) 
+                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.60', marker = 'o', markersize = 10, markeredgewidth = 1, markerfacecolor = '0.60', markeredgecolor = '0.60', lw = 1.5, label = LabelNames[i]) 
             elif '2014' in Releases[i]:
-                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.40', marker = 'o', markersize = 10, markeredgewidth = 2, markerfacecolor = '0.40', markeredgecolor = '0.40', lw = 3, label = LabelNames[i]) 
+                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.40', marker = 'o', markersize = 10, markeredgewidth = 1, markerfacecolor = '0.40', markeredgecolor = '0.40', lw = 1.5, label = LabelNames[i]) 
             elif '2015' in Releases[i]:
-                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.20', marker = 'o', markersize = 10, markeredgewidth = 2, markerfacecolor = '0.20', markeredgecolor = '0.20', lw = 3, label = LabelNames[i]) 
+                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.20', marker = 'o', markersize = 10, markeredgewidth = 1, markerfacecolor = '0.20', markeredgecolor = '0.20', lw = 1.5, label = LabelNames[i]) 
             
+
+#######################
+
+
+#Graph = {}
+## loop over chromo, from chromo with lowest to highest count
+#for i in range(len(LG)):
+#    print(LG[i])
+#    # plot the repeat of gene density per window
+#    graph = ax.plot(Positions[LG[i]], WindowCount[LG[i]], linewidth = 1.2, color = colorscheme[i], alpha = 0.7)
+#    Graph[LG[i]] = graph
+#    
+#ax.set_ylabel('GPCRs /100 Kb', size = 10, ha = 'center', fontname = 'Arial')
+# 
+## set x axis label
+#ax.set_xlabel('Position along linkage group (Mb)', size = 10, ha = 'center', fontname = 'Arial')
+#
+## do not show lines around figure, keep bottow line  
+#ax.spines["top"].set_visible(False)    
+#ax.spines["bottom"].set_visible(True)    
+#ax.spines["right"].set_visible(False)    
+#ax.spines["left"].set_visible(False)      
+## offset the spines
+#for spine in ax.spines.values():
+#  spine.set_position(('outward', 5))
+#  
+## add a light grey horizontal grid to the plot, semi-transparent, 
+#ax.yaxis.grid(True, linestyle='--', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
+## hide these grids behind plot objects
+#ax.set_axisbelow(True)
+#
+## do not show ticks on 1st graph
+#ax.tick_params(
+#    axis='x',       # changes apply to the x-axis and y-axis (other option : x, y)
+#    which='both',      # both major and minor ticks are affected
+#    bottom='on',      # ticks along the bottom edge are off
+#    top='off',         # ticks along the top edge are off
+#    right = 'off',
+#    left = 'off',          
+#    labelbottom='on', # labels along the bottom edge are off 
+#    colors = 'black',
+#    labelsize = 10,
+#    direction = 'out') # ticks are outside the frame when bottom = 'on
+#
+## do not show ticks
+#ax.tick_params(
+#    axis='y',       # changes apply to the x-axis and y-axis (other option : x, y)
+#    which='both',      # both major and minor ticks are affected
+#    bottom='off',      # ticks along the bottom edge are off
+#    top='off',         # ticks along the top edge are off
+#    right = 'off',
+#    left = 'off',          
+#    labelbottom='off', # labels along the bottom edge are off 
+#    colors = 'black',
+#    labelsize = 10,
+#    direction = 'out') # ticks are outside the frame when bottom = 'on
+#
+#print('longest chromo', longest, maxlength)
+#
+## determine tick position on x axis
+#xpos =  [j for j in range(0, len(Positions[longest]), 10)]
+## convert interval windows numbers to genomic positions
+#xtext = list(map(lambda x : (x * Interval) / 1000000, xpos))
+#Xtext = []
+#for i in xtext:
+#    if i % 2 == 0:
+#        Xtext.append(str(int(i)))
+#    else:
+#        Xtext.append('')
+#
+## set up tick positions and labels
+#plt.xticks(xpos, Xtext, rotation = 0, fontsize = 10, fontname = 'Arial')
+#
+## add lines
+#lns = Graph[LG[0]]
+#for chromo in LG[1:]:
+#    lns += Graph[chromo]
+## get labels
+#labs = []
+#for chromo in LG:
+#    assert chromo.count('_') == 2
+#    lg = chromo[chromo.index('_', chromo.index('_')+1, -1)+1:]
+#    labs.append('LG' + lg)
+## plot legend
+#ax.legend(lns, labs, loc=1, fontsize = 8, frameon = False)
+
+
+
+#####################
+
+
+
 
 
 ## adjust size of ticks    
@@ -338,6 +430,9 @@ def CreateAx(Columns, Rows, Position, Data, figure, LabelNames, XScale, GraphTyp
 
     # write label for x axis
     plt.xticks(XScale, LabelNames, ha = 'center', fontsize = 8, **FigFont)
+    
+    # limit y axis range
+    plt.ylim([0, YMax])
         
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
@@ -377,9 +472,9 @@ def CreateAx(Columns, Rows, Position, Data, figure, LabelNames, XScale, GraphTyp
 
 
 # plot the number of short 3' UTR genes
-ax1 = CreateAx(2, 1, 1, CNVData, fig, labelnames, [0, 0.7, 1.4, 2.1], 'bar')
+ax1 = CreateAx(2, 1, 1, CNVData, fig, 700, labelnames, [0.25, 0.95, 1.65, 2.35], 'bar')
 # plot the ratio of CNV / non-CNV genes
-ax2 = CreateAx(2, 1, 2, RatioData, fig, labelnames, [i for i in range(len(Ratio['GRCh37_2013-05']))], 'line')
+ax2 = CreateAx(2, 1, 2, RatioData, fig, 50, list(map(lambda x: str(x), [i for i in range(len(Ratio['GRCh37_2013-05']))])), [i for i in range(len(Ratio['GRCh37_2013-05']))], 'line')
 
 # make sure subplots do not overlap
 plt.tight_layout()  
