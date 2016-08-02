@@ -294,14 +294,12 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
         # Create a bar plot for non_cnv genes on top of cnv_genes
         ax.bar(xtickpos, non_cnv_genes, width= 0.5, bottom= cnv_genes, label = 'non-CNV', color = '#67a9cf')
     
+        # add legend
+        C = mpatches.Patch(facecolor = '#ef8a62', edgecolor = 'black', linewidth = 1, label= 'CNV')
+        N = mpatches.Patch(facecolor = '#67a9cf', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
+        plt.legend(handles = [C, N], loc = (0, 1), fontsize = 8, frameon = False, ncol = 2)
     
-#            # add legend
-#        N = mpatches.Patch(facecolor = '#f7f7f7' , edgecolor = 'black', linewidth = 1, label= 'No diff.')
-#        G = mpatches.Patch(facecolor = '#ef8a62' , edgecolor = 'black', linewidth = 1, label= 'CNV greater')
-#        L = mpatches.Patch(facecolor = '#67a9cf' , edgecolor = 'black', linewidth = 1, label= 'CNV lower')
-#        plt.legend(handles = [N, G, L], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
-#    
-#    
+    
     
 
     elif GraphType == 'line':
