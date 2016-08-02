@@ -236,6 +236,8 @@ for i in StudiesRatio:
     for j in StudiesRatio[i]:
         ratio.append(j)
 MaxRatio = max(ratio)
+print(MaxRatio)
+print((((MaxRatio * 100) // 10) + 1))
 
 # plot the number of studies with ratio of CNV / non-CNV short 3'UTR genes
 # for each release of the DGV
@@ -245,14 +247,16 @@ MaxRatio = max(ratio)
 Ratio = {}
 for release in StudiesRatio:
     # create a list of 0
-    counts = [0] * (((MaxRatio * 100) // 10) + 1)
+    counts = [0] * int(((MaxRatio * 100) // 10) + 1)
     # get the index in list where value should go
     for freq in StudiesRatio[release]:
         pos = int((freq * 100) // 10)
         counts[pos] += 1
     # populate dict
     Ratio[release] = counts
-    
+
+for i in Ratio:
+    print(i, Ratio[i])
     
 # make a list of frequency data
 RatioData = [Ratio, Releases]
@@ -260,24 +264,14 @@ RatioData = [Ratio, Releases]
    
 
 
-
-
-
-
 ###### NEED to edit the figure size
 
 # create figure
-fig = plt.figure(1, figsize = (4.3,2.56))
-
-
-
-
-
-
+fig = plt.figure(1, figsize = (8, 2.5))
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XScale, GraphType):
+def CreateAx(Columns, Rows, Position, Data, figure, LabelNames, XScale, GraphType):
     '''
     (int, int, int, list, figure_object, str, int, list, list)
     Take the number of a column, and rows in the figure object and the position of
@@ -299,226 +293,52 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
         ax.bar(xtickpos, cnv_genes, width= 0.5, label = 'CNV', color= '#ef8a62')
         # Create a bar plot for non_cnv genes on top of cnv_genes
         ax.bar(xtickpos, non_cnv_genes, width= 0.5, bottom= cnv_genes, label = 'non-CNV', color = '#67a9cf')
-
-
-
+    
+    
+#            # add legend
+#        N = mpatches.Patch(facecolor = '#f7f7f7' , edgecolor = 'black', linewidth = 1, label= 'No diff.')
+#        G = mpatches.Patch(facecolor = '#ef8a62' , edgecolor = 'black', linewidth = 1, label= 'CNV greater')
+#        L = mpatches.Patch(facecolor = '#67a9cf' , edgecolor = 'black', linewidth = 1, label= 'CNV lower')
+#        plt.legend(handles = [N, G, L], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
+#    
+#    
+    
 
     elif GraphType == 'line':
         # parse list data
         Ratio, Releases = Data[0], Data[1]
-        
+        for i in range(len(Releases)):
+            if '2013-05' in Releases[i]:
+                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.80', marker = 'o', markersize = 10, markeredgewidth = 2, markerfacecolor = '0.80', markeredgecolor = '0.80', lw = 3, label = LabelNames[i]) 
+            elif '2013-07' in Releases[i]:
+                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.60', marker = 'o', markersize = 10, markeredgewidth = 2, markerfacecolor = '0.60', markeredgecolor = '0.60', lw = 3, label = LabelNames[i]) 
+            elif '2014' in Releases[i]:
+                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.40', marker = 'o', markersize = 10, markeredgewidth = 2, markerfacecolor = '0.40', markeredgecolor = '0.40', lw = 3, label = LabelNames[i]) 
+            elif '2015' in Releases[i]:
+                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.20', marker = 'o', markersize = 10, markeredgewidth = 2, markerfacecolor = '0.20', markeredgecolor = '0.20', lw = 3, label = LabelNames[i]) 
+            
 
 
-# find the maximum y value
-maximum = 0
-for year in ratio:
-    for val in ratio[year]:
-        if val > maximum:
-            maximum = val
-
-# Limit the range of the plot to data
-plt.ylim(0, maximum)    
-plt.xlim(0, 10)    
+## adjust size of ticks    
+#  # set major ticks on the y axis
+#plt.yticks(range(0, maximum + 10, 10), fontname = 'Arial', fontsize=16)    
+#plt.xticks([i for i in range(0, 11)], fontname = 'Arial', fontsize=16)    
   
-# adjust size of ticks    
-  # set major ticks on the y axis
-plt.yticks(range(0, maximum + 10, 10), fontname = 'Arial', fontsize=16)    
-plt.xticks([i for i in range(0, 11)], fontname = 'Arial', fontsize=16)    
-  
-# add a light grey horizontal grid to the plot, semi-transparent, 
-ax.yaxis.grid(True, linestyle='-', which='major', color='0.80', alpha=0.6)  
-# hide these grids behind plot objects
-ax.set_axisbelow(True)
 
-# Remove the tick marks; they are unnecessary with the tick lines we just plotted.    
-plt.tick_params(axis="both", which="both", bottom="on", top="off",    
-                labelbottom="on", left="on", right="off", labelleft="on")    
-
-# plot the data
-
-releases = ['2013a', '2013b', '2014', '2015']
-
-# make a list of years
-years = ['2013-05', '2013-07', '2014', '2015']
-
-for year in years:
-    if year == '2013-05':
-        plt.plot([i + 0.5 for i in range(0, 10)], ratio[year], linestyle = '-', color = '0.80', marker = 'o', markersize = 10, markeredgewidth = 2, markerfacecolor = '0.80', markeredgecolor = '0.80', lw = 3, label = '2013a')
-    elif year == '2013-07':
-        plt.plot([i + 0.5 for i in range(0, 10)], ratio[year], linestyle = '-', color = '0.60', marker = 'o', markersize = 10, markeredgewidth = 2, markerfacecolor = '0.60', markeredgecolor = '0.60',   lw = 3, label = '2013b')
-    elif year == '2014':
-        plt.plot([i + 0.5 for i in range(0, 10)], ratio[year], linestyle = '-', color = '0.40', marker = 'o', markersize = 10, markeredgewidth = 2, markerfacecolor = '0.40', markeredgecolor = '0.40', lw = 3, label = '2014')
-    elif year == '2015':
-        plt.plot([i + 0.5 for i in range(0, 10)], ratio[year], linestyle = '-', color = '0.20', marker = 'o', markersize = 10, markeredgewidth = 2, markerfacecolor = '0.20', markeredgecolor = '0.20', lw = 3, label = '2015')
-
-# add x and y labels
-plt.xlabel('Ratio of number of CNV genes / non-CNV genes', fontname = 'Arial', fontsize = 16)
-plt.ylabel('Number of studies in DGV', fontname = 'Arial', fontsize = 16)
-
-
-# get maximum y value
-ymax = 0
-for year in ratio:
-    if max(ratio[year]) > ymax:
-        ymax = max(ratio[year])
-        print(ymax)
-
-# Set a buffer around the edge
-plt.ylim([-1, round(ymax, -1)])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
-#####  INCORPORATE IN FUNCTION
-
-# plot real graph below
-
-
-# set font for all text in figure
-FigFont = {'fontname':'Arial'} 
-
-# add labels to x axis ticks
-plt.xticks(xtickpos, labelnames, **FigFont)
-
-# set axis labels
-ax.set_ylabel('Number of genes\nwith short 3\'UTR', size = 10, ha = 'center', color = 'black', **FigFont)
-
-# do not show lines around figure  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(True)    
-ax.spines["right"].set_visible(False)    
-ax.spines["left"].set_visible(False)  
-# offset the spines
-for spine in ax.spines.values():
-    spine.set_position(('outward', 5))
-
-# add a light grey horizontal grid to the plot, semi-transparent, 
-ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)  
-# hide these grids behind plot objects
-ax.set_axisbelow(True)
-
-# do not show ticks
-plt.tick_params(
-    axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-    which='both',      # both major and minor ticks are affected
-    bottom='on',      # ticks along the bottom edge are off
-    top='off',         # ticks along the top edge are off
-    right = 'off',
-    left = 'off',          
-    labelbottom='on', # labels along the bottom edge are on
-    colors = 'black',
-    labelsize = 10,
-    direction = 'out') # ticks are outside the frame when bottom = 'on'  
-      
-# Set the tick labels font name
-for label in ax.get_yticklabels():
-    label.set_fontname('Arial')
-    
-# create a margin around the x axis
-plt.margins(0.05)
-
-# get outputfile
-if L == 7:
-    outputfile = 'PlotShort3UTRCountsDGV_7bp_' + cnv_length + '_' + chromos
-elif L == 15:
-    outputfile = 'PlotShort3UTRCountsDGV_15bp_' + cnv_length + '_' + chromos
-print(outputfile)
-  
-# save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
-
-
-
-
-#####    
-    
-    
-    
-    
-
-
-
-
-
-
-
-
-
-########## $$$$$$$$$$$$$$$$$ ###############    
-    
-    
-    
-    
-    
-    
-    
-    
-  
-    elif GraphType == 'bar':
-        # get the list of proportions 
-        greater, lower, nodiff = Data[0], Data[1], Data[2]
-        # make a list with added values for nodiff and greater
-        added = []
-        for i in range(len(greater)):
-            added.append(nodiff[i] + greater[i])
-        # Create a bar plot for proportions of replicates with CNV no diff on top of CNV lower
-        ax.bar([0, 0.4, 0.8, 1.2], nodiff, width = 0.3, label = 'No difference', color= '#f7f7f7')
-        # Create a bar plot for proportions of replicates with CNV greater on top of no diff
-        ax.bar([0, 0.4, 0.8, 1.2], greater, width = 0.3, bottom = nodiff, label = 'CNV > non-CNV', color= '#ef8a62')
-        # Create a bar plot for proportions of replicates with CNV lower on top of CNV greater
-        ax.bar([0, 0.4, 0.8, 1.2], lower, width = 0.3, bottom= added, label = 'CNV < non-CNV', color = '#67a9cf')
- 
-        # add legend
-        N = mpatches.Patch(facecolor = '#f7f7f7' , edgecolor = 'black', linewidth = 1, label= 'No diff.')
-        G = mpatches.Patch(facecolor = '#ef8a62' , edgecolor = 'black', linewidth = 1, label= 'CNV greater')
-        L = mpatches.Patch(facecolor = '#67a9cf' , edgecolor = 'black', linewidth = 1, label= 'CNV lower')
-        plt.legend(handles = [N, G, L], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # write title   
-    ax.set_title(Title + '\n\n', size = 8)
-    
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     
-    # write label for y axis
-    if GraphType == 'box':
-        ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 8, ha = 'center', **FigFont)
-    elif GraphType == 'bar':
-        ax.set_ylabel('Proportion of replicates', color = 'black', size = 8, ha = 'center', **FigFont)
+    # write label for x and y axis
+    if GraphType == 'bar':
+        # set axis labels
+        ax.set_ylabel('Number of genes\nwith short 3\'UTR', size = 10, ha = 'center', color = 'black', **FigFont)
+    elif GraphType == 'line':
+        ax.set_ylabel('Number of studies in DGV', size = 10, ha = 'center', color = 'black', **FigFont)
+        ax.set_xlabel('Ratio of number of CNV genes / non-CNV genes', fontname = 'Arial', fontsize = 16)
 
     # write label for x axis
     plt.xticks(XScale, LabelNames, ha = 'center', fontsize = 8, **FigFont)
-
-    # add a range for the Y amd X axes
-    if GraphType == 'box':
-        plt.ylim([0, YMax])
-        plt.xlim([-0.25, 3.35])
-    
+        
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
@@ -527,9 +347,9 @@ fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
     # offset the spines
     for spine in ax.spines.values():
         spine.set_position(('outward', 5))
-    
+
     # add a light grey horizontal grid to the plot, semi-transparent, 
-    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
+    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)  
     # hide these grids behind plot objects
     ax.set_axisbelow(True)
 
@@ -543,120 +363,37 @@ fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
         left = 'off',          
         labelbottom='on', # labels along the bottom edge are on
         colors = 'black',
-        labelsize = 8,
+        labelsize = 10,
         direction = 'out') # ticks are outside the frame when bottom = 'on'  
       
     # Set the tick labels font name
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')
-    
+ 
     # create a margin around the x axis
     plt.margins(0.05)
+
+    return ax
+
+
+# plot the number of short 3' UTR genes
+ax1 = CreateAx(1, 2, 1, CNVData, fig, labelnames, [0, 0.7, 1.4, 2.1], 'bar')
+# plot the ratio of CNV / non-CNV genes
+ax2 = CreateAx(1, 2, 2, RatioData, fig, labelnames, [i for i in range(len(Ratio['GRCh37_2013-05']))], 'line')
+
+# make sure subplots do not overlap
+plt.tight_layout()  
     
-    return ax      
 
+## get outputfile
+#if L == 7:
+#    outputfile = 'PlotShort3UTRCountsDGV_7bp_' + cnv_length + '_' + chromos
+#elif L == 15:
+#    outputfile = 'PlotShort3UTRCountsDGV_15bp_' + cnv_length + '_' + chromos
+#print(outputfile)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-######################################
-
-# plot real graph below
-
-
-
-# create figure
-fig = plt.figure(1, figsize = (4.3,2.56))
-
-# add axe to fig
-ax = fig.add_subplot(1, 1, 1)
-
-# Set the bar width
-bar_width = 0.5
-
-# set positions of the x-axis ticks
-xtickpos = [0, 0.7, 1.4, 2.1]
-
-# Create a bar plot for cnv genes
-ax.bar(xtickpos, cnv_genes, width=bar_width, label = 'CNV', color= '#ef8a62')
-# Create a bar plot for non_cnv genes on top of cnv_genes
-ax.bar(xtickpos, non_cnv_genes, width=bar_width, bottom= cnv_genes, label = 'non-CNV', color = '#67a9cf')
-
-# set font for all text in figure
-FigFont = {'fontname':'Arial'} 
-
-# add labels to x axis ticks
-plt.xticks(xtickpos, labelnames, **FigFont)
-
-# set axis labels
-ax.set_ylabel('Number of genes\nwith short 3\'UTR', size = 10, ha = 'center', color = 'black', **FigFont)
-
-# do not show lines around figure  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(True)    
-ax.spines["right"].set_visible(False)    
-ax.spines["left"].set_visible(False)  
-# offset the spines
-for spine in ax.spines.values():
-    spine.set_position(('outward', 5))
-
-# add a light grey horizontal grid to the plot, semi-transparent, 
-ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)  
-# hide these grids behind plot objects
-ax.set_axisbelow(True)
-
-# do not show ticks
-plt.tick_params(
-    axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-    which='both',      # both major and minor ticks are affected
-    bottom='on',      # ticks along the bottom edge are off
-    top='off',         # ticks along the top edge are off
-    right = 'off',
-    left = 'off',          
-    labelbottom='on', # labels along the bottom edge are on
-    colors = 'black',
-    labelsize = 10,
-    direction = 'out') # ticks are outside the frame when bottom = 'on'  
-      
-# Set the tick labels font name
-for label in ax.get_yticklabels():
-    label.set_fontname('Arial')
-    
-# create a margin around the x axis
-plt.margins(0.05)
-
-# get outputfile
-if L == 7:
-    outputfile = 'PlotShort3UTRCountsDGV_7bp_' + cnv_length + '_' + chromos
-elif L == 15:
-    outputfile = 'PlotShort3UTRCountsDGV_15bp_' + cnv_length + '_' + chromos
-print(outputfile)
-  
+ 
 # save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
-
-
-
-
-
-##############
-
+fig.savefig('truc.pdf', bbox_inches = 'tight')
 
 
