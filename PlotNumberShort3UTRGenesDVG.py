@@ -334,7 +334,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, LabelNames, XScale, GraphTyp
         ax.set_ylabel('Number of genes\nwith short 3\'UTR', size = 10, ha = 'center', color = 'black', **FigFont)
     elif GraphType == 'line':
         ax.set_ylabel('Number of studies in DGV', size = 10, ha = 'center', color = 'black', **FigFont)
-        ax.set_xlabel('Ratio of number of CNV genes / non-CNV genes', fontname = 'Arial', fontsize = 16)
+        ax.set_xlabel('Ratio of number of CNV genes / non-CNV genes', fontname = 'Arial', fontsize = 10)
 
     # write label for x axis
     plt.xticks(XScale, LabelNames, ha = 'center', fontsize = 8, **FigFont)
@@ -377,9 +377,9 @@ def CreateAx(Columns, Rows, Position, Data, figure, LabelNames, XScale, GraphTyp
 
 
 # plot the number of short 3' UTR genes
-ax1 = CreateAx(1, 2, 1, CNVData, fig, labelnames, [0, 0.7, 1.4, 2.1], 'bar')
+ax1 = CreateAx(2, 1, 1, CNVData, fig, labelnames, [0, 0.7, 1.4, 2.1], 'bar')
 # plot the ratio of CNV / non-CNV genes
-ax2 = CreateAx(1, 2, 2, RatioData, fig, labelnames, [i for i in range(len(Ratio['GRCh37_2013-05']))], 'line')
+ax2 = CreateAx(2, 1, 2, RatioData, fig, labelnames, [i for i in range(len(Ratio['GRCh37_2013-05']))], 'line')
 
 # make sure subplots do not overlap
 plt.tight_layout()  
