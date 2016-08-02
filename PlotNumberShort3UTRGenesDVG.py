@@ -299,22 +299,20 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
         N = mpatches.Patch(facecolor = '#67a9cf', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
         plt.legend(handles = [C, N], loc = (0, 1), fontsize = 8, frameon = False, ncol = 2)
     
-    
-    
-
     elif GraphType == 'line':
         # parse list data
         Ratio, Releases = Data[0], Data[1]
         for i in range(len(Releases)):
             if '2013-05' in Releases[i]:
-                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.80', marker = 'o', markersize = 10, markeredgewidth = 1, markerfacecolor = '0.80', markeredgecolor = '0.80', lw = 1.5, label = LabelNames[i]) 
+                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#edf8fb', marker = 'o', markersize = 10, markeredgewidth = 1, markerfacecolor = '#edf8fb', markeredgecolor = '#edf8fb', lw = 1.5, label = LabelNames[i]) 
             elif '2013-07' in Releases[i]:
-                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.60', marker = 'o', markersize = 10, markeredgewidth = 1, markerfacecolor = '0.60', markeredgecolor = '0.60', lw = 1.5, label = LabelNames[i]) 
+                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#b3cde3', marker = 'o', markersize = 10, markeredgewidth = 1, markerfacecolor = '#b3cde3', markeredgecolor = '#b3cde3', lw = 1.5, label = LabelNames[i]) 
             elif '2014' in Releases[i]:
-                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.40', marker = 'o', markersize = 10, markeredgewidth = 1, markerfacecolor = '0.40', markeredgecolor = '0.40', lw = 1.5, label = LabelNames[i]) 
+                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#8c96c6', marker = 'o', markersize = 10, markeredgewidth = 1, markerfacecolor = '#8c96c6', markeredgecolor = '#8c96c6', lw = 1.5, label = LabelNames[i]) 
             elif '2015' in Releases[i]:
-                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '0.20', marker = 'o', markersize = 10, markeredgewidth = 1, markerfacecolor = '0.20', markeredgecolor = '0.20', lw = 1.5, label = LabelNames[i]) 
+                ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#88419d', marker = 'o', markersize = 10, markeredgewidth = 1, markerfacecolor = '#88419d', markeredgecolor = '#88419d', lw = 1.5, label = LabelNames[i]) 
             
+
 
 #######################
 
@@ -422,9 +420,10 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
     if GraphType == 'bar':
         # set axis labels
         ax.set_ylabel('Number of genes\nwith short 3\'UTR', size = 10, ha = 'center', color = 'black', **FigFont)
+        ax.set_xlabel('DGV releases', fontname = 'Arial', fontsize = 10, **FigFont)
     elif GraphType == 'line':
         ax.set_ylabel('Number of studies in DGV', size = 10, ha = 'center', color = 'black', **FigFont)
-        ax.set_xlabel('Ratio of number of CNV genes / non-CNV genes', fontname = 'Arial', fontsize = 10)
+        ax.set_xlabel('Ratio of number of CNV genes / non-CNV genes', fontname = 'Arial', fontsize = 10, **FigFont)
 
     # write label for x axis
     plt.xticks(XScale, LabelNames, ha = 'center', fontsize = 8, **FigFont)
