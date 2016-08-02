@@ -335,10 +335,10 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
     if GraphType == 'bar':
         # set axis labels
         ax.set_ylabel('Number of genes\nwith short 3\'UTR', size = 10, ha = 'center', color = 'black', **FigFont)
-        ax.set_xlabel('DGV releases', fontname = 'Arial', fontsize = 10, **FigFont)
+        ax.set_xlabel('DGV releases', fontsize = 10, **FigFont)
     elif GraphType == 'line':
         ax.set_ylabel('Number of studies in DGV', size = 10, ha = 'center', color = 'black', **FigFont)
-        ax.set_xlabel('Ratio of number of CNV genes / non-CNV genes', fontname = 'Arial', fontsize = 10, **FigFont)
+        ax.set_xlabel('Ratio of number of CNV genes / non-CNV genes', fontsize = 10, **FigFont)
 
     # write label for x axis
     plt.xticks(XScale, LabelNames, ha = 'center', fontsize = 8, **FigFont)
