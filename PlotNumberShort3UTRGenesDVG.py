@@ -471,7 +471,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
 # plot the number of short 3' UTR genes
 ax1 = CreateAx(2, 1, 1, CNVData, fig, 700, labelnames, [0.25, 0.95, 1.65, 2.35], 'bar')
 # plot the ratio of CNV / non-CNV genes
-ax2 = CreateAx(2, 1, 2, RatioData, fig, 50, list(map(lambda x: str(x), [i for i in range(len(Ratio['GRCh37_2013-05']))])), [i for i in range(len(Ratio['GRCh37_2013-05']))], 'line')
+ax2 = CreateAx(2, 1, 2, RatioData, fig, 50, list(map(lambda x: str(x), [i for i in range(len(Ratio['GRCh37_2013-05']) + 1)])), [i for i in range(len(Ratio['GRCh37_2013-05']) + 1)], 'line')
 
 # make sure subplots do not overlap
 plt.tight_layout()  
