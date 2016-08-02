@@ -316,8 +316,8 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
         # add legend
         # add lines
         lns = Graphics[LabelNames[0]]
-        for name in LabelNames[1:]:
-            lns += Graphics[name]
+        for i in LabelNames[1:]:
+            lns += Graphics[LabelNames[i]]
         # get labels
         labs = [i for i in LabelNames]
         ax.legend(lns, labs, loc = 1, fontsize = 8, frameon = False)    
