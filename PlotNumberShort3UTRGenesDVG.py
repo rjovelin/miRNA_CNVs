@@ -197,22 +197,6 @@ for release in StudiesCNVGenes:
                     CNV_status[release][study][gene] = 'not_CNV'
 print('sorted genes according to CNV status')
     
-## create a dict with CNV counts for each study {release: {study: [CNV, non-CNV]}}
-#StudiesCNVCounts = {}
-#for release in CNV_status:
-#    StudiesCNVCounts[release] = {}
-#    for study in CNV_status[release]:
-#        cnvcount, noncnvcount = 0, 0
-#        for gene in CNV_status[release][study]:
-#            if CNV_status[release][study][gene] == 'CNV':
-#                cnvcount += 1
-#            elif CNV_status[release][study][gene] == 'not_CNV':
-#                noncnvcount += 1
-#        # populate dict
-#        StudiesCNVCounts[release][study] = [cnvcount, noncnvcount]
-#print('counted CNV and non CNV genes in each study')
-
-
 # create a dict with ratio CNV / non_CNV genes for each study and release
 # {release: [list of ratio CNV / non-CNV genes]}
 StudiesRatio = {}
@@ -379,7 +363,13 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
 # plot the number of short 3' UTR genes
 ax1 = CreateAx(2, 1, 1, CNVData, fig, 700, labelnames, [0.25, 0.95, 1.65, 2.35], 'bar')
 # plot the ratio of CNV / non-CNV genes
-ax2 = CreateAx(2, 1, 2, RatioData, fig, 50, list(map(lambda x: str(x), [i/10 for i in range(len(Ratio['GRCh37_2013-05']) + 1) if i % 2 == 0])), [i for i in range(len(Ratio['GRCh37_2013-05']) + 1)], 'line')
+subplot2xticks = []
+for i in range(len(Ratio['GRCh37_2013-05']) + 1):
+    if i % 2 == 0:
+        subplot2xticks.append(str(i/10))
+    else:
+        subplot2xticks.append('')
+ax2 = CreateAx(2, 1, 2, RatioData, fig, 50, subplot2xticks, [i for i in range(len(Ratio['GRCh37_2013-05']) + 1)], 'line')
 
 # make sure subplots do not overlap
 plt.tight_layout()  
