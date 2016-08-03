@@ -348,6 +348,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
         plt.ylim([-0.1, YMax])
         
         
+        
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
