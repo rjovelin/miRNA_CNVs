@@ -299,13 +299,13 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
         Ratio, Releases, labelnames = Data[0], Data[1], Data[2]
         for i in range(len(Releases)):
             if '2013-05' in Releases[i]:
-                graph = ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#b3cde3', marker = 'o', markersize = 3, markeredgewidth = 1, markerfacecolor = '#b3cde3', markeredgecolor = '#b3cde3', lw = 1.5, label = LabelNames[i]) 
+                graph = ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#b3cde3', marker = 'o', markersize = 4, markeredgewidth = 1, markerfacecolor = '#b3cde3', markeredgecolor = '#b3cde3', lw = 1.5, label = LabelNames[i]) 
             elif '2013-07' in Releases[i]:
-                graph = ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#8c96c6', marker = 'o', markersize = 3, markeredgewidth = 1, markerfacecolor = '#8c96c6', markeredgecolor = '#8c96c6', lw = 1.5, label = LabelNames[i]) 
+                graph = ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#8c96c6', marker = 'o', markersize = 4, markeredgewidth = 1, markerfacecolor = '#8c96c6', markeredgecolor = '#8c96c6', lw = 1.5, label = LabelNames[i]) 
             elif '2014' in Releases[i]:
-                graph = ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#8856a7', marker = 'o', markersize = 3, markeredgewidth = 1, markerfacecolor = '#8856a7', markeredgecolor = '#8856a7', lw = 1.5, label = LabelNames[i]) 
+                graph = ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#8856a7', marker = 'o', markersize = 4, markeredgewidth = 1, markerfacecolor = '#8856a7', markeredgecolor = '#8856a7', lw = 1.5, label = LabelNames[i]) 
             elif '2015' in Releases[i]:
-                graph = ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#810f7c', marker = 'o', markersize = 3, markeredgewidth = 1, markerfacecolor = '#810f7c', markeredgecolor = '#810f7c', lw = 1.5, label = LabelNames[i]) 
+                graph = ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#810f7c', marker = 'o', markersize = 4, markeredgewidth = 1, markerfacecolor = '#810f7c', markeredgecolor = '#810f7c', lw = 1.5, label = LabelNames[i]) 
             # populate dict
             Graphics[labelnames[i]] = graph
 
