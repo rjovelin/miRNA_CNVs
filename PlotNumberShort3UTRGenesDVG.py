@@ -277,6 +277,22 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
     
+    
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(True)    
+    ax.spines["right"].set_visible(False)    
+    ax.spines["left"].set_visible(False)  
+    # offset the spines
+    for spine in ax.spines.values():
+        spine.set_position(('outward', 5))
+
+    # add a light grey horizontal grid to the plot, semi-transparent, 
+    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)  
+    # hide these grids behind plot objects
+    ax.set_axisbelow(True)
+    
+        
     if GraphType == 'bar':
         # set positions of the x-axis ticks
         xtickpos = [0, 0.7, 1.4, 2.1]
@@ -335,7 +351,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
         ax.set_xlabel('DGV releases', fontsize = 10, **FigFont)
     elif GraphType == 'line':
         ax.set_ylabel('Number of studies in DGV', size = 10, ha = 'center', color = 'black', **FigFont)
-        ax.set_xlabel('Ratio of number of CNV genes / non-CNV genes', fontsize = 10, **FigFont)
+        ax.set_xlabel('CNV genes / non-CNV genes ratio', fontsize = 10, **FigFont)
 
     # write label for x axis
     plt.xticks(XScale, LabelNames, ha = 'center', fontsize = 8, **FigFont)
@@ -343,19 +359,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
     # limit y axis range
     plt.ylim([0, YMax])
         
-    # do not show lines around figure  
-    ax.spines["top"].set_visible(False)    
-    ax.spines["bottom"].set_visible(True)    
-    ax.spines["right"].set_visible(False)    
-    ax.spines["left"].set_visible(False)  
-    # offset the spines
-    for spine in ax.spines.values():
-        spine.set_position(('outward', 5))
-
-    # add a light grey horizontal grid to the plot, semi-transparent, 
-    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)  
-    # hide these grids behind plot objects
-    ax.set_axisbelow(True)
+    
 
     # do not show ticks
     plt.tick_params(
