@@ -6,6 +6,7 @@ Created on Fri Jul 22 17:40:04 2016
 """
 
 # use this script to plot the number of short 3'UTR genes in CNV and non-CNVs for release of the DGV
+# and the ratio of CNV / non-CNV genes per study for each version of the DGV
 
 # usage PlotNumberShort3UTRGenes.py [options]
 # [7/15]: 3'UTR length, genes with 3'UTR length < 7bp or < 15bp are considered short 3'UTR genes
@@ -234,12 +235,11 @@ for i in StudiesRatio:
     for j in StudiesRatio[i]:
         ratio.append(j)
 MaxRatio = max(ratio)
-print(MaxRatio)
-print((((MaxRatio * 100) // 10) + 1))
+print(MaxRatio, (((MaxRatio * 100) // 10) + 1))
+
 
 # plot the number of studies with ratio of CNV / non-CNV short 3'UTR genes
 # for each release of the DGV
-
 
 #create a dict with version and list of counts {release: [n1, n2, etc]}
 Ratio = {}
@@ -253,8 +253,6 @@ for release in StudiesRatio:
     # populate dict
     Ratio[release] = counts
 
-for i in Ratio:
-    print(i, Ratio[i])
     
 # make a list of frequency data
 RatioData = [Ratio, Releases, labelnames]
@@ -319,13 +317,6 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
         labs = [i for i in labelnames]
         ax.legend(lns, labs, loc = 1, fontsize = 8, frameon = False, numpoints = 1)    
 
-
-## adjust size of ticks    
-#  # set major ticks on the y axis
-#plt.yticks(range(0, maximum + 10, 10), fontname = 'Arial', fontsize=16)    
-#plt.xticks([i for i in range(0, 11)], fontname = 'Arial', fontsize=16)    
-  
-
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     
@@ -345,10 +336,9 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
     if GraphType == 'bar':
         plt.ylim([0, YMax])
     elif GraphType == 'line':
-        plt.ylim([-0.1, YMax])
+        plt.ylim([-1, YMax])
         
-        
-        
+    
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
@@ -362,7 +352,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
     ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)  
     # hide these grids behind plot objects
     ax.set_axisbelow(True)
-
+    
     # do not show ticks
     plt.tick_params(
         axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
@@ -389,11 +379,19 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
 # plot the number of short 3' UTR genes
 ax1 = CreateAx(2, 1, 1, CNVData, fig, 700, labelnames, [0.25, 0.95, 1.65, 2.35], 'bar')
 # plot the ratio of CNV / non-CNV genes
-ax2 = CreateAx(2, 1, 2, RatioData, fig, 50, list(map(lambda x: str(x), [i for i in range(len(Ratio['GRCh37_2013-05']) + 1)])), [i for i in range(len(Ratio['GRCh37_2013-05']) + 1)], 'line')
+ax2 = CreateAx(2, 1, 2, RatioData, fig, 50, list(map(lambda x: str(x), [i/10 for i in range(len(Ratio['GRCh37_2013-05']) + 1) if i % 2 == 0])), [i for i in range(len(Ratio['GRCh37_2013-05']) + 1)], 'line')
 
 # make sure subplots do not overlap
 plt.tight_layout()  
-    
+   
+   
+# add subplot label
+ax1.text(-1, 800, 'A', horizontalalignment = 'center',
+         verticalalignment = 'center', color = 'black', size = 10)
+ax1.text(3, 800, 'B', horizontalalignment = 'center',
+         verticalalignment = 'center', color = 'black', size = 10)   
+   
+   
 
 ## get outputfile
 #if L == 7:
