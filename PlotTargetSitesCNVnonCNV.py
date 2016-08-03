@@ -163,23 +163,27 @@ print('generated lists of target sites for CNV and non-CNV genes')
 
 
 # make a list of data for each predictor
-AllDataTargetscan, AllDataMiranda = [], []
+AllDataTargetscanAbsolute, AllDataMirandaAbsolute, AllDataTargetscanNormalized, AllDataMirandaNormalized = [], [], [], []
 
 # make a list of species names to loop from
 species_names = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
 # loop over species in species names list and populate data lists, keeping the same order for targetscan and miranda
 for species in species_names:
     # append list of target sites for CNV genes
-    AllDataTargetscan.append(SpeciesDataTargetscan[species][0])
-    AllDataMiranda.append(SpeciesDataMiranda[species][0])
+    AllDataTargetscanAbsolute.append(SpeciesDataTargetscanAbsolute[species][0])
+    AllDataTargetscanNormalized.append(SpeciesDataTargetscanNormalized[species][0])
+    AllDataMirandaAbsolute.append(SpeciesDataMirandaAbsolute[species][0])
+    AllDataMirandaNormalized.append(SpeciesDataMirandaNormalized[species][0])    
     # append list of target sites for non-CNV genes
-    AllDataTargetscan.append(SpeciesDataTargetscan[species][1])
-    AllDataMiranda.append(SpeciesDataMiranda[species][1])
+    AllDataTargetscanAbsolute.append(SpeciesDataTargetscanAbsolute[species][1])
+    AllDataTargetscanNormalized.append(SpeciesDataTargetscanNormalized[species][1])
+    AllDataMirandaAbsolute.append(SpeciesDataMirandaAbsolute[species][1])
+    AllDataMirandaNormalized.append(SpeciesDataMirandaNormalized[species][1])
 print('data consolidated in array')
 
 
 # create figure
-fig = plt.figure(1, figsize = (8, 3))
+fig = plt.figure(1, figsize = (8, 5))
 
 # create list of labels and tick positions for the X axis
 #xtickpos = [0.35, 1.25, 2.15, 3.05, 3.95, 4.85]
@@ -188,7 +192,7 @@ Names = [species_codes[i] for i in species_names]
 print(Names)
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, SpeciesNames, XScale):
+def CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, SpeciesNames, XScale):
     '''
     (int, int, int, list, figure_object, str, int, list, list)
     Take the number of a column, and rows in the figure object and the position of
@@ -240,7 +244,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, SpeciesNames, X
     FigFont = {'fontname':'Arial'}   
     
     # write label for y axis
-    ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 8, ha = 'center', **FigFont)
+    ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
 
     # write label for x axis
     plt.xticks(XScale, SpeciesNames, ha = 'center', fontsize = 8, **FigFont)
@@ -288,49 +292,51 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, SpeciesNames, X
 
 
 # plot data for targetscan
-ax1 = CreateAx(2, 1, 1, AllDataTargetscan, fig, 'TargetScan', 0.45, Names, xtickpos)
-ax2 = CreateAx(2, 1, 2, AllDataMiranda, fig, 'miRanda', 0.45, Names, xtickpos)
+ax1 = CreateAx(2, 2, 1, AllDataTargetscanAbsolute, fig, 'TargetScan', 'Number of miRNA sites per gene', 1400, Names, xtickpos)
+ax2 = CreateAx(2, 2, 2, AllDataTargetscanNormalized, fig, 'TargetScan', 'Normalized number of miRNA\nsites per gene', 0.45, Names, xtickpos)
+ax3 = CreateAx(2, 2, 3, AllDataMirandaAbsolute, fig, 'miRanda', 'Number of miRNA sites per gene', 800, Names, xtickpos)
+ax4 = CreateAx(2, 2, 4, AllDataMirandaNormalized, fig, 'miRanda', 'Normalized number of miRNA\nsites per gene', 0.45,  Names, xtickpos)
 
-# annotate Graph with significance level
-PvalTargetScan, PvalMiranda = [], []
-for species in species_names:
-    if CompTargetscan[species] >= 0.05:
-        PvalTargetScan.append('')
-    elif CompTargetscan[species] < 0.05 and CompTargetscan[species] >= 0.01:
-        PvalTargetScan.append('*')
-    elif CompTargetscan[species] < 0.01 and CompTargetscan[species] >= 0.001:
-        PvalTargetScan.append('**')
-    elif CompTargetscan[species] < 0.001:
-        PvalTargetScan.append('***')
-for species in species_names:
-    if CompMiranda[species] >= 0.05:
-        PvalMiranda.append('')
-    elif CompMiranda[species] < 0.05 and CompMiranda[species] >= 0.01:
-        PvalMiranda.append('*')
-    elif CompMiranda[species] < 0.01 and CompMiranda[species] >= 0.001:
-        PvalMiranda.append('**')
-    elif CompMiranda[species] < 0.001:
-        PvalMiranda.append('***')
+## annotate Graph with significance level
+#PvalTargetScan, PvalMiranda = [], []
+#for species in species_names:
+#    if CompTargetscan[species] >= 0.05:
+#        PvalTargetScan.append('')
+#    elif CompTargetscan[species] < 0.05 and CompTargetscan[species] >= 0.01:
+#        PvalTargetScan.append('*')
+#    elif CompTargetscan[species] < 0.01 and CompTargetscan[species] >= 0.001:
+#        PvalTargetScan.append('**')
+#    elif CompTargetscan[species] < 0.001:
+#        PvalTargetScan.append('***')
+#for species in species_names:
+#    if CompMiranda[species] >= 0.05:
+#        PvalMiranda.append('')
+#    elif CompMiranda[species] < 0.05 and CompMiranda[species] >= 0.01:
+#        PvalMiranda.append('*')
+#    elif CompMiranda[species] < 0.01 and CompMiranda[species] >= 0.001:
+#        PvalMiranda.append('**')
+#    elif CompMiranda[species] < 0.001:
+#        PvalMiranda.append('***')
 
 
-# create list of Y and X positions to annotate figure with significance level
-if domain == 'CDS':
-    # make a list of Y positions
-    YposTargetscan = [0.41, 0.11, 0.16, 0.28, 0.14, 0.21]
-    YposMiranda = [0.32, 0.08, 0.11, 0.19, 0.11, 0.16]
-    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
-elif domain == '5UTR':
-    # make a list of Y positions
-    YposTargetscan = [0.41, 0.12, 0.17, 0.30, 0.16, 0.24]
-    YposMiranda = [0.32, 0.09, 0.12, 0.21, 0.12, 0.17]
-    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
-
-for i in range(len(PvalTargetScan)):
-    ax1.text(Xpos[i], YposTargetscan[i], PvalTargetScan[i], horizontalalignment = 'center',
-             verticalalignment = 'center', color = 'black', size = 8)
-for i in range(len(PvalMiranda)):
-    ax2.text(Xpos[i], YposMiranda[i], PvalMiranda[i], horizontalalignment = 'center',
-             verticalalignment = 'center', color = 'black', size = 8)
+## create list of Y and X positions to annotate figure with significance level
+#if domain == 'CDS':
+#    # make a list of Y positions
+#    YposTargetscan = [0.41, 0.11, 0.16, 0.28, 0.14, 0.21]
+#    YposMiranda = [0.32, 0.08, 0.11, 0.19, 0.11, 0.16]
+#    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
+#elif domain == '5UTR':
+#    # make a list of Y positions
+#    YposTargetscan = [0.41, 0.12, 0.17, 0.30, 0.16, 0.24]
+#    YposMiranda = [0.32, 0.09, 0.12, 0.21, 0.12, 0.17]
+#    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
+#
+#for i in range(len(PvalTargetScan)):
+#    ax1.text(Xpos[i], YposTargetscan[i], PvalTargetScan[i], horizontalalignment = 'center',
+#             verticalalignment = 'center', color = 'black', size = 8)
+#for i in range(len(PvalMiranda)):
+#    ax2.text(Xpos[i], YposMiranda[i], PvalMiranda[i], horizontalalignment = 'center',
+#             verticalalignment = 'center', color = 'black', size = 8)
 
 # make sure subplots do not overlap
 plt.tight_layout()
