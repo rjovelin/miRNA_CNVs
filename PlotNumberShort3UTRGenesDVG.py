@@ -381,17 +381,12 @@ ax1.text(-1, 800, 'A', horizontalalignment = 'center',
 ax1.text(3, 800, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)   
    
-   
+# get outputfile
+if L == 7:
+    outputfile = 'PlotShort3UTRCountsDGV_7bp_' + cnv_length + '_' + chromos
+elif L == 15:
+    outputfile = 'PlotShort3UTRCountsDGV_15bp_' + cnv_length + '_' + chromos
+print(outputfile)
 
-## get outputfile
-#if L == 7:
-#    outputfile = 'PlotShort3UTRCountsDGV_7bp_' + cnv_length + '_' + chromos
-#elif L == 15:
-#    outputfile = 'PlotShort3UTRCountsDGV_15bp_' + cnv_length + '_' + chromos
-#print(outputfile)
-
- 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
