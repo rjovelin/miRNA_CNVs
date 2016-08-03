@@ -311,15 +311,15 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
             elif '2015' in Releases[i]:
                 graph = ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#88419d', marker = 'o', markersize = 3, markeredgewidth = 1, markerfacecolor = '#88419d', markeredgecolor = '#88419d', lw = 1.5, label = LabelNames[i]) 
             # populate dict
-            Graphics[LabelNames[i]] = graph
+            Graphics[Releases[i]] = graph
 
         # add legend
         # add lines
-        lns = Graphics[LabelNames[0]]
-        for i in LabelNames[1:]:
-            lns += Graphics[LabelNames[i]]
+        lns = Graphics[Releases[0]]
+        for i in Releases[1:]:
+            lns += Graphics[i]
         # get labels
-        labs = [i for i in LabelNames]
+        labs = [i for i in Releases]
         ax.legend(lns, labs, loc = 1, fontsize = 8, frameon = False)    
 
 ## adjust size of ticks    
