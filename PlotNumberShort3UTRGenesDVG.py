@@ -112,8 +112,6 @@ for i in Releases:
 CNVData = [cnv_genes, non_cnv_genes]
 
 
-###########################
-
 # count short 3'UTR genes for each study of each release of the DGV
 
 # make a list of DGV files
@@ -259,9 +257,7 @@ for i in Ratio:
     print(i, Ratio[i])
     
 # make a list of frequency data
-RatioData = [Ratio, Releases]
-
-   
+RatioData = [Ratio, Releases, labelnames]
 
 # create figure
 fig = plt.figure(1, figsize = (7, 2.5))
@@ -300,7 +296,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
         # create a dict to build the legend
         Graphics = {}
         # parse list data
-        Ratio, Releases = Data[0], Data[1]
+        Ratio, Releases, labelnames = Data[0], Data[1], Data[2]
         for i in range(len(Releases)):
             if '2013-05' in Releases[i]:
                 graph = ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#edf8fb', marker = 'o', markersize = 3, markeredgewidth = 1, markerfacecolor = '#edf8fb', markeredgecolor = '#edf8fb', lw = 1.5, label = LabelNames[i]) 
@@ -311,15 +307,15 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
             elif '2015' in Releases[i]:
                 graph = ax.plot([j + 0.5 for j in range(len(Ratio[Releases[i]]))], Ratio[Releases[i]], linestyle = '-', color = '#88419d', marker = 'o', markersize = 3, markeredgewidth = 1, markerfacecolor = '#88419d', markeredgecolor = '#88419d', lw = 1.5, label = LabelNames[i]) 
             # populate dict
-            Graphics[Releases[i]] = graph
+            Graphics[labelnames[i]] = graph
 
         # add legend
         # add lines
-        lns = Graphics[Releases[0]]
-        for i in Releases[1:]:
+        lns = Graphics[labelnames[0]]
+        for i in labelnames[1:]:
             lns += Graphics[i]
         # get labels
-        labs = [i for i in Releases]
+        labs = [i for i in labelnames]
         ax.legend(lns, labs, loc = 1, fontsize = 8, frameon = False)    
 
 ## adjust size of ticks    
