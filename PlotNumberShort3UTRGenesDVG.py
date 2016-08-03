@@ -316,7 +316,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, YMax, LabelNames, XScale, Gr
             lns += Graphics[i]
         # get labels
         labs = [i for i in labelnames]
-        ax.legend(lns, labs, loc = 1, fontsize = 8, frameon = False)    
+        ax.legend(lns, labs, loc = 1, fontsize = 8, frameon = False, numpoints = 1)    
 
 ## adjust size of ticks    
 #  # set major ticks on the y axis
