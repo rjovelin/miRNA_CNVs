@@ -378,7 +378,7 @@ elif domain == 'CDS':
     Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
 elif domain == '5UTR':
     # make a list of Y positions
-    YposTargetscanAbsolute = [1200, 1490, 2500, 2020, 1020, 610]
+    YposTargetscanAbsolute = [4000, 1490, 2500, 2020, 1020, 610]
     YposMirandaAbsolute = [2520, 900, 1500, 1500, 300, 400]
     YposTargetscanNormalized = [0.40, 0.12, 0.16, 0.33, 0.15, 0.23]
     YposMirandaNormalized = [0.33, 0.09, 0.12, 0.23, 0.12, 0.17]
@@ -396,26 +396,20 @@ for i in range(len(PvalMirandaAbsolute)):
     ax4.text(Xpos[i], YposMirandaNormalized[i], PvalMirandaNormalized[i], horizontalalignment = 'center',
              verticalalignment = 'center', color = 'black', size = 8)
 
-
-# add legend at the top of figure instead of the the top of axes
+# add legend relative to ax1 using ax1 coordinates
 C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
 N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
-#plt.legend(handles = [C, N], bbox_to_anchor = (0, 1.02), loc = (0, 1), fontsize = 8, frameon = False, ncol = 2)
-#plt.legend(handles = [C, N], bbox_to_anchor = (0, 1.02), loc = 3, fontsize = 8, frameon = False, ncol = 2)
-#ax1.legend(handles = [C, N], bbox_to_anchor = (3, 1.02), loc = 3, fontsize = 8, frameon = False, ncol = 2)
 ax1.legend(handles = [C, N], loc = (0.8, 1.2), fontsize = 8, frameon = False, ncol = 2)
 
 
 # make sure subplots do not overlap
 plt.tight_layout()
 
-## get outputfile
-#if L == 15:
-#    outputfile = 'PlotShort3UTR_15bp_' + domain + '_' + chromos + '_' + cnv_length + '_NormalizedSites' 
-#elif L == 7:
-#    outputfile = 'PlotShort3UTR_7bp_' + domain + '_' + chromos + '_' + cnv_length + '_NormalizedSites' 
-#print(outputfile)
+
+# build outputfile with arguments
+outputfile = 'PlotSitesCNVvsNonCNV_' + domain + '_' + chromos + '_' + cnv_length
+print(outputfile)
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
 
