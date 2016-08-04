@@ -144,22 +144,24 @@ for species in miranda:
 print('generated lists of target sites for CNV and non-CNV genes')
 
 
-## perform stattistical tests between CNV and non-CNV genes
-## create a dict to store results {species: P-value}
-#CompTargetscan, CompMiranda = {}, {}
-#for species in SpeciesDataTargetscan:
-#    P = stats.ranksums(SpeciesDataTargetscan[species][0], SpeciesDataTargetscan[species][1])[1]
-#    CompTargetscan[species] = P
-#for species in SpeciesDataMiranda:
-#    P = stats.ranksums(SpeciesDataMiranda[species][0], SpeciesDataMiranda[species][1])[1]    
-#    CompMiranda[species] = P
-#print('compared CNV and non-CNV genes')
-#
-## print P-values
-#for species in CompTargetscan:
-#    print('targetscan', species, CompTargetscan[species])
-#for species in CompMiranda:
-#    print('miranda', species, CompMiranda[species])
+# perform stattistical tests between CNV and non-CNV genes
+# create dicts to store results {species: [P-value absolute targets, P-value normalized targets]}
+CompTargetscan, CompMiranda = {}, {}
+for species in SpeciesDataTargetscanAbsolute:
+    Pabs = stats.ranksums(SpeciesDataTargetscanAbsolute[species][0], SpeciesDataTargetscanAbsolute[species][1])[1]
+    Pnorm = stats.ranksums(SpeciesDataTargetscanNormalized[species][0], SpeciesDataTargetscanNormalized[species][1])[1]
+    CompTargetscan[species] = [Pabs, Pnorm]
+for species in SpeciesDataMirandaAbsolute:
+    Pabs = stats.ranksums(SpeciesDataMirandaAbsolute[species][0], SpeciesDataMirandaAbsolute[species][1])[1]    
+    Pnorm = stats.ranksums(SpeciesDataMirandaNormalized[species][0], SpeciesDataMirandaNormalized[species][1])[1]    
+    CompMiranda[species] = [Pabs, Pnorm]
+print('compared CNV and non-CNV genes')
+
+# print P-values
+for species in CompTargetscan:
+    print('targetscan', species, CompTargetscan[species])
+for species in CompMiranda:
+    print('miranda', species, CompMiranda[species])
 
 
 # make a list of data for each predictor
@@ -299,13 +301,13 @@ ax4 = CreateAx(2, 2, 4, AllDataMirandaNormalized, fig, 'miRanda', 'Normalized nu
 
 
 # add subplot label
-ax1.text(-1, 1500, 'A', horizontalalignment = 'center',
+ax1.text(-1.5, 1550, 'A', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-ax1.text(3, 1500, 'B', horizontalalignment = 'center',
+ax1.text(6, 1550, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)   
-ax3.text(-1, 820, 'A', horizontalalignment = 'center',
+ax3.text(-1.5, 850, 'A', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-ax3.text(3, 820, 'B', horizontalalignment = 'center',
+ax3.text(6, 850, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10) 
 
 
