@@ -303,11 +303,11 @@ ax4 = CreateAx(2, 2, 4, AllDataMirandaNormalized, fig, 'miRanda', 'Normalized nu
 # add subplot label
 ax1.text(-1.3, 1550, 'A', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-ax1.text(5, 1550, 'B', horizontalalignment = 'center',
+ax1.text(5.5, 1550, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)   
 ax3.text(-1.3, 880, 'A', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-ax3.text(5, 880, 'B', horizontalalignment = 'center',
+ax3.text(5.5, 880, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10) 
 
 
@@ -361,21 +361,21 @@ if domain == '3UTR':
     YposTargetscanNormalized = [0.42, 0.11, 0.16, 0.33, 0.16, 0.21]
     YposMirandaNormalized = [0.35, 0.10, 0.12, 0.24, 0.13, 0.16]
     Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
+elif domain == 'CDS':
+    # make a list of Y positions
+    YposTargetscanAbsolute = [1400, 420, 400, 1000, 390, 590]
+    YposMirandaAbsolute = [820, 280, 210, 600, 220, 320]
+    YposTargetscanNormalized = [0.42, 0.11, 0.16, 0.33, 0.16, 0.21]
+    YposMirandaNormalized = [0.35, 0.10, 0.12, 0.24, 0.13, 0.16]
+    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
+elif domain == '5UTR':
+    # make a list of Y positions
+    YposTargetscanAbsolute = [1400, 420, 400, 1000, 390, 590]
+    YposMirandaAbsolute = [820, 280, 210, 600, 220, 320]
+    YposTargetscanNormalized = [0.42, 0.11, 0.16, 0.33, 0.16, 0.21]
+    YposMirandaNormalized = [0.35, 0.10, 0.12, 0.24, 0.13, 0.16]
+    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
 
-#
-#
-#
-#
-#elif domain == 'CDS':
-#    # make a list of Y positions
-#    YposTargetscan = [0.41, 0.11, 0.16, 0.28, 0.14, 0.21]
-#    YposMiranda = [0.32, 0.08, 0.11, 0.19, 0.11, 0.16]
-#    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
-#elif domain == '5UTR':
-#    # make a list of Y positions
-#    YposTargetscan = [0.41, 0.12, 0.17, 0.30, 0.16, 0.24]
-#    YposMiranda = [0.32, 0.09, 0.12, 0.21, 0.12, 0.17]
-#    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
 
 for i in range(len(PvalTargetScanAbsolute)):
     ax1.text(Xpos[i], YposTargetscanAbsolute[i], PvalTargetScanAbsolute[i], horizontalalignment = 'center',
