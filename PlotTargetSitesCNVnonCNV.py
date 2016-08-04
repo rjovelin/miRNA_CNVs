@@ -295,10 +295,10 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, Species
 
 # plot data for targetscan
 if domain == '5UTR':
-    ax1 = CreateAx(2, 2, 1, AllDataTargetscanAbsolute, fig, 'TargetScan', 'Number of miRNA sites per gene', 3000, Names, xtickpos)
+    ax1 = CreateAx(2, 2, 1, AllDataTargetscanAbsolute, fig, 'TargetScan', 'Number of miRNA sites per gene', 4000, Names, xtickpos)
     ax2 = CreateAx(2, 2, 2, AllDataTargetscanNormalized, fig, 'TargetScan', 'Normalized number of miRNA\nsites per gene', 0.45, Names, xtickpos)
-    ax3 = CreateAx(2, 2, 3, AllDataMirandaAbsolute, fig, 'miRanda', 'Number of miRNA sites per gene', 3000, Names, xtickpos)
-    ax4 = CreateAx(2, 2, 4, AllDataMirandaNormalized, fig, 'miRanda', 'Normalized number of miRNA\nsites per gene', 0.45,  Names, xtickpos)
+    ax3 = CreateAx(2, 2, 3, AllDataMirandaAbsolute, fig, 'miRanda', 'Number of miRNA sites per gene', 2600, Names, xtickpos)
+    ax4 = CreateAx(2, 2, 4, AllDataMirandaNormalized, fig, 'miRanda', 'Normalized number of miRNA\nsites per gene', 0.40,  Names, xtickpos)
 else:
     ax1 = CreateAx(2, 2, 1, AllDataTargetscanAbsolute, fig, 'TargetScan', 'Number of miRNA sites per gene', 1400, Names, xtickpos)
     ax2 = CreateAx(2, 2, 2, AllDataTargetscanNormalized, fig, 'TargetScan', 'Normalized number of miRNA\nsites per gene', 0.45, Names, xtickpos)
@@ -307,14 +307,16 @@ else:
 
 
 # add subplot label
-ax1.text(-1.3, 1550, 'A', horizontalalignment = 'center',
-         verticalalignment = 'center', color = 'black', size = 10)
-ax1.text(5.5, 1550, 'B', horizontalalignment = 'center',
-         verticalalignment = 'center', color = 'black', size = 10)   
-ax3.text(-1.3, 880, 'C', horizontalalignment = 'center',
-         verticalalignment = 'center', color = 'black', size = 10)
-ax3.text(5.5, 880, 'D', horizontalalignment = 'center',
-         verticalalignment = 'center', color = 'black', size = 10) 
+if domain == '5UTR':
+    ax1.text(-1.3, 1550, 'A', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)
+    ax1.text(5.5, 1550, 'B', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)   
+    ax3.text(-1.3, 2700, 'C', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)
+    ax3.text(5.5, 2700, 'D', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10) 
+else:
+    ax1.text(-1.3, 1550, 'A', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)
+    ax1.text(5.5, 1550, 'B', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)   
+    ax3.text(-1.3, 880, 'C', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)
+    ax3.text(5.5, 880, 'D', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10) 
 
 
 # annotate Graph with significance level
@@ -376,10 +378,10 @@ elif domain == 'CDS':
     Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
 elif domain == '5UTR':
     # make a list of Y positions
-    YposTargetscanAbsolute = [1200, 420, 610, 900, 410, 610]
-    YposMirandaAbsolute = [800, 270, 400, 590, 300, 400]
-    YposTargetscanNormalized = [0.40, 0.12, 0.16, 0.31, 0.15, 0.20]
-    YposMirandaNormalized = [0.33, 0.09, 0.12, 0.23, 0.12, 0.15]
+    YposTargetscanAbsolute = [1200, 1490, 2500, 2020, 1020, 610]
+    YposMirandaAbsolute = [2520, 900, 1500, 1500, 300, 400]
+    YposTargetscanNormalized = [0.40, 0.12, 0.16, 0.33, 0.15, 0.23]
+    YposMirandaNormalized = [0.33, 0.09, 0.12, 0.23, 0.12, 0.17]
     Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
 
 
@@ -398,7 +400,10 @@ for i in range(len(PvalMirandaAbsolute)):
 # add legend at the top of figure instead of the the top of axes
 C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
 N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
-plt.legend(handles = [C, N], bbox_to_anchor = (0, 1.02), loc = (0, 1), fontsize = 8, frameon = False, ncol = 2)
+#plt.legend(handles = [C, N], bbox_to_anchor = (0, 1.02), loc = (0, 1), fontsize = 8, frameon = False, ncol = 2)
+#plt.legend(handles = [C, N], bbox_to_anchor = (0, 1.02), loc = 3, fontsize = 8, frameon = False, ncol = 2)
+#ax1.legend(handles = [C, N], bbox_to_anchor = (3, 1.02), loc = 3, fontsize = 8, frameon = False, ncol = 2)
+ax1.legend(handles = [C, N], loc = (0.8, 1.2), fontsize = 8, frameon = False, ncol = 2)
 
 
 # make sure subplots do not overlap
