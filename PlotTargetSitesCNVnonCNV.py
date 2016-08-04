@@ -356,10 +356,10 @@ for species in species_names:
 # create list of Y and X positions to annotate figure with significance level
 if domain == '3UTR':
     # make a list of Y positions
-    YposTargetscanAbsolute = [1400, 420, 400, 1000, 390, 590]
-    YposMirandaAbsolute = [820, 280, 210, 600, 220, 320]
-    YposTargetscanNormalized = [0.42, 0.11, 0.16, 0.33, 0.16, 0.21]
-    YposMirandaNormalized = [0.35, 0.10, 0.12, 0.24, 0.13, 0.16]
+    YposTargetscanAbsolute = [1390, 420, 400, 990, 390, 580]
+    YposMirandaAbsolute = [820, 270, 210, 590, 220, 320]
+    YposTargetscanNormalized = [0.42, 0.11, 0.16, 0.33, 0.15, 0.21]
+    YposMirandaNormalized = [0.34, 0.10, 0.12, 0.23, 0.13, 0.16]
     Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
 elif domain == 'CDS':
     # make a list of Y positions
@@ -370,10 +370,10 @@ elif domain == 'CDS':
     Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
 elif domain == '5UTR':
     # make a list of Y positions
-    YposTargetscanAbsolute = [1400, 420, 400, 1000, 390, 590]
-    YposMirandaAbsolute = [820, 280, 210, 600, 220, 320]
-    YposTargetscanNormalized = [0.42, 0.11, 0.16, 0.33, 0.16, 0.21]
-    YposMirandaNormalized = [0.35, 0.10, 0.12, 0.24, 0.13, 0.16]
+    YposTargetscanAbsolute = [1200, 420, 610, 900, 410, 610]
+    YposMirandaAbsolute = [800, 270, 400, 590, 300, 400]
+    YposTargetscanNormalized = [0.40, 0.12, 0.16, 0.31, 0.15, 0.20]
+    YposMirandaNormalized = [0.33, 0.09, 0.12, 0.23, 0.12, 0.15]
     Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
 
 
@@ -390,8 +390,6 @@ for i in range(len(PvalMirandaAbsolute)):
 
 
 # add legend at the top of figure instead of the the top of axes
-
-# add legend
 C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
 N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
 plt.legend(handles = [C, N], loc = (0, 1), fontsize = 8, frameon = False, ncol = 2)
