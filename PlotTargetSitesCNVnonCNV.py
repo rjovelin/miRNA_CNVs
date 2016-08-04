@@ -388,6 +388,15 @@ for i in range(len(PvalMirandaAbsolute)):
     ax4.text(Xpos[i], YposMirandaNormalized[i], PvalMirandaNormalized[i], horizontalalignment = 'center',
              verticalalignment = 'center', color = 'black', size = 8)
 
+
+# add legend at the top of figure instead of the the top of axes
+
+# add legend
+C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
+N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
+plt.legend(handles = [C, N], loc = (0, 1), fontsize = 8, frameon = False, ncol = 2)
+
+
 # make sure subplots do not overlap
 plt.tight_layout()
 
