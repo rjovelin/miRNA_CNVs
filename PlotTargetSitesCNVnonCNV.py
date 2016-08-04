@@ -297,6 +297,21 @@ ax2 = CreateAx(2, 2, 2, AllDataTargetscanNormalized, fig, 'TargetScan', 'Normali
 ax3 = CreateAx(2, 2, 3, AllDataMirandaAbsolute, fig, 'miRanda', 'Number of miRNA sites per gene', 800, Names, xtickpos)
 ax4 = CreateAx(2, 2, 4, AllDataMirandaNormalized, fig, 'miRanda', 'Normalized number of miRNA\nsites per gene', 0.45,  Names, xtickpos)
 
+
+# add subplot label
+ax1.text(-1, 1500, 'A', horizontalalignment = 'center',
+         verticalalignment = 'center', color = 'black', size = 10)
+ax1.text(3, 1500, 'B', horizontalalignment = 'center',
+         verticalalignment = 'center', color = 'black', size = 10)   
+ax3.text(-1, 820, 'A', horizontalalignment = 'center',
+         verticalalignment = 'center', color = 'black', size = 10)
+ax3.text(3, 820, 'B', horizontalalignment = 'center',
+         verticalalignment = 'center', color = 'black', size = 10) 
+
+
+
+
+
 ## annotate Graph with significance level
 #PvalTargetScan, PvalMiranda = [], []
 #for species in species_names:
