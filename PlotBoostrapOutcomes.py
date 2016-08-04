@@ -131,7 +131,7 @@ for species in targetscan:
             i += 1
         elif targetscan[species][gene][-1] == 'not_CNV':
             # populate dict with num: gene pair and update counter
-            ToSampleFromTargetScan[species][j] = gene
+            ToSampleFromTargetScan[species]['not_CNV'][j] = gene
             j += 1            
 for species in miranda:
     # initialize dict
@@ -143,15 +143,18 @@ for species in miranda:
     for gene in miranda[species]:
         if miranda[species][gene][-1] == 'CNV':
             # populate dict with num: gene pair and update counter
-            ToSampleFromMiranda[species][i] = gene
+            ToSampleFromMiranda[species]['CNV'][i] = gene
             i += 1
         elif miranda[species][gene] == 'not_CNV':
             # populate dict with num: gene pair and update counter
-            ToSampleFromMiranda[species][j] = gene
+            ToSampleFromMiranda[species]['not_CNV'][j] = gene
             j += 1
 print('matched genes with numbers for sampling')        
 
-
+# print the number of CNV and non-CNV genes for each species and predictor
+for method in [ToSampleFromTargetScan, ToSampleFromMiranda]:
+    for species in method:
+        print(species, 'cnv: {0}, non-cnv: {1}'.format(len(method[species]['CNV']), len(method[species]['not_CNV'])))
 
 
 
