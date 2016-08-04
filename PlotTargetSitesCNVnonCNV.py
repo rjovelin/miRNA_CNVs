@@ -294,10 +294,10 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, Species
 
 
 # plot data for targetscan
-if domain == 'CDS':
-    ax1 = CreateAx(2, 2, 1, AllDataTargetscanAbsolute, fig, 'TargetScan', 'Number of miRNA sites per gene', 2000, Names, xtickpos)
+if domain == '5UTR':
+    ax1 = CreateAx(2, 2, 1, AllDataTargetscanAbsolute, fig, 'TargetScan', 'Number of miRNA sites per gene', 3000, Names, xtickpos)
     ax2 = CreateAx(2, 2, 2, AllDataTargetscanNormalized, fig, 'TargetScan', 'Normalized number of miRNA\nsites per gene', 0.45, Names, xtickpos)
-    ax3 = CreateAx(2, 2, 3, AllDataMirandaAbsolute, fig, 'miRanda', 'Number of miRNA sites per gene', 2000, Names, xtickpos)
+    ax3 = CreateAx(2, 2, 3, AllDataMirandaAbsolute, fig, 'miRanda', 'Number of miRNA sites per gene', 3000, Names, xtickpos)
     ax4 = CreateAx(2, 2, 4, AllDataMirandaNormalized, fig, 'miRanda', 'Normalized number of miRNA\nsites per gene', 0.45,  Names, xtickpos)
 else:
     ax1 = CreateAx(2, 2, 1, AllDataTargetscanAbsolute, fig, 'TargetScan', 'Number of miRNA sites per gene', 1400, Names, xtickpos)
@@ -311,9 +311,9 @@ ax1.text(-1.3, 1550, 'A', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
 ax1.text(5.5, 1550, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)   
-ax3.text(-1.3, 880, 'A', horizontalalignment = 'center',
+ax3.text(-1.3, 880, 'C', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-ax3.text(5.5, 880, 'B', horizontalalignment = 'center',
+ax3.text(5.5, 880, 'D', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10) 
 
 
@@ -398,7 +398,7 @@ for i in range(len(PvalMirandaAbsolute)):
 # add legend at the top of figure instead of the the top of axes
 C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
 N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
-plt.legend(handles = [C, N], loc = (0, 1), fontsize = 8, frameon = False, ncol = 2)
+plt.legend(handles = [C, N], bbox_to_anchor = (0, 1.02), loc = (0, 1), fontsize = 8, frameon = False, ncol = 2)
 
 
 # make sure subplots do not overlap
