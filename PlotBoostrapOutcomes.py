@@ -167,7 +167,7 @@ def BootstrapGenes(tosamplefrom, cntargets):
         BootStrap[species] = [0, 0, 0]
     # loop over studies in dict to sample from
     for species in tosamplefrom:
-        print('bootstraping', study)
+        print('bootstraping', species)
         # set number of replicates
         replicates = 50000
         while replicates != 0:
@@ -198,7 +198,7 @@ def BootstrapGenes(tosamplefrom, cntargets):
             elif Pval < 0.05:
                 # difference is significance, check if CNV genes have a greater number of targets
                 if np.mean(repCNVtargets) > np.mean(repNonCNVtargets):
-                    BootStrap[study][0] += 1
+                    BootStrap[species][0] += 1
                 elif np.mean(repCNVtargets) < np.mean(repNonCNVtargets):
                     BootStrap[species][1] += 1
             # update replicate number
@@ -338,14 +338,10 @@ ax1.text(3.5, 1, 'B', horizontalalignment = 'center',
 # make sure subplots do not overlap
 plt.tight_layout()
 
-# get outputfile
-outputfile = 'PlotBootstrap' + '_' + domain + '_' + chromos + '_' + cnv_length 
-print(outputfile)
+## get outputfile
+#outputfile = 'PlotBootstrap' + '_' + domain + '_' + chromos + '_' + cnv_length 
+#print(outputfile)
 
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
        
-
-
-
-
