@@ -145,7 +145,7 @@ for species in miranda:
             # populate dict with num: gene pair and update counter
             ToSampleFromMiranda[species]['CNV'][i] = gene
             i += 1
-        elif miranda[species][gene] == 'not_CNV':
+        elif miranda[species][gene][-1] == 'not_CNV':
             # populate dict with num: gene pair and update counter
             ToSampleFromMiranda[species]['not_CNV'][j] = gene
             j += 1
@@ -157,9 +157,73 @@ for method in [ToSampleFromTargetScan, ToSampleFromMiranda]:
         print(species, 'cnv: {0}, non-cnv: {1}'.format(len(method[species]['CNV']), len(method[species]['not_CNV'])))
 
 
+# create a function to perform the bootstraping
+def BootstrapGenes(tosamplefrom, cntargets):
+    '''
+    (dict, dict) -> dict
+    Take a dictionary with number : gene pairs for CNV and non-CNV genes and 
+    return a dictionary with species as key and a list with number of boostrap
+    replicates for which CNV genes have more targets, less targets or similar
+    number of targets as non-CNV genes
+    Precondition: use normalized number of targets
+    '''
+    
+    # tosamplefrom  is the form {species: {CNV_status: {num: gene}}} 
+    # cnvtargets is the form {species: {species: [targets, seq_length, normalized_targets, CNV_status]}}    
+    
+    # create a dict for each study with a list with numbers of each different outcomes when comparing targets in CNV and non-CNV genes
+    # {species: [# replicates CNV > non-CNV, # replicates CNV < non-CNV, # replicates no differences]}
+    BootStrap = {}
+    # initialize list values
+    for species in tosamplefrom:
+        BootStrap[species] = [0, 0, 0]
+    # loop over studies in dict to sample from
+    for species in tosamplefrom:
+        print('bootstraping', study)
+        # set number of replicates
+        replicates = 50000
+        while replicates != 0:
+            # make list of targets for CNV and non-CNV genes
+            repCNVtargets, repNonCNVtargets = [], []
+            # draw 800 CNV genes and 800 non-CNV genes with replacement
+            for i in range(500):
+                # draw a random CNV gene
+                j = random.randint(0, len(tosamplefrom[species]['CNV']) - 1)
+                k = random.randint(0, len(tosamplefrom[species]['not_CNV']) - 1)
+                # get the corresponding genes
+                gene1 = tosamplefrom[species]['CNV'][j]
+                gene2 = tosamplefrom[species]['not_CNV'][k]            
+                # get the the number of targets for these 2 genes
+                assert cnvtargets[species][gene1][-1] == 'CNV', 'random gene should be CNV'
+                assert cnvtargets[species][gene2][-1] == 'not_CNV', 'random gene should be non-CNV'
+                repCNVtargets.append(cnvtargets[species][gene1][2])
+                repNonCNVtargets.append(cnvtargets[species][gene2][2])
+            # make sure that the correct numbers of genes is drawn
+            assert len(repCNVtargets) == 500, '500 CNV genes should be drawn'
+            assert len(repNonCNVtargets) == 500, '500 non-CNV genes should be drawn'
+            # compare CNV and non-CNV genes
+            Pval = stats.ranksums(repCNVtargets, repNonCNVtargets)[1]
+            # check significance
+            if Pval >= 0.05:
+                # difference is not significance
+                BootStrap[species][2] += 1
+            elif Pval < 0.05:
+                # difference is significance, check if CNV genes have a greater number of targets
+                if np.mean(repCNVtargets) > np.mean(repNonCNVtargets):
+                    BootStrap[study][0] += 1
+                elif np.mean(repCNVtargets) < np.mean(repNonCNVtargets):
+                    BootStrap[species][1] += 1
+            # update replicate number
+            replicates -= 1
+
+    return BootStrap
 
 
-##### continue here
+
+BootStrapTargetscan = BootstrapGenes(ToSampleFromTargetScan, targetscan)
+print('done with boostraping for targetscan')        
+BootStrapMiranda = BootstrapGenes(ToSampleFromMiranda, miranda)
+print('done with boostraping for miranda')        
 
 
 
@@ -167,52 +231,36 @@ for method in [ToSampleFromTargetScan, ToSampleFromMiranda]:
 
 
 
-# create a dict for each study with a list with numbers of each different outcomes when comparing targets in CNV and non-CNV genes
-# {study: [# replicates CNV > non-CNV, # replicates CNV < non-CNV, # replicates no differences]}
-BootStrap = {}
-# initialize list values
-for study in ToSampleFrom:
-    BootStrap[study] = [0, 0, 0]
 
-# loop over studies in dict to sample from
-for study in ToSampleFrom:
-    print('bootstraping', study)
-    # set number of replicates
-    replicates = 10000
-    while replicates != 0:
-        # make list of targets for CNV and non-CNV genes
-        repCNVtargets, repNonCNVtargets = [], []
-        # draw 800 CNV genes and 800 non-CNV genes with replacement
-        for i in range(800):
-            # draw a random CNV gene
-            j = random.randint(0, len(ToSampleFrom[study]['CNV']) - 1)
-            k = random.randint(0, len(ToSampleFrom[study]['not_CNV']) - 1)
-            # get the corresponding genes
-            gene1 = ToSampleFrom[study]['CNV'][j]
-            gene2 = ToSampleFrom[study]['not_CNV'][k]            
-            # get the the number of targets for these 2 genes
-            assert CNVTargets[study][gene1][-1] == 'CNV', 'random gene should be CNV'
-            assert CNVTargets[study][gene2][-1] == 'not_CNV', 'random gene should be non-CNV'
-            repCNVtargets.append(CNVTargets[study][gene1][2])
-            repNonCNVtargets.append(CNVTargets[study][gene2][2])
-        # make sure that the correct numbers of genes is drawn
-        assert len(repCNVtargets) == 800, '800 CNV genes should be drawn'
-        assert len(repNonCNVtargets) == 800, '800 non-CNV genes should be drawn'
-        # compare CNV and non-CNV genes
-        Pval = stats.ranksums(repCNVtargets, repNonCNVtargets)[1]
-        # check significance
-        if Pval >= 0.05:
-            # difference is not significance
-            BootStrap[study][2] += 1
-        elif Pval < 0.05:
-            # difference is significance, check if CNV genes have a greater number of targets
-            if np.mean(repCNVtargets) > np.mean(repNonCNVtargets):
-                BootStrap[study][0] += 1
-            elif np.mean(repCNVtargets) < np.mean(repNonCNVtargets):
-                BootStrap[study][1] += 1
-        # update replicate number
-        replicates -= 1
-print('done with boostraping')        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       
 # create parallel list of proportions 
@@ -411,7 +459,7 @@ outputfile = 'PlotSinglePops_' + predictor + '_' + domain + '_' + chromos + '_' 
 print(outputfile)
 
 # save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+fig.savefig('truc.pdf', bbox_inches = 'tight')
        
 
 
@@ -725,7 +773,7 @@ outputfile = 'PlotSitesCNVvsNonCNV_' + domain + '_' + chromos + '_' + cnv_length
 print(outputfile)
 
 # save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+fig.savefig('truc.pdf', bbox_inches = 'tight')
 
 
 
