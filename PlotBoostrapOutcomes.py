@@ -147,7 +147,7 @@ def MatchNumbersGenes(cnvtargets):
 
 
 # create a function to perform the bootstraping
-def BootstrapGenes(tosamplefrom, cntargets):
+def BootstrapGenes(tosamplefrom, cnvtargets):
     '''
     (dict, dict) -> dict
     Take a dictionary with number : gene pairs for CNV and non-CNV genes and 
