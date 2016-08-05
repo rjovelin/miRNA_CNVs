@@ -170,7 +170,7 @@ def BootstrapGenes(tosamplefrom, cnvtargets):
     for species in tosamplefrom:
         print('bootstraping', species)
         # set number of replicates
-        replicates = 50000
+        replicates = 10000
         while replicates != 0:
             # make list of targets for CNV and non-CNV genes
             repCNVtargets, repNonCNVtargets = [], []
