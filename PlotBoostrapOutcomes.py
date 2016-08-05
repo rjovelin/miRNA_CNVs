@@ -26,6 +26,7 @@ from scipy import stats
 import math
 import os
 import sys
+import random
 # import custom modules
 from CNV_miRNAs import *
 
