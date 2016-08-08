@@ -9,7 +9,47 @@ Created on Fri Aug  5 16:53:07 2016
 # use this script to plot the frequency of studies for which the number of
 # miRNA sites for CNV genes is greater, lower or similar to non-CNV genes
 
+# usage PlotFreqStudies.py [options]
+# [3UTR/5UTR/CDS]: gene domain to consider
 
+
+# use Agg backend on server without X server
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib import rc
+rc('mathtext', default='regular')
+# import modules
+import numpy as np
+from scipy import stats
+import math
+import os
+import sys
+import random
+# import custom modules
+from CNV_miRNAs import *
+
+
+# get the region to consider to predict target sites [3UTR or 5UTr or CDS]
+domain = sys.argv[1]
+print(domain)
+
+# keep genes on assembled nuclear chromosomes
+chromos = 'valid_chromos'
+keep_valid_chromos = True
+# consider all CNVs
+cnv_length = 'CNV_all_length'
+CNV_size = 'all'
+# alternatives
+# chromos = 'all_chromos'
+# cnv_length = 'CNV_greater_1Kb'
+# CNV_size = 'long'
+
+
+# make a dictionary of species names : species code
+species_codes = {'H_sapiens': 'Hsa', 'P_troglodytes': 'Ptr', 'M_mulatta': 'Mml',
+                 'M_musculus': 'Mmu', 'B_taurus': 'Bta', 'G_gallus':'Gga'}
 
 
 
