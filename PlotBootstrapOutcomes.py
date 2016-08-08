@@ -244,7 +244,7 @@ ProportionsMiranda = [GreaterMiranda, LowerMiranda, NodiffMiranda]
 
 
 # create figure
-fig = plt.figure(1, figsize = (8, 3))
+fig = plt.figure(1, figsize = (3, 5))
 
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, Data, figure, Title, LabelNames, XScale):
@@ -273,14 +273,11 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, LabelNames, XScale):
     # Create a bar plot for proportions of replicates with CNV lower on top of CNV greater
     ax.bar([0, 0.4, 0.8, 1.2, 1.6, 2], lower, width = 0.3, bottom= added, label = 'CNV < non-CNV', color = '#67a9cf')
  
-    # add legend
-    N = mpatches.Patch(facecolor = '#f7f7f7' , edgecolor = 'black', linewidth = 1, label= 'No diff.')
-    G = mpatches.Patch(facecolor = '#ef8a62' , edgecolor = 'black', linewidth = 1, label= 'CNV greater')
-    L = mpatches.Patch(facecolor = '#67a9cf' , edgecolor = 'black', linewidth = 1, label= 'CNV lower')
-    plt.legend(handles = [N, G, L], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
-
-    # write title   
-    ax.set_title(Title + '\n\n', size = 8)
+    # write title
+    if Title == 'TargetScan':
+        ax.set_title(Title + '\n\n', size = 8)
+    elif Title == 'miRanda':
+        ax.set_title(Title + '\n', size = 8)
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for y axis
@@ -326,15 +323,20 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, LabelNames, XScale):
 
 # plot porportions for targetscan and miranda
 Names = [species_codes[i] for i in SpeciesNames]
-ax1 = CreateAx(2, 1, 1, ProportionsTargetscan, fig, 'TargetScan', Names, [0.15, 0.55, 0.95, 1.35, 1.75, 2.15])
-ax2 = CreateAx(2, 1, 2, ProportionsMiranda, fig, 'miRanda', Names, [0.15, 0.55, 0.95, 1.35, 1.75, 2.15])
+ax1 = CreateAx(1, 2, 1, ProportionsTargetscan, fig, 'TargetScan', Names, [0.15, 0.55, 0.95, 1.35, 1.75, 2.15])
+ax2 = CreateAx(1, 2, 2, ProportionsMiranda, fig, 'miRanda', Names, [0.15, 0.55, 0.95, 1.35, 1.75, 2.15])
 
 # add subplot label
-ax1.text(-1, 1, 'A', horizontalalignment = 'center',
+ax1.text(-0.5, 1, 'A', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-ax1.text(3.5, 1, 'B', horizontalalignment = 'center',
+ax2.text(-0.5, 1, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
 
+# add legend
+N = mpatches.Patch(facecolor = '#f7f7f7' , edgecolor = 'black', linewidth = 1, label= 'No diff.')
+G = mpatches.Patch(facecolor = '#ef8a62' , edgecolor = 'black', linewidth = 1, label= 'CNV greater')
+L = mpatches.Patch(facecolor = '#67a9cf' , edgecolor = 'black', linewidth = 1, label= 'CNV lower')
+ax1.legend(handles = [N, G, L], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
 
 # make sure subplots do not overlap
 plt.tight_layout()
