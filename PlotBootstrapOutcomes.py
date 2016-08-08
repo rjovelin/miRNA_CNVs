@@ -327,9 +327,9 @@ ax1 = CreateAx(1, 2, 1, ProportionsTargetscan, fig, 'TargetScan', Names, [0.15, 
 ax2 = CreateAx(1, 2, 2, ProportionsMiranda, fig, 'miRanda', Names, [0.15, 0.55, 0.95, 1.35, 1.75, 2.15])
 
 # add subplot label
-ax1.text(-0.5, 1.3, 'A', horizontalalignment = 'center',
+ax1.text(-0.5, 1.1, 'A', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-ax2.text(-0.5, 1.3, 'B', horizontalalignment = 'center',
+ax2.text(-0.5, 1.1, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
 
 # add legend
