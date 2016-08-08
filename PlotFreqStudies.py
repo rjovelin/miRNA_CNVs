@@ -158,13 +158,6 @@ for release in StudiesCNVGenes:
 print('sorted genes according to CNV status')
 
 
-for release in CNV_status:
-    for study in CNV_status[release]:
-        print(release, study, len(CNV_status[release][study]))
-
-
-
-
 # get the number of target sites for each gene
 # get targetscan sequence input file
 targetscan_seq_input_file = 'H_sapiens_' + domain + '_' + chromos + '_targetscan.txt'
