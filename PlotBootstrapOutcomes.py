@@ -244,7 +244,7 @@ ProportionsMiranda = [GreaterMiranda, LowerMiranda, NodiffMiranda]
 
 
 # create figure
-fig = plt.figure(1, figsize = (3, 5))
+fig = plt.figure(1, figsize = (4, 6))
 
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, Data, figure, Title, LabelNames, XScale):
@@ -277,7 +277,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, LabelNames, XScale):
     if Title == 'TargetScan':
         ax.set_title(Title + '\n\n', size = 8)
     elif Title == 'miRanda':
-        ax.set_title(Title + '\n', size = 8)
+        ax.set_title(Title, size = 8)
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for y axis
