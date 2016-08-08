@@ -45,261 +45,148 @@ CNV_size = 'all'
 # chromos = 'all_chromos'
 # cnv_length = 'CNV_greater_1Kb'
 # CNV_size = 'long'
+# minimum_cnv =  minimum number of cnv genes in single study
+MinimumCNVGenes = 500
 
-
-# make a dictionary of species names : species code
-species_codes = {'H_sapiens': 'Hsa', 'P_troglodytes': 'Ptr', 'M_mulatta': 'Mml',
-                 'M_musculus': 'Mmu', 'B_taurus': 'Bta', 'G_gallus':'Gga'}
-
-
-
+Releases = ['GRCh37_2013-05', 'GRCh37_2013-07', 'GRCh37_2014', 'GRCh37_2015']
+labelnames = ['2013a', '2013b', '2014', '2015']
 
 
 
+# get the number of target sites for each study of each version of the DGV
 
-
-
-
-
-
-
-
-
-
-
-
-
-######################
-
-
-# usage single_study_average_target_sites.py [parameters]
-# [3UTR/5UTR/CDS] choose the region to analyse
-# [targetscan/miranda] choose the target predictor
-# [True/False] use valid chromos (True) or all chromos
-# [long_CNVs/all_CNVs] use all CNVs or CNVs > 1 Kb
-# CNV_file Choose DGV CNV file
-# minimum_cnv minimum number of cnv genes in single study
-
-
-from CNV_miRNAs import *
-import os
-import sys
-import numpy as np
-from scipy import stats
-import math
-
-# get the region to consider to predict target sites [3UTR or 5UTr or CDS]
-domain = sys.argv[1]
-print(domain)
-
-# get predictor from command [targetscan or miranda]
-predictor = sys.argv[2]
-print(predictor)
-
-# get the option to keep genes on all chromos (False) or only on assembled 
-# nuclear chromosomes only (True) from the command
-keep_valid_chromos = sys.argv[3]
-if keep_valid_chromos == 'True':
-    keep_valid_chromos = True
-    chromos = 'valid_chromos'
-elif keep_valid_chromos == 'False':
-    keep_valid_chromos = False
-    chromos = 'all_chromos'
-print(keep_valid_chromos, chromos)
-
-
-# get the option to call a CNV if CNV length > 1 Kb (long_CNVs)
-# or to include all CNVs regardless of length (all_CNVs)
-long_CNV = sys.argv[4]
-if long_CNV == 'all_CNVs':
-    cnv_length = 'CNV_all_length'
-    CNV_size = 'all'
-elif long_CNV == 'long_CNVs':
-    cnv_length = 'CNV_greater_1Kb'
-    CNV_size = 'long'
-print(long_CNV, cnv_length, CNV_size)
-
-# get the CNV file from the command line
-# ie. all_CNV or CNVs > 1 Kb can be used for any DGV release
-CNV_file = sys.argv[5]
-print(CNV_file)
-
-# get the minimum number of cnv genes that a single study must have
-minimum_cnv = int(sys.argv[6])
-print(minimum_cnv)
-
-
-# check if all chromos (including unplaced, unlocated, and MT) are used
-# or if only valid chromos are used 
-# note: only CNVs on valid chromos are reported in DGV, so if all chromos are
-# used it may introduce a bias by calling non CNV genes genes that cannot be detected
-
-# get the file with 3'UTR length
+# get UTR file
 UTR_file = 'H_sapiens_3UTR_length_' + chromos + '.txt'
 print(UTR_file)
+
+# get synonym names for all genes {gene name : [list of synonyms]}
+synonyms = get_synonyms('H_sapiens.gff3')
+print('got synonymous names', len(synonyms))
+
+# get the CDS sequences of the longest mRNAs for each gene {gene : sequence}
+CDS_seq = extract_CDS_sequences('H_sapiens.gff3', 'H_sapiens_genome.txt', 'H_sapiens_valid_chromos.txt', keep_valid_chromos)
+print('extracted CDS sequences', len(CDS_seq))  
+
+# make a list of DGV files
+DGVFiles = ['GRCh37_hg19_variants_2013-05-31.txt', 'GRCh37_hg19_variants_2013-07-23.txt',
+            'GRCh37_hg19_variants_2014-10-16.txt', 'GRCh37_hg19_variants_2015-07-23.txt']
+
+# get the CNV genes for each study of each release of the DGV
+# create a dict {release: {study: {set of cnv genes}}}
+StudiesCNVGenes = {}
+# loop over DGV files
+for filename in DGVFiles:
+    print(filename)
+    # get release version
+    if '2013' in filename:
+        release_version = filename[:filename.index('_hg19')] + '_' + filename[filename.index('variants_') + len('variants_'): -7]
+    else:
+        release_version = filename[:filename.index('_hg19')] + '_' + filename[filename.index('variants_') + len('variants_'): -10]
+    print(release_version)
+    # initialize outer dict
+    StudiesCNVGenes[release_version] = {}
+    # get the set of CNV genes for each study of that release
+    for study in References[release_version]:
+        CNV_genes = get_human_CNV_genes_single_study(filename, study, 'all')
+        StudiesCNVGenes[release_version][study] = set(CNV_genes)
+print('got CNV genes for each study')        
+        
+# remove studies if the number of CNV genes < MinimumCNVGenes
+for release in StudiesCNVGenes:
+    to_remove = []
+    for study in StudiesCNVGenes[release]:
+        if len(StudiesCNVGenes[release][study]) < MinimumCNVGenes:
+            to_remove.append(study)
+    if len(to_remove) != 0:
+        for study in to_remove:
+            del StudiesCNVGenes[release][study]
+# remove version if all studies were removed
+to_remove = []
+for release in StudiesCNVGenes:
+    if len(StudiesCNVGenes[release]) == 0:
+        to_remove.append(release)
+if len(to_remove) != 0:
+    for release in to_remove:
+        del StudiesCNVGenes[release]
+# check that all 4 releases are kept
+assert len(StudiesCNVGenes) == 4, 'not all releases are recorded'
+
+
+# get the CNV status of all genes used to predict target sites for each study of each release
+# create a dict {release: {study: {gene: CNV status}}}    
+CNV_status = {}    
+for release in StudiesCNVGenes:
+    # initialize outer dict
+    CNV_status[release] = {}
+    for study in StudiesCNVGenes[release]:
+        # initialize dict
+        CNV_status[release][study] = {}
+        # loop over genes in CDS seq
+        for gene in CDS_seq:
+            # set boolean
+            is_cnv = False
+            # ask if gene in CNV gene
+            if gene in StudiesCNVGenes[release][study] or gene.upper() in StudiesCNVGenes[release][study]:
+                CNV_status[release][study][gene] = 'CNV'
+            else:
+                # ask if any of the gene synonyms are in CNVs
+                for name in synonyms[gene]:
+                    # check if name in CNV
+                    if name in StudiesCNVGenes[release][study] or name.upper() in StudiesCNVGenes[release][study]:
+                        # update boolean
+                        is_cnv = True
+                # check if gene in CNV
+                if is_cnv == True:
+                    CNV_status[release][study][gene] = 'CNV'
+                elif is_cnv == False:
+                    CNV_status[release][study][gene] = 'not_CNV'
+print('sorted genes according to CNV status')
+
+
+for release in CNV_status:
+    for study in CNV_status[release]:
+        print(release, study, len(CNV_status[release][study]))
+
+
+
+
+# get the number of target sites for each gene
 # get targetscan sequence input file
 targetscan_seq_input_file = 'H_sapiens_' + domain + '_' + chromos + '_targetscan.txt'
 print(targetscan_seq_input_file)
-
 # get the outputfile with predicted target sites
-predicted_target_file = 'H_sapiens_' + domain + '_' + chromos + '_predicted_sites_' + predictor + '.txt'    
-print(predicted_target_file)
+TargetScanTargetsFile = 'H_sapiens_' + domain + '_' + chromos + '_predicted_sites_targetscan.txt'   
+MirandaTargetsFile = 'H_sapiens_' + domain + '_' + chromos + '_predicted_sites_miranda.txt'   
 # make a dictionary with {gene :[targets, seq_length, normalized_targets]}
+TargetsTargetscan = parse_targetscan_output(targetscan_seq_input_file, TargetScanTargetsFile, 'all')
+TargetsMiranda = parse_miranda_output(targetscan_seq_input_file, MirandaTargetsFile, 'all')
 
-# check predictor
-if predictor == 'targetscan':
-    predicted_targets = parse_targetscan_output(targetscan_seq_input_file, predicted_target_file, 'all')
-elif predictor == 'miranda':
-    predicted_targets = parse_miranda_output(targetscan_seq_input_file, predicted_target_file, 'all')
 
-# get release version
-if '2013' in CNV_file:
-    release_version = 'GRCh37_' + CNV_file[CNV_file.rindex('_') + 1: -7]
-else:
-    release_version = 'GRCh37_' + CNV_file[CNV_file.rindex('_') + 1: -10]
-print(release_version)
-
-# get outputfile
-outputfile = 'H_sapiens_single_study_targets_' + domain + '_' + cnv_length + '_' + chromos + '_' + predictor + '_' + release_version + '.txt'
-print(outputfile)
-
-# open file for writing
-newfile = open(outputfile, 'w')
-
-# write header to file
-newfile.write('\t'.join(['Study', 'N_CNV_genes', 'CNV_mean_targets', 'CNV_SEM_targets',  
-                        'N_nonCNV_genes', 'nonCNV_mean_targets', 'nonCNV_SEM_targets',
-                        'P_diff_targets', 'CNV_mean_normalized_targets', 'CNV_SEM_normalized_targets',
-                        'nonCNV_mean_normalized_targets', 'nonCNV_SEM_normalized_targets', 'P_diff_normalized_targets',
-                        'CNV_mean_seq_length', 'CNV_SEM_seq_length', 'nonCNV_mean_seq_length',
-                        'nonCNV_SEM_seq_length', 'P_seq_length', 'Spearman_rho_targets_X_length', 'P_targets_X_length']) + '\n')                        
-
-# get the dictionaries of {reference: pubmedid} for studies reported in the CGV
-references = get_DGV_references(CNV_file)
-
-# create a lamda function to transform value into string
-Gstr = lambda x: str(x)
-
-# loop over study
-for study in references:
-    print(study)
-    # get the set of CNV genes corresponding to that study
-    CNV_genes = get_human_CNV_genes_single_study(CNV_file, study, CNV_size)
-    print('# CNV genes', len(CNV_genes)) 
-    
-    # check that study includes minimum number of cnv genes
-    if len(CNV_genes) >= minimum_cnv:
-        # make temporary cnv_file with CNV genes extracted from DGV
-        tempfile = open('Temp_cnv_file.txt', 'w')
-        # dump all CNV genes
-        for gene in CNV_genes:
-            tempfile.write(gene + '\n')
-        tempfile.close()
-    
-        # get CNV gene status
-        CNV_status = get_genes_CNV_status('H_sapiens.gff3', 'H_sapiens_genome.txt', 'H_sapiens_valid_chromos.txt', keep_valid_chromos, 'Temp_cnv_file.txt')    
-        print('genes with CNV status', len(CNV_status))
-    
-        # make a temporary file with CNV status of all genes     
-        tempfile = open('Temp_CNV_status_file.txt', 'w')
-        tempfile.write('gene\tCNV_status\n')
-        for gene in CNV_status:
-            tempfile.write(gene + '\t' + CNV_status[gene] + '\n')
-        tempfile.close()
-    
-        # make temp summary file with targets and cnv status
-        make_summary_table_target_sites(predicted_targets, 'Temp_CNV_status_file.txt', 'Temp_summary_targets.txt')
-                
-        # count the number of CNV genes for that study
-        Num_cnv_genes = 0
-        # open temp summary file for reading
-        infile = open('Temp_summary_targets.txt', 'r')
-        # skip header
-        infile.readline()
-        # loop over file
-        for line in infile:
-            line = line.rstrip()
-            if line != '':
-                line = line.split()
-                if line [-1] == 'CNV':
-                    Num_cnv_genes += 1
-        #close file after reading
-        infile.close()
-        print('Num CNV genes', Num_cnv_genes)
-    
-        # check that study includes minimum number of cnv genes
-        if Num_cnv_genes >= minimum_cnv:
-            # parse the summary table into a list
-            regulation = compare_miRNA_regulation('Temp_summary_targets.txt')
-    
-            # write regulation to file
-            newfile.write(study + '\t')
-            newfile.write('\t'.join(list(map(Gstr, regulation))) + '\n')
-    
-            print('done writing regulation for {0}'.format(study))
-
-# close file after writing
-newfile.close()
+# create dicts for targetscan and miranda predictors with target sites and CNV status
+# {release: {study: {gene: [targets, seq_length, normalized_targets, CNV_status]}}}
+CNVTargetsTargetscan, CNVTargetsMiranda = {}, {}
+# loop over release in CNV status
+for release in CNV_status:
+    # initialize inner dict
+    CNVTargetsTargetscan[release], CNVTargetsMiranda[release] = {}, {}
+    for study in CNV_status[release]:
+        # initialize inner dict
+        CNVTargetsTargetscan[release][study], CNVTargetsMiranda[release][study] = {}, {}
+        # loop over genes, populate dict combining targets and CNv status 
+        for gene in CNV_status[release][study]:
+            # get CNV status and add it to the list of targets, without modifying the original list
+            status = CNV_status[release][study][gene]
+            CNVTargetsTargetscan[release][study][gene] = list(TargetsTargetscan[gene]) + [status]
+            CNVTargetsMiranda[release][study][gene] = list(TargetsMiranda[gene]) + [status]
+print('combined CNV status and miRNA targets for each gene in each study')            
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#################
-
-
-
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Nov 25 12:12:16 2015
-@author: RJovelin
-"""
 
 # plot the frequency of studies for which the number of mirna sites is greater
 # for CNV genes, lower for CNV genes and for which there is no significant 
 # difference between CNV and non-CNv genes
 
-
-# usage python3 plot_freq_individual_studies.py options
-# [targetscan/miranda] predictor used to predict mirna target sites
-# outputfile
-
-import os
-import sys
-import matplotlib.pyplot as plt
-from matplotlib import patches as mpatches
-import numpy as np
-
-
-# get the predictor [targetscan or miranda] 
-predictor = sys.argv[1]
-print(predictor)
-
-# get outputfile
-outputfile = sys.argv[2]
-print(outputfile)
-
-# create a list of summary files for each release of the DGV 
-files = [i for i in os.listdir() if 'H_sapiens_single' in i and predictor in i]
-# sort filenames
-files.sort()
 
 # create a dict {DGV_release : [N_cnv_greater, N_cnv_lower, N_no_diff]}
 studies = {}
