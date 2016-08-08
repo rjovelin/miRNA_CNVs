@@ -181,11 +181,53 @@ for release in CNV_status:
 print('combined CNV status and miRNA targets for each gene in each study')            
 
 
+# compare the normalized number of target sites between CNV and non-CNV genes for each study and DGV version
+# count the number of studies with CNV genes having greater, lowe or similar number targets as non-CNV genes
+# {release: [CNV_greater, CNV_lower, NO_diff]}
+CompTargetscan, CompMiranda = {}, {}
+for release in CNVTargetsTargetscan:
+    # initialize dict
+    CompTargetscan[release] = [0, 0, 0]
+    # loop over studies
+    for study in CNVTargetsTargetscan[release]:
+        # make lists of target sites for CNV amd non-CNV genes
+        cnvtargets = [CNVTargetsTargetscan[release][study][gene][2] for gene in CNVTargetsTargetscan[release][study] if CNVTargetsTargetscan[release][study][gene][-1] == 'CNV']
+        noncnvtargets = [CNVTargetsTargetscan[release][study][gene][2] for gene in CNVTargetsTargetscan[release][study] if CNVTargetsTargetscan[release][study][gene][-1] == 'not_CNV']
+        # compare the number of target sites
+        P = stats.ranksums(cnvtargets, noncnvtargets)[1]
+        # update counters
+        if P < 0.05:
+            # compare means
+            if np.means(cnvtargets) > np.means(noncnvtargets):
+                CompTargetscan[release][0] += 1
+            elif np.means(cnvtargets) < np.means(noncnvtargets):
+                CompTargetscan[release][1] += 1
+        elif P >= 0.05:
+            CompTargetscan[release][2] += 1
+for release in CNVTargetsMiranda:
+    # initialize dict
+    CompMiranda[release] = [0, 0, 0]
+    # loop over studies
+    for study in CNVTargetsMiranda[release]:
+        # make lists of target sites for CNV and non-CNV genes
+        cnvtargets = [CNVTargetsMiranda[release][study][gene][2] for gene in CNVTargetsMiranda[release][study] if CNVTargetsMiranda[release][study][gene][-1] == 'CNV']
+        noncnvtargets = [CNVTargetsMiranda[release][study][gene][2] for gene in CNVTargetsMiranda[release][study] if CNVTargetsMiranda[release][study][gene][-1] == 'non_CNV']
+        # compare the number of target sites
+        P = stats.ranksums(cnvtargets, noncnvtargets)[1]
+        # update counters
+        if P < 0.05:
+            # compare means
+            if np.means(cnvtargets) > np.means(noncnvtargets):
+                CompMiranda[release][0] += 1
+            elif np.means(cnvtargets) < np.means(noncnvtargets):
+                CompMiranda[release][1] += 1
+        elif P >= 0.05:
+            CompMiranda[release][2] += 1
+print('compared mean target sites between CNV and non-CNV genes')        
 
 
-# plot the frequency of studies for which the number of mirna sites is greater
-# for CNV genes, lower for CNV genes and for which there is no significant 
-# difference between CNV and non-CNv genes
+
+
 
 
 # create a dict {DGV_release : [N_cnv_greater, N_cnv_lower, N_no_diff]}
