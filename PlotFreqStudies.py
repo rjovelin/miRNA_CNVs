@@ -71,6 +71,21 @@ print('extracted CDS sequences', len(CDS_seq))
 DGVFiles = ['GRCh37_hg19_variants_2013-05-31.txt', 'GRCh37_hg19_variants_2013-07-23.txt',
             'GRCh37_hg19_variants_2014-10-16.txt', 'GRCh37_hg19_variants_2015-07-23.txt']
 
+# make a dictionary to match each study to a pubmed ID in each release
+# {release: {reference: pubmedid}}
+References = {}
+for filename in DGVFiles:
+    # get release version
+    if '2013' in filename:
+        release_version = filename[:filename.index('_hg19')] + '_' + filename[filename.index('variants_') + len('variants_'): -7]
+    else:
+        release_version = filename[:filename.index('_hg19')] + '_' + filename[filename.index('variants_') + len('variants_'): -10]
+    print(release_version)
+    References[release_version] = {}
+    ref = get_DGV_references(filename)
+    References[release_version] = dict(ref)
+print('got references')
+
 # get the CNV genes for each study of each release of the DGV
 # create a dict {release: {study: {set of cnv genes}}}
 StudiesCNVGenes = {}
