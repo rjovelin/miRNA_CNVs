@@ -275,15 +275,15 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, LabelNames, XScale):
  
     # write title
     if Title == 'TargetScan':
-        ax.set_title(Title + '\n\n', size = 8)
+        ax.set_title(Title + '\n\n', size = 10)
     elif Title == 'miRanda':
-        ax.set_title(Title, size = 8)
+        ax.set_title(Title, size = 10)
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for y axis
-    ax.set_ylabel('Proportion of replicates', color = 'black', size = 8, ha = 'center', **FigFont)
+    ax.set_ylabel('Proportion of replicates', color = 'black', size = 10, ha = 'center', **FigFont)
     # write label for x axis
-    plt.xticks(XScale, LabelNames, ha = 'center', fontsize = 8, **FigFont)
+    plt.xticks(XScale, LabelNames, ha = 'center', fontsize = 10, **FigFont)
         
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
@@ -309,7 +309,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, LabelNames, XScale):
         left = 'off',          
         labelbottom='on', # labels along the bottom edge are on
         colors = 'black',
-        labelsize = 8,
+        labelsize = 10,
         direction = 'out') # ticks are outside the frame when bottom = 'on'  
       
     # Set the tick labels font name
@@ -327,9 +327,9 @@ ax1 = CreateAx(1, 2, 1, ProportionsTargetscan, fig, 'TargetScan', Names, [0.15, 
 ax2 = CreateAx(1, 2, 2, ProportionsMiranda, fig, 'miRanda', Names, [0.15, 0.55, 0.95, 1.35, 1.75, 2.15])
 
 # add subplot label
-ax1.text(-0.5, 1, 'A', horizontalalignment = 'center',
+ax1.text(-0.5, 1.3, 'A', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-ax2.text(-0.5, 1, 'B', horizontalalignment = 'center',
+ax2.text(-0.5, 1.3, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
 
 # add legend
