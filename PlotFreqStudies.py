@@ -169,6 +169,8 @@ MirandaTargetsFile = 'H_sapiens_' + domain + '_' + chromos + '_predicted_sites_m
 TargetsTargetscan = parse_targetscan_output(targetscan_seq_input_file, TargetScanTargetsFile, 'all')
 TargetsMiranda = parse_miranda_output(targetscan_seq_input_file, MirandaTargetsFile, 'all')
 
+print('targetscan targets', len(TargetsTargetscan))
+print('miranda targets', len(TargetsMiranda))
 
 # create dicts for targetscan and miranda predictors with target sites and CNV status
 # {release: {study: {gene: [targets, seq_length, normalized_targets, CNV_status]}}}
@@ -184,8 +186,10 @@ for release in CNV_status:
         for gene in CNV_status[release][study]:
             # get CNV status and add it to the list of targets, without modifying the original list
             status = CNV_status[release][study][gene]
-            CNVTargetsTargetscan[release][study][gene] = list(TargetsTargetscan[gene]) + [status]
-            CNVTargetsMiranda[release][study][gene] = list(TargetsMiranda[gene]) + [status]
+            if gene in TargetsTargetscan:
+                CNVTargetsTargetscan[release][study][gene] = list(TargetsTargetscan[gene]) + [status]
+            if gene in TargetsMiranda:
+                CNVTargetsMiranda[release][study][gene] = list(TargetsMiranda[gene]) + [status]
 print('combined CNV status and miRNA targets for each gene in each study')            
 
 
