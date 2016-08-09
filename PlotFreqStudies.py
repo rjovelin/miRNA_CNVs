@@ -338,10 +338,10 @@ ax1.legend(handles = [G, L, N], loc = (0.4, 1.2), fontsize = 8, frameon = False,
 # make sure subplots do not overlap
 plt.tight_layout()
 
-## get outputfile
-#outputfile = 'truc' + '_' + domain + '_' + chromos + '_' + cnv_length 
-#print(outputfile)
+# get outputfile
+outputfile = 'PlotFreqStudiesDGV' + '_' + domain + '_' + chromos + '_' + cnv_length 
+print(outputfile)
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
        
