@@ -326,14 +326,14 @@ ax2 = CreateAx(2, 1, 2, MirandaData, fig, 'miRanda', labelnames, [0.15, 0.55, 0.
 # add subplot label
 ax1.text(-0.5, 1.1, 'A', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-ax1.text(1.5, 1.1, 'B', horizontalalignment = 'center',
+ax1.text(1.8, 1.1, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
 
 # add legend
 N = mpatches.Patch(facecolor = '#f7f7f7' , edgecolor = 'black', linewidth = 1, label= 'No diff.')
 G = mpatches.Patch(facecolor = '#ef8a62' , edgecolor = 'black', linewidth = 1, label= 'CNV greater')
 L = mpatches.Patch(facecolor = '#67a9cf' , edgecolor = 'black', linewidth = 1, label= 'CNV lower')
-ax1.legend(handles = [G, L, N], loc = (0.5, 1.5), fontsize = 8, frameon = False, ncol = 3)
+ax1.legend(handles = [G, L, N], loc = (0.4, 1.2), fontsize = 8, frameon = False, ncol = 3)
 
 # make sure subplots do not overlap
 plt.tight_layout()
