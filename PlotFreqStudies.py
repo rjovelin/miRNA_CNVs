@@ -279,17 +279,9 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, LabelNames, XScale):
     # write label for y axis
     ax.set_ylabel('Frequency of studies in DGV', color = 'black', size = 10, ha = 'center', **FigFont)
     # write label for x axis
+    ax.set_ylabel('DGV release', color = 'black', size = 10, ha = 'center', **FigFont)
+    # add X axis tick labels
     plt.xticks(XScale, LabelNames, ha = 'center', fontsize = 10, **FigFont)
-    
-
-#    # set the x ticks with names
-#    plt.xticks(tick_pos, releases, size = 12)
-#    # set the y ticks
-#    plt.yticks([i/100 for i in range(0, 125, 25)], [0, 0.25, 0.50, 0.75, 1])
-#    # set axis labels
-#    plt.ylabel('Frequency of studies in DGV', size = 12, ha = 'center', fontname = 'Helvetica', family = 'sans-serif', color = 'grey')
-#    plt.xlabel('DGV releases', size = 12, ha = 'center', fontname = 'Helvetica', family = 'sans-serif')
-
 
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
@@ -334,7 +326,7 @@ ax2 = CreateAx(2, 1, 2, MirandaData, fig, 'miRanda', labelnames, [0.15, 0.55, 0.
 # add subplot label
 ax1.text(-0.5, 1.1, 'A', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-ax1.text(3, 1.1, 'B', horizontalalignment = 'center',
+ax1.text(2, 1.1, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
 
 # add legend
