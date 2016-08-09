@@ -106,25 +106,25 @@ for filename in DGVFiles:
         StudiesCNVGenes[release_version][study] = set(CNV_genes)
 print('got CNV genes for each study')        
         
-# remove studies if the number of CNV genes < MinimumCNVGenes
-for release in StudiesCNVGenes:
-    to_remove = []
-    for study in StudiesCNVGenes[release]:
-        if len(StudiesCNVGenes[release][study]) < MinimumCNVGenes:
-            to_remove.append(study)
-    if len(to_remove) != 0:
-        for study in to_remove:
-            del StudiesCNVGenes[release][study]
-# remove version if all studies were removed
-to_remove = []
-for release in StudiesCNVGenes:
-    if len(StudiesCNVGenes[release]) == 0:
-        to_remove.append(release)
-if len(to_remove) != 0:
-    for release in to_remove:
-        del StudiesCNVGenes[release]
-# check that all 4 releases are kept
-assert len(StudiesCNVGenes) == 4, 'not all releases are recorded'
+## remove studies if the number of CNV genes < MinimumCNVGenes
+#for release in StudiesCNVGenes:
+#    to_remove = []
+#    for study in StudiesCNVGenes[release]:
+#        if len(StudiesCNVGenes[release][study]) < MinimumCNVGenes:
+#            to_remove.append(study)
+#    if len(to_remove) != 0:
+#        for study in to_remove:
+#            del StudiesCNVGenes[release][study]
+## remove version if all studies were removed
+#to_remove = []
+#for release in StudiesCNVGenes:
+#    if len(StudiesCNVGenes[release]) == 0:
+#        to_remove.append(release)
+#if len(to_remove) != 0:
+#    for release in to_remove:
+#        del StudiesCNVGenes[release]
+## check that all 4 releases are kept
+#assert len(StudiesCNVGenes) == 4, 'not all releases are recorded'
 
 
 # get the CNV status of all genes used to predict target sites for each study of each release
@@ -205,17 +205,20 @@ for release in CNVTargetsTargetscan:
         # make lists of target sites for CNV amd non-CNV genes
         cnvtargets = [CNVTargetsTargetscan[release][study][gene][2] for gene in CNVTargetsTargetscan[release][study] if CNVTargetsTargetscan[release][study][gene][-1] == 'CNV']
         noncnvtargets = [CNVTargetsTargetscan[release][study][gene][2] for gene in CNVTargetsTargetscan[release][study] if CNVTargetsTargetscan[release][study][gene][-1] == 'not_CNV']
-        # compare the number of target sites
-        P = stats.ranksums(cnvtargets, noncnvtargets)[1]
-        # update counters
-        if P < 0.05:
-            # compare means
-            if np.mean(cnvtargets) > np.mean(noncnvtargets):
-                CompTargetscan[release][0] += 1
-            elif np.mean(cnvtargets) < np.mean(noncnvtargets):
-                CompTargetscan[release][1] += 1
-        elif P >= 0.05:
-            CompTargetscan[release][2] += 1
+        # check that minimum number of cnv gene is met
+        if len(cnvtargets) >= MinimumCNVGenes:
+            # compare the number of target sites
+            P = stats.ranksums(cnvtargets, noncnvtargets)[1]
+            # update counters
+            if P < 0.05:
+                # compare means
+                if np.mean(cnvtargets) > np.mean(noncnvtargets):
+                    CompTargetscan[release][0] += 1
+                elif np.mean(cnvtargets) < np.mean(noncnvtargets):
+                    CompTargetscan[release][1] += 1
+            elif P >= 0.05:
+                CompTargetscan[release][2] += 1
+print('compared mean targetscan sites between CNV and non-CNV genes')        
 for release in CNVTargetsMiranda:
     # initialize dict
     CompMiranda[release] = [0, 0, 0]
@@ -223,19 +226,21 @@ for release in CNVTargetsMiranda:
     for study in CNVTargetsMiranda[release]:
         # make lists of target sites for CNV and non-CNV genes
         cnvtargets = [CNVTargetsMiranda[release][study][gene][2] for gene in CNVTargetsMiranda[release][study] if CNVTargetsMiranda[release][study][gene][-1] == 'CNV']
-        noncnvtargets = [CNVTargetsMiranda[release][study][gene][2] for gene in CNVTargetsMiranda[release][study] if CNVTargetsMiranda[release][study][gene][-1] == 'non_CNV']
-        # compare the number of target sites
-        P = stats.ranksums(cnvtargets, noncnvtargets)[1]
-        # update counters
-        if P < 0.05:
-            # compare means
-            if np.mean(cnvtargets) > np.mean(noncnvtargets):
-                CompMiranda[release][0] += 1
-            elif np.mean(cnvtargets) < np.mean(noncnvtargets):
-                CompMiranda[release][1] += 1
-        elif P >= 0.05:
-            CompMiranda[release][2] += 1
-print('compared mean target sites between CNV and non-CNV genes')        
+        noncnvtargets = [CNVTargetsMiranda[release][study][gene][2] for gene in CNVTargetsMiranda[release][study] if CNVTargetsMiranda[release][study][gene][-1] == 'not_CNV']
+        # check that minimum number of cnv gene is met        
+        if len(cnvtargets) >= MinimumCNVGenes:
+            # compare the number of target sites
+            P = stats.ranksums(cnvtargets, noncnvtargets)[1]
+            # update counters
+            if P < 0.05:
+                # compare means
+                if np.mean(cnvtargets) > np.mean(noncnvtargets):
+                    CompMiranda[release][0] += 1
+                elif np.mean(cnvtargets) < np.mean(noncnvtargets):
+                    CompMiranda[release][1] += 1
+            elif P >= 0.05:
+                CompMiranda[release][2] += 1
+print('compared mean miranda sites between CNV and non-CNV genes')        
 
 
 # create parallel lists with CNV greater, lower and no diff for each release
