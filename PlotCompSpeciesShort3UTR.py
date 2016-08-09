@@ -11,7 +11,6 @@ Created on Tue Aug  9 11:59:52 2016
 
 
 # usage PlotCompSpeciesShort3UTR.py [options]
-# - [targetscan/miranda]: algorithm used to predict target sites
 # - [5UTR/CDS]: domain to compare
 
 
@@ -33,9 +32,8 @@ import random
 from CNV_miRNAs import *
 
 
-dictor = sys.argv[1]
 # get the region to consider to predict target sites [3UTR or 5UTr or CDS]
-domain = sys.argv[2]
+domain = sys.argv[1]
 assert domain in ['5UTR', 'CDS'], 'the gene domain is should be 5UTR or CDS'
 
 # keep genes on assembled nuclear chromosomes
@@ -76,43 +74,43 @@ HsaSpeciesTargets = {}
 # loop over non-human species
 for i in range(1, len(SpeciesNames)):
     # compare human to each other species
-    print(species[0], species[i])
+    print(SpeciesNames[0], SpeciesNames[i])
     # get genome files
-    genome_sp1 = species[0] + '_genome.txt'
-    genome_sp2 = species[i] + '_genome.txt'
+    genome_sp1 = SpeciesNames[0] + '_genome.txt'
+    genome_sp2 = SpeciesNames[i] + '_genome.txt'
     # get chromos files
-    valid_chromos_sp1 = species[0] + '_valid_chromos.txt'
-    valid_chromos_sp2 = species[i] + '_valid_chromos.txt'
+    valid_chromos_sp1 = SpeciesNames[0] + '_valid_chromos.txt'
+    valid_chromos_sp2 = SpeciesNames[i] + '_valid_chromos.txt'
     # get GFF annotation files
-    GFF_sp1 = species[0] + '.gff3'
-    GFF_sp2 = species[i] + '.gff3'
+    GFF_sp1 = SpeciesNames[0] + '.gff3'
+    GFF_sp2 = SpeciesNames[i] + '.gff3'
     print('Genomes files', genome_sp1, genome_sp2)
     print('chromo files', valid_chromos_sp1, valid_chromos_sp2)
     print('GFF files', GFF_sp1, GFF_sp2)
 
     # get targetscan sequence input file
-    seq_input_sp1 = species[0] + '_' + domain + '_' + chromos + '_targetscan.txt'
-    seq_input_sp2 = species[i] + '_' + domain + '_' + chromos + '_targetscan.txt'
+    seq_input_sp1 = SpeciesNames[0] + '_' + domain + '_' + chromos + '_targetscan.txt'
+    seq_input_sp2 = SpeciesNames[i] + '_' + domain + '_' + chromos + '_targetscan.txt'
     print('targetscan input files', seq_input_sp1, seq_input_sp2)
         
     # get predictor output
-    predicted_targets_sp1 = species[0] + '_' + domain + '_' + chromos + '_predicted_sites_targetscan.txt'
-    predicted_targets_sp2 = species[i] + '_' + domain + '_' + chromos + '_predicted_sites_targetscan.txt'
+    predicted_targets_sp1 = SpeciesNames[0] + '_' + domain + '_' + chromos + '_predicted_sites_targetscan.txt'
+    predicted_targets_sp2 = SpeciesNames[i] + '_' + domain + '_' + chromos + '_predicted_sites_targetscan.txt'
     print('prediction files', predicted_targets_sp1, predicted_targets_sp2)        
                 
     # get UTR files
-    UTR_sp1 = species[0] + '_3UTR_length_' + chromos + '.txt'      
-    UTR_sp2 = species[i] + '_3UTR_length_' + chromos + '.txt'
+    UTR_sp1 = SpeciesNames[0] + '_3UTR_length_' + chromos + '.txt'      
+    UTR_sp2 = SpeciesNames[i] + '_3UTR_length_' + chromos + '.txt'
     print('UTR files', UTR_sp1, UTR_sp2)
          
     # get CNV files
     CNV_file_sp1 = human_CNV_file
-    CNV_file_sp2 = species[i] + '_' + cnv_length + '_' + chromos + '.txt'
+    CNV_file_sp2 = SpeciesNames[i] + '_' + cnv_length + '_' + chromos + '.txt'
     print('CNV files', CNV_file_sp1, CNV_file_sp2)
             
     # get mature mirna files
-    mature_sp1 = species[0] + '_mature.txt'
-    mature_sp2 = species[i] + '_mature.txt'        
+    mature_sp1 = SpeciesNames[0] + '_mature.txt'
+    mature_sp2 = SpeciesNames[i] + '_mature.txt'        
     print('miR files', mature_sp1, mature_sp2)
         
     # get a set of shared seeds between species pair
@@ -146,13 +144,13 @@ for i in range(1, len(SpeciesNames)):
     Sp1TargetsNonCNV = [targets_sp1[gene][2] for gene in targets_sp1 if UTR_length_sp1[gene] == 'long' and CNV_status1[gene] == 'not_CNV']
     Sp2TargetsNonCNV = [targets_sp2[gene][2] for gene in targets_sp2 if UTR_length_sp2[gene] == 'long' and CNV_status2[gene] == 'not_CNV']    
     print('got mirna targets for short CNV and non-CNV genes')
-    print('{0} and {1} CNV genes for {2} and {3}'.format(len(Sp1TargetsCNV), len(Sp2TargetsCNV), species[0], species[1]))
+    print('{0} and {1} CNV genes for {2} and {3}'.format(len(Sp1TargetsCNV), len(Sp2TargetsCNV), SpeciesNames[0], SpeciesNames[1]))
     
     # populate dict
-    HsaSpeciesTargets[species[i]] = {}
+    HsaSpeciesTargets[SpeciesNames[i]] = {}
     # copy lists to avoid modifying list values in dict
-    HsaSpeciesTargets[species[i]]['CNV'] = [Sp1TargetsCNV[:], Sp2TargetsCNV[:]]
-    HsaSpeciesTargets[species[i]]['not_CNV'] = [Sp1TargetsNonCNV[:], Sp2TargetsNonCNV[:]]
+    HsaSpeciesTargets[SpeciesNames[i]]['CNV'] = [Sp1TargetsCNV[:], Sp2TargetsCNV[:]]
+    HsaSpeciesTargets[SpeciesNames[i]]['not_CNV'] = [Sp1TargetsNonCNV[:], Sp2TargetsNonCNV[:]]
     
         
 #################################################
