@@ -210,9 +210,9 @@ for release in CNVTargetsTargetscan:
         # update counters
         if P < 0.05:
             # compare means
-            if np.means(cnvtargets) > np.means(noncnvtargets):
+            if np.mean(cnvtargets) > np.mean(noncnvtargets):
                 CompTargetscan[release][0] += 1
-            elif np.means(cnvtargets) < np.means(noncnvtargets):
+            elif np.mean(cnvtargets) < np.mean(noncnvtargets):
                 CompTargetscan[release][1] += 1
         elif P >= 0.05:
             CompTargetscan[release][2] += 1
@@ -229,9 +229,9 @@ for release in CNVTargetsMiranda:
         # update counters
         if P < 0.05:
             # compare means
-            if np.means(cnvtargets) > np.means(noncnvtargets):
+            if np.mean(cnvtargets) > np.mean(noncnvtargets):
                 CompMiranda[release][0] += 1
-            elif np.means(cnvtargets) < np.means(noncnvtargets):
+            elif np.mean(cnvtargets) < np.mean(noncnvtargets):
                 CompMiranda[release][1] += 1
         elif P >= 0.05:
             CompMiranda[release][2] += 1
