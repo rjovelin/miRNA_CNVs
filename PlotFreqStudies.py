@@ -277,7 +277,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, LabelNames, XScale):
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for y axis
-    ax.set_ylabel('Frequency of studies in DGV', color = 'black', size = 10, ha = 'center', **FigFont)
+    ax.set_ylabel('Frequency of studies', color = 'black', size = 10, ha = 'center', **FigFont)
     # write label for x axis
     ax.set_xlabel('DGV releases', color = 'black', size = 10, ha = 'center', **FigFont)
     # add X axis tick labels
