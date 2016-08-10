@@ -164,33 +164,24 @@ for species in SpeciesNames[1:]:
 print('generated lists of target sites for CNV and non-CNV genes')
 
 
-## perform stattistical tests between human and other species for CNV and non-CNV genes
-## create dicts to store results {species: [P-value absolute targets, P-value normalized targets]}
-#CompTargetsCDS, CompTargets5UTR = {}, {}
-#for species in HsaSpeciesTargets:
-#    for domain in HsaSpeciesTargets[species]:
-#        
-#
-#
-#
-#
-#
-#
-# SpeciesDataTargetscanAbsolute:
-#    Pabs = stats.ranksums(SpeciesDataTargetscanAbsolute[species][0], SpeciesDataTargetscanAbsolute[species][1])[1]
-#    Pnorm = stats.ranksums(SpeciesDataTargetscanNormalized[species][0], SpeciesDataTargetscanNormalized[species][1])[1]
-#    CompTargetscan[species] = [Pabs, Pnorm]
-#for species in SpeciesDataMirandaAbsolute:
-#    Pabs = stats.ranksums(SpeciesDataMirandaAbsolute[species][0], SpeciesDataMirandaAbsolute[species][1])[1]    
-#    Pnorm = stats.ranksums(SpeciesDataMirandaNormalized[species][0], SpeciesDataMirandaNormalized[species][1])[1]    
-#    CompMiranda[species] = [Pabs, Pnorm]
-#print('compared CNV and non-CNV genes')
-#
-## print P-values
-#for species in CompTargetscan:
-#    print('targetscan', species, CompTargetscan[species])
-#for species in CompMiranda:
-#    print('miranda', species, CompMiranda[species])
+# perform stattistical tests between human and other species for CNV and non-CNV genes
+# create dicts to store results {species: [P-value CNV, P-value non-CNV]}
+CompTargetsCDS, CompTargets5UTR = {}, {}
+for species in HsaSpeciesTargets:
+    for domain in HsaSpeciesTargets[species]:
+        Pcnv = stats.ranksums(HsaSpeciesTargets[species][domain]['CNV'][0], HsaSpeciesTargets[species][domain]['CNV'][1])[1]
+        Pnoncnv = stats.ranksums(HsaSpeciesTargets[species][domain]['not_CNV'][0], HsaSpeciesTargets[species][domain]['not_CNV'][1])[1]
+        if domain == 'CDS':
+            CompTargetsCDS[species] = [Pcnv, Pnoncnv]
+        elif domain == '5UTR':
+            CompTargets5UTR[species] = [Pcnv, Pnoncnv]
+print('compared CNV and non-CNV genes')
+
+# print P-values
+for species in CompTargetsCDS:
+    print('CDS', species, CompTargetsCDS[species])
+for species in CompTargets5UTR:
+    print('5\'UTR', species, CompTargets5UTR[species])
 
 
 
