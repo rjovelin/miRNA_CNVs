@@ -8,11 +8,9 @@ Created on Tue Aug  9 11:59:52 2016
 
 # use this script to compare the number of miRNA targets per nucleotide
 # between human and each other vertebrate species for genes with short 3'UTRs
+# plot a box plot for target sites in CDS and 5'UTR for CNV genes and for non-CNV genes
 
-
-# usage PlotCompSpeciesShort3UTR.py [options]
-# - [5UTR/CDS]: domain to compare
-
+# usage PlotCompSpeciesShort3UTR.py
 
 # use Agg backend on server without X server
 import matplotlib as mpl
@@ -30,11 +28,6 @@ import sys
 import random
 # import custom modules
 from CNV_miRNAs import *
-
-
-# get the region to consider to predict target sites [3UTR or 5UTr or CDS]
-domain = sys.argv[1]
-assert domain in ['5UTR', 'CDS'], 'the gene domain is should be 5UTR or CDS'
 
 # keep genes on assembled nuclear chromosomes
 chromos = 'valid_chromos'
@@ -57,89 +50,90 @@ L = 7
 
 # use the 2015 release of the DGV
 human_CNV_file = 'H_sapiens_GRCh37_2015_CNV_all_length_valid_chromos.txt'
-# get realease version of the DGV
-release_version = human_CNV_file[human_CNV_file.index('GRCh37') : human_CNV_file.index('_CNV')]
 
-
+# make a dict with species name : species code pairs
 species_codes = {'H_sapiens': 'Hsa', 'P_troglodytes': 'Ptr', 'M_mulatta': 'Mml',
                  'M_musculus': 'Mmu', 'B_taurus': 'Bta', 'G_gallus':'Gga'}
-
 # make a list of species names
 SpeciesNames = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
 
-
 # create a dict for human-species pairwise comparison of target sites for CNV genes or non-CNV genes
-# {species_name : {'CNV': [[sites_Hsa], [sites_sp2]], 'non_CNV': [[sites_Hsa], [sites_sp2]]}}
+# and for sites in CDS or 5'UTR of genes with short 3'UTRs
+# {species_name : {domain: {'CNV_status': [[sites_Hsa], [sites_sp2]]}}}
 HsaSpeciesTargets = {}
 
-# loop over non-human species
-for i in range(1, len(SpeciesNames)):
-    # compare human to each other species
-    print(SpeciesNames[0], SpeciesNames[i])
-    # get genome files
-    genome_sp1 = SpeciesNames[0] + '_genome.txt'
-    genome_sp2 = SpeciesNames[i] + '_genome.txt'
-    # get chromos files
-    valid_chromos_sp1 = SpeciesNames[0] + '_valid_chromos.txt'
-    valid_chromos_sp2 = SpeciesNames[i] + '_valid_chromos.txt'
-    # get GFF annotation files
-    GFF_sp1 = SpeciesNames[0] + '.gff3'
-    GFF_sp2 = SpeciesNames[i] + '.gff3'
+
+# loop over domains
+for domain in ['5UTR', 'CDS']:
+    # loop over non-human species
+    for i in range(1, len(SpeciesNames)):
+        # compare human to each other species
+        print(SpeciesNames[0], SpeciesNames[i])
+        # get genome files
+        genome_sp1 = SpeciesNames[0] + '_genome.txt'
+        genome_sp2 = SpeciesNames[i] + '_genome.txt'
+        # get chromos files
+        valid_chromos_sp1 = SpeciesNames[0] + '_valid_chromos.txt'
+        valid_chromos_sp2 = SpeciesNames[i] + '_valid_chromos.txt'
+        # get GFF annotation files
+        GFF_sp1 = SpeciesNames[0] + '.gff3'
+        GFF_sp2 = SpeciesNames[i] + '.gff3'
     
-    # get targetscan sequence input file
-    seq_input_sp1 = SpeciesNames[0] + '_' + domain + '_' + chromos + '_targetscan.txt'
-    seq_input_sp2 = SpeciesNames[i] + '_' + domain + '_' + chromos + '_targetscan.txt'
+        # get targetscan sequence input file
+        seq_input_sp1 = SpeciesNames[0] + '_' + domain + '_' + chromos + '_targetscan.txt'
+        seq_input_sp2 = SpeciesNames[i] + '_' + domain + '_' + chromos + '_targetscan.txt'
            
-    # get predictor output
-    predicted_targets_sp1 = SpeciesNames[0] + '_' + domain + '_' + chromos + '_predicted_sites_targetscan.txt'
-    predicted_targets_sp2 = SpeciesNames[i] + '_' + domain + '_' + chromos + '_predicted_sites_targetscan.txt'
+        # get predictor output
+        predicted_targets_sp1 = SpeciesNames[0] + '_' + domain + '_' + chromos + '_predicted_sites_targetscan.txt'
+        predicted_targets_sp2 = SpeciesNames[i] + '_' + domain + '_' + chromos + '_predicted_sites_targetscan.txt'
                     
-    # get UTR files
-    UTR_sp1 = SpeciesNames[0] + '_3UTR_length_' + chromos + '.txt'      
-    UTR_sp2 = SpeciesNames[i] + '_3UTR_length_' + chromos + '.txt'
+        # get UTR files
+        UTR_sp1 = SpeciesNames[0] + '_3UTR_length_' + chromos + '.txt'      
+        UTR_sp2 = SpeciesNames[i] + '_3UTR_length_' + chromos + '.txt'
              
-    # get CNV files
-    CNV_file_sp1 = human_CNV_file
-    CNV_file_sp2 = SpeciesNames[i] + '_' + cnv_length + '_' + chromos + '.txt'
+        # get CNV files
+        CNV_file_sp1 = human_CNV_file
+        CNV_file_sp2 = SpeciesNames[i] + '_' + cnv_length + '_' + chromos + '.txt'
                 
-    # get mature mirna files
-    mature_sp1 = SpeciesNames[0] + '_mature.txt'
-    mature_sp2 = SpeciesNames[i] + '_mature.txt'        
+        # get mature mirna files
+        mature_sp1 = SpeciesNames[0] + '_mature.txt'
+        mature_sp2 = SpeciesNames[i] + '_mature.txt'        
             
-    # get a set of shared seeds between species pair
-    shared_seeds = find_conserved_mirna_families(mature_sp1, mature_sp2)
+        # get a set of shared seeds between species pair
+        shared_seeds = find_conserved_mirna_families(mature_sp1, mature_sp2)
         
-    # get CNV gene status
-    CNV_status1 = sort_genes_CNV_status(CNV_file_sp1)
-    CNV_status2 = sort_genes_CNV_status(CNV_file_sp2)
+        # get CNV gene status
+        CNV_status1 = sort_genes_CNV_status(CNV_file_sp1)
+        CNV_status2 = sort_genes_CNV_status(CNV_file_sp2)
            
-    # parse predictor outputfile {gene: [N_sites, seq_length, N_sites/seq_length]}
-    # consider only shared mirna families between species pairs
-    # filter targets for shared mirnas
-    targets_sp1 = parse_targetscan_output(seq_input_sp1, predicted_targets_sp1, 'conserved', shared_seeds, mature_sp1)
-    targets_sp2 = parse_targetscan_output(seq_input_sp2, predicted_targets_sp2, 'conserved', shared_seeds, mature_sp2)
+        # parse predictor outputfile {gene: [N_sites, seq_length, N_sites/seq_length]}
+        # consider only shared mirna families between species pairs
+        # filter targets for shared mirnas
+        targets_sp1 = parse_targetscan_output(seq_input_sp1, predicted_targets_sp1, 'conserved', shared_seeds, mature_sp1)
+        targets_sp2 = parse_targetscan_output(seq_input_sp2, predicted_targets_sp2, 'conserved', shared_seeds, mature_sp2)
             
-    # sort genes by UTR length
-    UTR_length_sp1 = sort_genes_3UTR_length(UTR_sp1, L)
-    UTR_length_sp2 = sort_genes_3UTR_length(UTR_sp2, L)
+        # sort genes by UTR length
+        UTR_length_sp1 = sort_genes_3UTR_length(UTR_sp1, L)
+        UTR_length_sp2 = sort_genes_3UTR_length(UTR_sp2, L)
             
-    # create list of normalized targets for CNV and non-CNV genes
-    # record only genes with short 3' UTR and sort genes that are CNV or not_CNV    
-    Sp1TargetsCNV, Sp2TargetsCNV, Sp1TargetsNonCNV, Sp2TargetsNonCNV =  [], [], [], []
-    # record only genes with short 3' UTR and that are CNV    
-    Sp1TargetsCNV = [targets_sp1[gene][2] for gene in targets_sp1 if UTR_length_sp1[gene] == 'short' and CNV_status1[gene] == 'CNV']    
-    Sp2TargetsCNV = [targets_sp2[gene][2] for gene in targets_sp2 if UTR_length_sp2[gene] == 'short' and CNV_status2[gene] == 'CNV']   
-    # record only genes with short 3' UTR and that not_CNV    
-    Sp1TargetsNonCNV = [targets_sp1[gene][2] for gene in targets_sp1 if UTR_length_sp1[gene] == 'long' and CNV_status1[gene] == 'not_CNV']
-    Sp2TargetsNonCNV = [targets_sp2[gene][2] for gene in targets_sp2 if UTR_length_sp2[gene] == 'long' and CNV_status2[gene] == 'not_CNV']    
-    print('got mirna targets for short CNV and non-CNV genes')
-    print('{0} and {1} CNV genes for {2} and {3}'.format(len(Sp1TargetsCNV), len(Sp2TargetsCNV), SpeciesNames[0], SpeciesNames[1]))
+        # create list of normalized targets for CNV and non-CNV genes
+        # record only genes with short 3' UTR and sort genes that are CNV or not_CNV    
+        Sp1TargetsCNV, Sp2TargetsCNV, Sp1TargetsNonCNV, Sp2TargetsNonCNV =  [], [], [], []
+        # record only genes with short 3' UTR and that are CNV    
+        Sp1TargetsCNV = [targets_sp1[gene][2] for gene in targets_sp1 if UTR_length_sp1[gene] == 'short' and CNV_status1[gene] == 'CNV']    
+        Sp2TargetsCNV = [targets_sp2[gene][2] for gene in targets_sp2 if UTR_length_sp2[gene] == 'short' and CNV_status2[gene] == 'CNV']   
+        # record only genes with short 3' UTR and that not_CNV    
+        Sp1TargetsNonCNV = [targets_sp1[gene][2] for gene in targets_sp1 if UTR_length_sp1[gene] == 'long' and CNV_status1[gene] == 'not_CNV']
+        Sp2TargetsNonCNV = [targets_sp2[gene][2] for gene in targets_sp2 if UTR_length_sp2[gene] == 'long' and CNV_status2[gene] == 'not_CNV']    
+        print('got mirna targets for short CNV and non-CNV genes')
+        print('{0} and {1} CNV genes for {2} and {3}'.format(len(Sp1TargetsCNV), len(Sp2TargetsCNV), SpeciesNames[0], SpeciesNames[1]))
     
-    # populate dict
-    HsaSpeciesTargets[SpeciesNames[i]] = {}
-    # copy lists to avoid modifying list values in dict
-    HsaSpeciesTargets[SpeciesNames[i]]['CNV'] = [Sp1TargetsCNV[:], Sp2TargetsCNV[:]]
-    HsaSpeciesTargets[SpeciesNames[i]]['not_CNV'] = [Sp1TargetsNonCNV[:], Sp2TargetsNonCNV[:]]
+        # populate dict
+        HsaSpeciesTargets[SpeciesNames[i]] = {}
+        HsaSpeciesTargets[SpeciesNames[i]][domain] = {}
+        # copy lists to avoid modifying list values in dict
+        HsaSpeciesTargets[SpeciesNames[i]][domain]['CNV'] = [Sp1TargetsCNV[:], Sp2TargetsCNV[:]]
+        HsaSpeciesTargets[SpeciesNames[i]][domain]['not_CNV'] = [Sp1TargetsNonCNV[:], Sp2TargetsNonCNV[:]]
     
         
 ################################################
@@ -151,6 +145,10 @@ for i in range(1, len(SpeciesNames)):
 
 # make a list of species pairs
 species_pairs = ['Hsa_Ptr', 'Hsa_Mml', 'Hsa_Mmu', 'Hsa_Bta', 'Hsa_Gga']
+
+
+
+
 
 
 # make a list of lists with all data
