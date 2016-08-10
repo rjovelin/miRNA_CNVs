@@ -78,7 +78,6 @@ for domain in ['5UTR', 'CDS']:
         # get GFF annotation files
         GFF_sp1 = SpeciesNames[0] + '.gff3'
         GFF_sp2 = SpeciesNames[i] + '.gff3'
-    
         # get targetscan sequence input file
         seq_input_sp1 = SpeciesNames[0] + '_' + domain + '_' + chromos + '_targetscan.txt'
         seq_input_sp2 = SpeciesNames[i] + '_' + domain + '_' + chromos + '_targetscan.txt'
@@ -101,7 +100,7 @@ for domain in ['5UTR', 'CDS']:
             
         # get a set of shared seeds between species pair
         shared_seeds = find_conserved_mirna_families(mature_sp1, mature_sp2)
-        
+        print('{0} shared seeds between {1} and {2}'.format(len(shared_seeds), SpeciesNames[0], SpeciesNames[i]))
         # get CNV gene status
         CNV_status1 = sort_genes_CNV_status(CNV_file_sp1)
         CNV_status2 = sort_genes_CNV_status(CNV_file_sp2)
@@ -123,20 +122,21 @@ for domain in ['5UTR', 'CDS']:
         Sp1TargetsCNV = [targets_sp1[gene][2] for gene in targets_sp1 if UTR_length_sp1[gene] == 'short' and CNV_status1[gene] == 'CNV']    
         Sp2TargetsCNV = [targets_sp2[gene][2] for gene in targets_sp2 if UTR_length_sp2[gene] == 'short' and CNV_status2[gene] == 'CNV']   
         # record only genes with short 3' UTR and that not_CNV    
-        Sp1TargetsNonCNV = [targets_sp1[gene][2] for gene in targets_sp1 if UTR_length_sp1[gene] == 'long' and CNV_status1[gene] == 'not_CNV']
-        Sp2TargetsNonCNV = [targets_sp2[gene][2] for gene in targets_sp2 if UTR_length_sp2[gene] == 'long' and CNV_status2[gene] == 'not_CNV']    
+        Sp1TargetsNonCNV = [targets_sp1[gene][2] for gene in targets_sp1 if UTR_length_sp1[gene] == 'short' and CNV_status1[gene] == 'not_CNV']
+        Sp2TargetsNonCNV = [targets_sp2[gene][2] for gene in targets_sp2 if UTR_length_sp2[gene] == 'short' and CNV_status2[gene] == 'not_CNV']    
         print('got mirna targets for short CNV and non-CNV genes')
         print('{0} and {1} CNV genes for {2} and {3}'.format(len(Sp1TargetsCNV), len(Sp2TargetsCNV), SpeciesNames[0], SpeciesNames[1]))
-    
+        print('{0} and {1} non-CNV genes for {2} and {3}'.format(len(Sp1TargetsNonCNV), len(Sp2TargetsNonCNV), SpeciesNames[0], SpeciesNames[1]))
+        print('means CNV: {0}, {1}; means non-CNV: {2}, {3} for {4} and {5}'.format(np.mean(Sp1TargetsCNV), np.mean(Sp2TargetsCNV), np.mean(Sp1TargetsNonCNV), np.mean(Sp2TargetsNonCNV), SpeciesNames[0], SpeciesNames[i]))
+        
         # populate dict
         if SpeciesNames[i] not in HsaSpeciesTargets:
             HsaSpeciesTargets[SpeciesNames[i]] = {}
         HsaSpeciesTargets[SpeciesNames[i]][domain] = {}
         # copy lists to avoid modifying list values in dict
-        HsaSpeciesTargets[SpeciesNames[i]][domain]['CNV'] = [Sp1TargetsCNV[:], Sp2TargetsCNV[:]]
-        HsaSpeciesTargets[SpeciesNames[i]][domain]['not_CNV'] = [Sp1TargetsNonCNV[:], Sp2TargetsNonCNV[:]]
+        HsaSpeciesTargets[SpeciesNames[i]][domain]['CNV'] = [list(Sp1TargetsCNV), list(Sp2TargetsCNV)]
+        HsaSpeciesTargets[SpeciesNames[i]][domain]['not_CNV'] = [list(Sp1TargetsNonCNV), list(Sp2TargetsNonCNV)]
     
-
 
 # plot the number of target sites of mirna families shared between human and
 # with each other species for CNV and for non-CNV genes
