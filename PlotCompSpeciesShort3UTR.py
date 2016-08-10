@@ -300,12 +300,11 @@ ax2 = CreateAx(2, 2, 2, NonCNVGenes5UTR, fig, '5\'UTRs of non-CNV genes', labeln
 ax3 = CreateAx(2, 2, 3, CNVGenesCDS, fig, 'CDS of CNV genes', labelnames, xtickpos)
 ax4 = CreateAx(2, 2, 4, NonCNVGenesCDS, fig, 'CDS of non-CNV genes', labelnames, xtickpos)
 
-
 # add subplot labels
-ax1.text(-1.3, 1550, 'A', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)
-ax1.text(5.5, 1550, 'B', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)   
-ax3.text(-1.3, 2700, 'C', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)
-ax3.text(5.5, 2700, 'D', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10) 
+ax1.text(-1.3, 0.18, 'A', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)
+ax1.text(5.5, 0.18, 'B', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)   
+ax3.text(-1.3, 0.18, 'C', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)
+ax3.text(5.5, 0.18, 'D', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10) 
 
 
 ## annotate Graph with significance level
