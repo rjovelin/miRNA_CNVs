@@ -213,18 +213,17 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, SpeciesNames, XScale)
     # use a boxplot
     bp = ax.boxplot(Data, showmeans = True, showfliers = False, widths = 0.3,
                     positions = BoxPositions, patch_artist = True) 
-    
-    # color CNV and non-CNV boxes differently
+
+    # use a blue for human and a different color for each other species
+    ColorScheme = ['#b3cde3', '#fbb4ae', '#ccebc5','#decbe4','#fed9a6','#ffffcc']
+        
+    # color boxes differently
     i = 0    
     # change box, whisker color to black
     for box in bp['boxes']:
         # change line color
         box.set(color = 'black')
-        if i % 2 == 0:
-            # CNV data, color box in grey
-            box.set(facecolor = '#a6cee3')
-        else:
-            box.set(facecolor = '#b2df8a')
+        box.set(facecolor = ColorScheme[i])
         i += 1
     # change whisker color to black
     for wk in bp['whiskers']:
@@ -370,13 +369,6 @@ for i in range(len(PvalCDSCNV)):
              verticalalignment = 'center', color = 'black', size = 8)
     ax4.text(Xpos[i], YposCDSNonCNV[i], PvalCDSNonCNV[i], horizontalalignment = 'center',
              verticalalignment = 'center', color = 'black', size = 8)
-
-## add legend relative to ax1 using ax1 coordinates
-#C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
-#N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
-#ax1.legend(handles = [C, N], loc = (0.8, 1.2), fontsize = 8, frameon = False, ncol = 2)
-
-
 
 # make sure subplots do not overlap
 plt.tight_layout()
