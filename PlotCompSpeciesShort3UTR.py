@@ -129,7 +129,8 @@ for domain in ['5UTR', 'CDS']:
         print('{0} and {1} CNV genes for {2} and {3}'.format(len(Sp1TargetsCNV), len(Sp2TargetsCNV), SpeciesNames[0], SpeciesNames[1]))
     
         # populate dict
-        HsaSpeciesTargets[SpeciesNames[i]] = {}
+        if SpeciesNames[i] not in HsaSpeciesTargets:
+            HsaSpeciesTargets[SpeciesNames[i]] = {}
         HsaSpeciesTargets[SpeciesNames[i]][domain] = {}
         # copy lists to avoid modifying list values in dict
         HsaSpeciesTargets[SpeciesNames[i]][domain]['CNV'] = [Sp1TargetsCNV[:], Sp2TargetsCNV[:]]
@@ -190,7 +191,7 @@ fig = plt.figure(1, figsize = (8, 5))
 
 # create list of labels and tick positions for the X axis
 xtickpos = [0.2, 1.1, 2, 2.9, 3.8]
-Names = [species_codes[i] for i in SpeciesNames]
+Names = [species_codes[i] for i in SpeciesNames[1:]]
 print(Names)
 
 # create a function to format the subplots
@@ -249,7 +250,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, SpeciesNames, XScale)
     plt.xticks(XScale, SpeciesNames, ha = 'center', fontsize = 8, **FigFont)
 
     # add a range for the Y axis
-    plt.ylim([0, 0.16])
+    plt.ylim([0, 0.17])
     
     plt.xlim([-0.25, 4.25])
     
@@ -301,93 +302,80 @@ ax3 = CreateAx(2, 2, 3, CNVGenesCDS, fig, 'CDS of CNV genes', labelnames, xtickp
 ax4 = CreateAx(2, 2, 4, NonCNVGenesCDS, fig, 'CDS of non-CNV genes', labelnames, xtickpos)
 
 # add subplot labels
-ax1.text(-1.3, 0.18, 'A', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)
-ax1.text(5.5, 0.18, 'B', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)   
-ax3.text(-1.3, 0.18, 'C', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)
-ax3.text(5.5, 0.18, 'D', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10) 
+ax1.text(-1.3, 0.19, 'A', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)
+ax1.text(5.5, 0.19, 'B', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)   
+ax3.text(-1.3, 0.19, 'C', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10)
+ax3.text(5.5, 0.19, 'D', horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 10) 
 
 
-## annotate Graph with significance level
-#PvalTargetScanAbsolute, PvalMirandaAbsolute, PvalTargetScanNormalized, PvalMirandaNormalized = [], [], [], []
-#for species in species_names:
-#    # get the significance level for target sites
-#    if CompTargetscan[species][0] >= 0.05:
-#        PvalTargetScanAbsolute.append('')
-#    elif CompTargetscan[species][0] < 0.05 and CompTargetscan[species][0] >= 0.01:
-#        PvalTargetScanAbsolute.append('*')
-#    elif CompTargetscan[species][0] < 0.01 and CompTargetscan[species][0] >= 0.001:
-#        PvalTargetScanAbsolute.append('**')
-#    elif CompTargetscan[species][0] < 0.001:
-#        PvalTargetScanAbsolute.append('***')
-#    # get the significance level of normalized target sites
-#    if CompTargetscan[species][1] >= 0.05:
-#        PvalTargetScanNormalized.append('')
-#    elif CompTargetscan[species][1] < 0.05 and CompTargetscan[species][1] >= 0.01:
-#        PvalTargetScanNormalized.append('*')
-#    elif CompTargetscan[species][1] < 0.01 and CompTargetscan[species][1] >= 0.001:
-#        PvalTargetScanNormalized.append('**')
-#    elif CompTargetscan[species][1] < 0.001:
-#        PvalTargetScanNormalized.append('***')
-#
-#for species in species_names:
-#    # get the significance level for target sites
-#    if CompMiranda[species][0] >= 0.05:
-#        PvalMirandaAbsolute.append('')
-#    elif CompMiranda[species][0] < 0.05 and CompMiranda[species][0] >= 0.01:
-#        PvalMirandaAbsolute.append('*')
-#    elif CompMiranda[species][0] < 0.01 and CompMiranda[species][0] >= 0.001:
-#        PvalMirandaAbsolute.append('**')
-#    elif CompMiranda[species][0] < 0.001:
-#        PvalMirandaAbsolute.append('***')
-#    # get the significance level of normalized target sites
-#    if CompMiranda[species][1] >= 0.05:
-#        PvalMirandaNormalized.append('')
-#    elif CompMiranda[species][1] < 0.05 and CompMiranda[species][1] >= 0.01:
-#        PvalMirandaNormalized.append('*')
-#    elif CompMiranda[species][1] < 0.01 and CompMiranda[species][1] >= 0.001:
-#        PvalMirandaNormalized.append('**')
-#    elif CompMiranda[species][1] < 0.001:
-#        PvalMirandaNormalized.append('***')
-#
-## create list of Y and X positions to annotate figure with significance level
-#if domain == '3UTR':
-#    # make a list of Y positions
-#    YposTargetscanAbsolute = [1390, 420, 400, 990, 390, 580]
-#    YposMirandaAbsolute = [820, 270, 210, 590, 220, 320]
-#    YposTargetscanNormalized = [0.42, 0.11, 0.16, 0.33, 0.15, 0.21]
-#    YposMirandaNormalized = [0.34, 0.10, 0.12, 0.23, 0.13, 0.16]
-#    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
-#elif domain == 'CDS':
-#    # make a list of Y positions
-#    YposTargetscanAbsolute = [1400, 420, 400, 1000, 390, 590]
-#    YposMirandaAbsolute = [820, 280, 210, 600, 220, 320]
-#    YposTargetscanNormalized = [0.42, 0.11, 0.16, 0.33, 0.16, 0.21]
-#    YposMirandaNormalized = [0.35, 0.10, 0.12, 0.24, 0.13, 0.16]
-#    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
-#elif domain == '5UTR':
-#    # make a list of Y positions
-#    YposTargetscanAbsolute = [4000, 1490, 2500, 2020, 1020, 610]
-#    YposMirandaAbsolute = [2520, 900, 1500, 1500, 300, 400]
-#    YposTargetscanNormalized = [0.40, 0.12, 0.16, 0.33, 0.15, 0.23]
-#    YposMirandaNormalized = [0.33, 0.09, 0.12, 0.23, 0.12, 0.17]
-#    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
-#
-#
-#for i in range(len(PvalTargetScanAbsolute)):
-#    ax1.text(Xpos[i], YposTargetscanAbsolute[i], PvalTargetScanAbsolute[i], horizontalalignment = 'center',
-#             verticalalignment = 'center', color = 'black', size = 8)
-#    ax2.text(Xpos[i], YposTargetscanNormalized[i], PvalTargetScanNormalized[i], horizontalalignment = 'center',
-#             verticalalignment = 'center', color = 'black', size = 8)         
-#for i in range(len(PvalMirandaAbsolute)):
-#    ax3.text(Xpos[i], YposMirandaAbsolute[i], PvalMirandaAbsolute[i], horizontalalignment = 'center',
-#             verticalalignment = 'center', color = 'black', size = 8)
-#    ax4.text(Xpos[i], YposMirandaNormalized[i], PvalMirandaNormalized[i], horizontalalignment = 'center',
-#             verticalalignment = 'center', color = 'black', size = 8)
-#
+
+# use this function to generate lists with significance levels
+def SignificanceMarks(SpeciesNames, CompData):
+    '''
+    (list, dict) -> (list, list)
+    Take a list of species names and a dictionary with species name as key and 
+    a list of P values comparing target sites between human and the given species
+    for CNV genes and for non-CNv genes
+    '''    
+    
+    # species names is : ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
+    # CompData is a dit in the form {species: [P-value CNV, P-value non-CNV]}
+    
+    # create lists of significance level for each pairwise comparisons for CNv genes and for non-CNv genes
+    PvalCNV, PvalNonCNV = [], []
+    # loop over species, omitt human
+    for species in SpeciesNames[1:]:
+        # get the significance level for target sites in CNV genes
+        if CompData[species][0] >= 0.05:
+            PvalCNV.append('')
+        elif CompData[species][0] < 0.05 and CompData[species][0] >= 0.01:
+            PvalCNV.append('*')
+        elif CompData[species][0] < 0.01 and CompData[species][0] >= 0.001:
+            PvalCNV.append('**')
+        elif CompData[species][0] < 0.001:
+            PvalCNV.append('***')
+        # get the significance level for target sites in CDS of non-CNv genes
+        if CompData[species][1] >= 0.05:
+            PvalNonCNV.append('')
+        elif CompData[species][1] < 0.05 and CompData[species][1] >= 0.01:
+            PvalNonCNV.append('*')
+        elif CompData[species][1] < 0.01 and CompData[species][1] >= 0.001:
+            PvalNonCNV.append('**')
+        elif CompData[species][1] < 0.001:
+            PvalNonCNV.append('***')
+            
+    return PvalCNV, PvalNonCNV
+
+
+# annotate Graph with significance level
+PvalCDSCNV, PvalCDSNonCNV = SignificanceMarks(SpeciesNames, CompTargetsCDS)
+Pval5UTRCNV, Pval5UTRNonCNV = SignificanceMarks(SpeciesNames, CompTargets5UTR)
+
+# create list of Y and X positions to annotate figure with significance level
+Xpos = [0.2, 1.1, 2, 2.9, 3.8]
+Ypos5UTRCNV = [0.12, 0.125, 0.165, 0.09, 0.11]
+Ypos5UTRNonCNV = [0.11, 0.13, 0.15, 0.10, 0.11]
+YposCDSCNV = [0.10, 0.105, 0.13, 0.08, 0.08]
+YposCDSNonCNV = [0.10, 0.11, 0.145, 0.08, 0.085]
+
+
+
+for i in range(len(Pval5UTRCNV)):
+    ax1.text(Xpos[i], Ypos5UTRCNV[i], Pval5UTRCNV[i], horizontalalignment = 'center', 
+             verticalalignment = 'center', color = 'black', size = 8)
+    ax2.text(Xpos[i], Ypos5UTRNonCNV[i], Pval5UTRNonCNV[i], horizontalalignment = 'center',
+             verticalalignment = 'center', color = 'black', size = 8)         
+for i in range(len(PvalCDSCNV)):
+    ax3.text(Xpos[i], YposCDSCNV[i], PvalCDSCNV[i], horizontalalignment = 'center',
+             verticalalignment = 'center', color = 'black', size = 8)
+    ax4.text(Xpos[i], YposCDSNonCNV[i], PvalCDSNonCNV[i], horizontalalignment = 'center',
+             verticalalignment = 'center', color = 'black', size = 8)
+
 ## add legend relative to ax1 using ax1 coordinates
 #C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
 #N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
 #ax1.legend(handles = [C, N], loc = (0.8, 1.2), fontsize = 8, frameon = False, ncol = 2)
+
 
 
 # make sure subplots do not overlap
