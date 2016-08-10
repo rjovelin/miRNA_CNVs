@@ -143,7 +143,7 @@ for domain in ['5UTR', 'CDS']:
 # create paralell lists for target sites in CNV and non-CNV genes located in 5'UTR or CDS 
 CNVGenesCDS, CNVGenes5UTR, NonCNVGenesCDS, NonCNVGenes5UTR = [], [], [], [] 
 # loop over species names
-for species in SpeciesNames:
+for species in SpeciesNames[1:]:
     # loop over domain
     for domain in HsaSpeciesTargets[species]:
         # loop over CNV status
@@ -164,10 +164,19 @@ for species in SpeciesNames:
 print('generated lists of target sites for CNV and non-CNV genes')
 
 
-## perform stattistical tests between CNV and non-CNV genes
+## perform stattistical tests between human and other species for CNV and non-CNV genes
 ## create dicts to store results {species: [P-value absolute targets, P-value normalized targets]}
-#CompTargetscan, CompMiranda = {}, {}
-#for species in SpeciesDataTargetscanAbsolute:
+#CompTargetsCDS, CompTargets5UTR = {}, {}
+#for species in HsaSpeciesTargets:
+#    for domain in HsaSpeciesTargets[species]:
+#        
+#
+#
+#
+#
+#
+#
+# SpeciesDataTargetscanAbsolute:
 #    Pabs = stats.ranksums(SpeciesDataTargetscanAbsolute[species][0], SpeciesDataTargetscanAbsolute[species][1])[1]
 #    Pnorm = stats.ranksums(SpeciesDataTargetscanNormalized[species][0], SpeciesDataTargetscanNormalized[species][1])[1]
 #    CompTargetscan[species] = [Pabs, Pnorm]
@@ -292,7 +301,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, SpeciesNames, XScale)
 
 
 # create a lit of species abbrviations
-labelnames = [species_codes[i] for i in SpeciesNames]
+labelnames = [species_codes[i] for i in SpeciesNames[1:]]
 
 # plot box plots
 ax1 = CreateAx(2, 2, 1, CNVGenes5UTR, fig, '5\'UTRs of CNV genes', labelnames, xtickpos)
