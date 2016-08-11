@@ -215,15 +215,23 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, SpeciesNames, XScale)
                     positions = BoxPositions, patch_artist = True) 
 
     # use a blue for human and a different color for each other species
-    ColorScheme = ['#b3cde3', '#fbb4ae', '#ccebc5','#decbe4','#fed9a6','#ffffcc']
-        
+    SpeciesColor = ['#fbb4ae', '#ccebc5', '#decbe4','#fed9a6','#ffffcc']
+    HumanColor = '#b3cde3'    
     # color boxes differently
-    i = 0    
+    i, j = 0, 0    
     # change box, whisker color to black
     for box in bp['boxes']:
         # change line color
         box.set(color = 'black')
-        box.set(facecolor = ColorScheme[i])
+        # change box color, a different color or each species
+        if i % 2 == 0:
+            # color box for human data
+            box.set(facecolor = HumanColor)
+        else:
+            # color box for species data and update species box counter
+            box.set(facecolor = SpeciesColor[j])
+            j += 1
+        # update box counter
         i += 1
     # change whisker color to black
     for wk in bp['whiskers']:
