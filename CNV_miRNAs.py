@@ -2063,7 +2063,7 @@ def parse_summary_table_targets(summary_table):
     
 
 # use this function to map miRNA cession number to mature accession numbers or mature names
-def MatchmiRNAAccessionNumbers(miRBaseFile = 'miRNA.dat', MatureRecord):
+def MatchmiRNAAccessionNumbers(MatureRecord, miRBaseFile = 'miRNA.dat'):
     '''
     (file, str) -> dict
     Take the file with miRNA information from miRBase and and return a dictionary
@@ -2079,7 +2079,7 @@ def MatchmiRNAAccessionNumbers(miRBaseFile = 'miRNA.dat', MatureRecord):
     for line in infile:
         if line.startswith('AC'):
             # get the mirna accession number
-            line = line.rstrip().split('\t')
+            line = line.rstrip().split()
             miRNAAccession = line[1][:line[1].index(';')]
             # initialize dict
             assert miRNAAccession not in miRNAs, 'mirna accession number already recorded'
@@ -2087,13 +2087,13 @@ def MatchmiRNAAccessionNumbers(miRBaseFile = 'miRNA.dat', MatureRecord):
         elif line.startswith('FT'):
             if MatureRecord == 'accession' and 'accession' in line:
                 # record the mature accession number
-                line = line.rstrip().split('\t')
+                line = line.rstrip().split()
                 mature = line[1][line[1].index('"')+1: -1]
                 # add to list
                 miRNAs[miRNAAccession].append(mature)
             elif MatureRecord == 'name' and 'product' in line:
                 # record the mature name
-                line = line.rstrip().split('\t')
+                line = line.rstrip().split()
                 mature = line[1][line[1].index('"')+1: -1]
                 miRNAs[miRNAAccession].append(mature)
                 
