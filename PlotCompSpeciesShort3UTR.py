@@ -382,9 +382,9 @@ for i in range(len(PvalCDSCNV)):
 plt.tight_layout()
 
 
-## build outputfile with arguments
-#outputfile = 'truc_' + domain + '_' + chromos + '_' + cnv_length
-#print(outputfile)
+# build outputfile with arguments
+outputfile = 'PlotCompHumanSpeciesShort3UTR_' + chromos + '_' + cnv_length
+print(outputfile)
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
