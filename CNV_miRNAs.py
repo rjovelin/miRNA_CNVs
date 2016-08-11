@@ -2061,3 +2061,92 @@ def parse_summary_table_targets(summary_table):
     
     return [CNV_targets, nonCNV_targets, CNV_seq, nonCNV_seq, CNV_normalized, nonCNV_normalized]    
     
+
+# use this function to map miRNA cession number to mature accession numbers or mature names
+def MatchmiRNAAccessionNumbers(miRBaseFile = 'miRNA.dat', MatureRecord):
+    '''
+    (file, str) -> dict
+    Take the file with miRNA information from miRBase and and return a dictionary
+    with mirna accession number as key and a list of mature names or mature accession
+    numbers depending on the value the string variable MatureRecord    
+    '''
+        
+    # create a dictionary {mirna accession : [mature accession/names]}
+    miRNAs = {}    
+    
+    # loop over file with miRNA information
+    infile = open(miRBaseFile)
+    for line in infile:
+        if line.startswith('AC'):
+            # get the mirna accession number
+            line = line.rstrip().split('\t')
+            miRNAAccession = line[1][:line[1].index(';')]
+            # initialize dict
+            assert miRNAAccession not in miRNAs, 'mirna accession number already recorded'
+            miRNAs[miRNAAccession] = []
+        elif line.startswith('FT'):
+            if MatureRecord == 'accession' and 'accession' in line:
+                # record the mature accession number
+                line = line.rstrip().split('\t')
+                mature = line[1][line[1].index('"')+1: -1]
+                # add to list
+                miRNAs[miRNAAccession].append(mature)
+            elif MatureRecord == 'name' and 'product' in line:
+                # record the mature name
+                line = line.rstrip().split('\t')
+                mature = line[1][line[1].index('"')+1: -1]
+                miRNAs[miRNAAccession].append(mature)
+                
+    infile.close()
+    return miRNAs
+
+
+
+# use this function to extract the expression of each miRNA
+def miRBAsemiRNAExpression(ExpressionFile = 'mirna_read_count.txt'):
+    '''
+    (file) -> dict
+    Take the miRBase file with expression level for each miRNA and return a
+    dict with miRNA accession number : expression (in RPM) pairs    
+    '''
+    
+    # create dict {accession: expression}
+    miRNAExpression = {}
+    # loop over file, match accession numbers with the corresponding expression level
+    infile = open(ExpressionFile)
+    for line in infile:
+        line = line.rstrip()
+        if line != '':
+            line = line.split('\t')
+            # get the accession number
+            accession = line[1]
+            # get the normalized expression in RPM
+            expression = float(line[-1])
+            assert accession not in miRNAExpression, 'mirna expression already recorded'
+            miRNAExpression[accession] = expression
+    infile.close()
+    return miRNAExpression
+    
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
