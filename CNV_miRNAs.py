@@ -2128,25 +2128,46 @@ def miRBAsemiRNAExpression(ExpressionFile = 'mirna_read_count.txt'):
     return miRNAExpression
     
     
-
+# use this function to sort mirnas based on expression quartiles
+def SortmiRNAQuartileExpression(miRNAExpression):
+    '''
+    (dict) -> tuple
+    Take the dictionary of mirna accession: expression level pairs and return
+    a list of lists of mirna accessions sorted according to their expression
+    '''
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    # miRNAExpression is a dict in the form {accession: expression}
     
+    # create list of expression values
+    expression_level = [miRNAExpression[mirna] for mirna in miRNAExpression]
+    # compute quartiles of expression values
+    Q1 = np.percentile(expression_level, 25)
+    Q2 = np.percentile(expression_level, 50)
+    Q3 = np.percentile(expression_level, 75)
+    
+    # partition mirnas according to expression quartiles
+    # create lists to store theta for different levels of expression
+    lowExp, moderateExp, mediumExp, highExp = [], [], [], []
+    # loop over mirna in theta dict
+    for mirna in miRNAExpression:
+        # check expression value
+        if miRNAExpression[mirna] < Q1:
+            lowExp.append(mirna)
+        elif miRNAExpression[mirna] >= Q1 and miRNAExpression[mirna] < Q2:
+            moderateExp.append(mirna)
+        elif miRNAExpression[mirna] >= Q2 and miRNAExpression[mirna] < Q3:
+            mediumExp.append(mirna)
+        elif miRNAExpression[mirna] >= Q3:
+            highExp.append(mirna)
+    # verify that mirnas belong to all levels of expression
+    assert len(lowExp) != 0
+    assert len(moderateExp) != 0
+    assert len(mediumExp) != 0
+    assert len(highExp) != 0
+    
+    return [lowExp, moderateExp, mediumExp, highExp]
+
+
+
+
     
