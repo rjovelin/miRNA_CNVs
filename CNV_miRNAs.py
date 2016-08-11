@@ -2008,8 +2008,6 @@ def compare_miRNA_regulation(summary_table):
             nonCNV_sem_length, P_length, correl_coeff, P_correl]
 
 
-#############################################################
-
 
 # use this function to parse the summary table of target sites
 def parse_summary_table_targets(summary_table):
