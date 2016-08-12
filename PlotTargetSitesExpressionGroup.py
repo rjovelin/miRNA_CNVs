@@ -99,10 +99,13 @@ CNV_file = 'H_sapiens_GRCh37_2015_CNV_all_length_valid_chromos.txt'
 # record the number of miranda target sites for each gene for each expression group
 #  {gene: [N_targets, Sequence_length, N_targets_normalized, CNV_status}}
 TargetsLowExp = SelectmiRNAsMirandaOutput(seq_input_file, predicted_targets, LowExp, 'all')
+print('recorded targets for each mirnas in low expression group')
 TargetsModerateExp = SelectmiRNAsMirandaOutput(seq_input_file, predicted_targets, ModerateExp, 'all')
+print('recorded targets for each mirnas in moderate expression group')
 TargetsMediumExp = SelectmiRNAsMirandaOutput(seq_input_file, predicted_targets, MediumExp, 'all')
+print('recorded targets for each mirnas in medium expression group')
 TargetsHighExp = SelectmiRNAsMirandaOutput(seq_input_file, predicted_targets, HighExp, 'all')
-print('recorded targets for each mirnas in each expression group')
+print('recorded targets for each mirnas in high expression group')
 
 # get CNV gene status
 CNV_status = sort_genes_CNV_status(CNV_file)
