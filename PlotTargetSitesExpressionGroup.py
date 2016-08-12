@@ -62,7 +62,7 @@ print('obtained mirna expression')
 AccessionExpressionGroups = SortmiRNAQuartileExpression('Homo_sapiens', miRNAExpression, AccessionNames)    
 print('sorted accessions according to expression')
 
-missing = []
+missing = set()
 # Sort mirna names in expression groups
 LowExp, ModerateExp, MediumExp, HighExp = [], [], [], []
 for accession in AccessionNames['Homo_sapiens']:
@@ -83,7 +83,7 @@ for accession in AccessionNames['Homo_sapiens']:
         for name in AccessionNames['Homo_sapiens'][accession]:
             HighExp.append(name)
     else:
-        missing.append(accession)
+        missing.add(accession)
 print('{0} miRNAs without expression'.format(len(accession)))
 for mirna in missing:
     print(mirna, end = '\t')
@@ -114,7 +114,7 @@ print('recorded CNV gene status')
 
 # add CNV status
 for gene in TargetsLowExp:
-    TargetsLowExp.append(CNV_status[gene])
+    TargetsLowExp[gene].append(CNV_status[gene])
     assert len(TargetsLowExp[gene]) == 4, 'gene in TargetsLowExp does not have all required values'
 for gene in TargetsModerateExp:
     TargetsModerateExp[gene].append(CNV_status[gene])
