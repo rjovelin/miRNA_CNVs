@@ -2062,16 +2062,17 @@ def parse_summary_table_targets(summary_table):
     return [CNV_targets, nonCNV_targets, CNV_seq, nonCNV_seq, CNV_normalized, nonCNV_normalized]    
     
 
-# use this function to map miRNA cession number to mature accession numbers or mature names
+# use this function to map miRNA accession number to mature accession numbers or mature names
 def MatchmiRNAAccessionNumbers(MatureRecord, miRBaseFile = 'miRNA.dat'):
     '''
     (file, str) -> dict
     Take the file with miRNA information from miRBase and and return a dictionary
-    with mirna accession number as key and a list of mature names or mature accession
-    numbers depending on the value the string variable MatureRecord    
+    with species name as key and a dictionary of mirna accession number : list of
+    mature names or mature accessions pairs depending on the value the string
+    variable MatureRecord    
     '''
         
-    # create a dictionary {mirna accession : [mature accession/names]}
+    # create a dictionary {species: {mirna accession : [mature accession/names]}}
     miRNAs = {}    
     
     # loop over file with miRNA information
@@ -2081,21 +2082,28 @@ def MatchmiRNAAccessionNumbers(MatureRecord, miRBaseFile = 'miRNA.dat'):
             # get the mirna accession number
             line = line.rstrip().split()
             miRNAAccession = line[1][:line[1].index(';')]
+        elif line.startswith('DE'):
+            # get the species name
+            line = line.rstrip().split()
+            species = line[1] + '_' + line[2]
+            # initialize dict with species name
+            if species not in miRNAs:
+                miRNAs[species] = {}
             # initialize dict
-            assert miRNAAccession not in miRNAs, 'mirna accession number already recorded'
-            miRNAs[miRNAAccession] = []
+            assert miRNAAccession not in miRNAs[species], 'mirna accession number already recorded'
+            miRNAs[species][miRNAAccession] = []
         elif line.startswith('FT'):
             if MatureRecord == 'accession' and 'accession' in line:
                 # record the mature accession number
                 line = line.rstrip().split()
                 mature = line[1][line[1].index('"')+1: -1]
                 # add to list
-                miRNAs[miRNAAccession].append(mature)
+                miRNAs[species][miRNAAccession].append(mature)
             elif MatureRecord == 'name' and 'product' in line:
                 # record the mature name
                 line = line.rstrip().split()
                 mature = line[1][line[1].index('"')+1: -1]
-                miRNAs[miRNAAccession].append(mature)
+                miRNAs[species][miRNAAccession].append(mature)
                 
     infile.close()
     return miRNAs
@@ -2129,17 +2137,19 @@ def miRBAsemiRNAExpression(ExpressionFile = 'mirna_read_count.txt'):
     
     
 # use this function to sort mirnas based on expression quartiles
-def SortmiRNAQuartileExpression(miRNAExpression):
+def SortmiRNAQuartileExpression(species, miRNAExpression, miRNAs):
     '''
-    (dict) -> tuple
-    Take the dictionary of mirna accession: expression level pairs and return
-    a list of lists of mirna accessions sorted according to their expression
+    (str, dict, dict) -> tuple
+    Take a species name (Genus_species), the dict of mirna accession: expression
+    level pairs and return a list of lists of mirna accessions sorted for the given
+    species according to their expression
     '''
     
     # miRNAExpression is a dict in the form {accession: expression}
+    # miRNAs is a dict with accession number paris for each species {species: {mirna accession : [mature accession/names]}}
     
     # create list of expression values
-    expression_level = [miRNAExpression[mirna] for mirna in miRNAExpression]
+    expression_level = [miRNAExpression[mirna] for mirna in miRNAExpression if mirna in miRNAs[species]]
     # compute quartiles of expression values
     Q1 = np.percentile(expression_level, 25)
     Q2 = np.percentile(expression_level, 50)
@@ -2170,7 +2180,7 @@ def SortmiRNAQuartileExpression(miRNAExpression):
 
 
 # use this function to create dict from miranda outputs
-def SelectmiRNAsMirandaOutput(targetscan_seq_input_file, predicted_targets, expression_group, miRNAs, *seeds_mature):
+def SelectmiRNAsMirandaOutput(targetscan_seq_input_file, predicted_targets, expression_group, conservation, *seeds_mature):
     '''
     (file, file, list, str, *set, *file) -> dict
     Take the targetscan input sequence file, the miranda output, a list
@@ -2178,14 +2188,14 @@ def SelectmiRNAsMirandaOutput(targetscan_seq_input_file, predicted_targets, expr
     and return a dictionary with gene as key and a list with the number of
     predicted target sites, sequence length and number of target sites
     normalized by sequence length for all miRNAs or for conserved miRNAs only.
-    If miRNAs = conserved, the a set of conserved seeds and the fasta file with 
+    If conservation = conserved, the a set of conserved seeds and the fasta file with 
     mature miRNAs is obtained from the optional arguments
     Precondition: files are generated to include valid or all chromos    
     '''
     
     
     # get seed set from optional parameter tuple
-    if miRNAs == 'conserved':
+    if conservation == 'conserved':
         seeds = seeds_mature[0]
         # make a dict of mirna {name : seed} pairs
         mature_fasta = seeds_mature[1]
@@ -2221,7 +2231,7 @@ def SelectmiRNAsMirandaOutput(targetscan_seq_input_file, predicted_targets, expr
                 # get positions
                 positions = line[9].split()
                 # check if consider all or conserved miRNA families
-                if miRNAs == 'conserved':
+                if conservation == 'conserved':
                     # check that mirna seed in set of seeds
                     if mir_names[mirna] in seeds:
                         # record sites only if mirna seed in set of seeds
@@ -2232,7 +2242,7 @@ def SelectmiRNAsMirandaOutput(targetscan_seq_input_file, predicted_targets, expr
                         # add all sites to set
                         for pos in positions:
                             target_counts[gene].add(pos)
-                elif miRNAs == 'all':
+                elif conservation == 'all':
                     # record all sites
                     # populate dict
                     if gene not in target_counts:
