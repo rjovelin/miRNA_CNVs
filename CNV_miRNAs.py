@@ -2169,5 +2169,105 @@ def SortmiRNAQuartileExpression(miRNAExpression):
 
 
 
-
+# use this function to create dict from miranda outputs
+def SelectmiRNAsMirandaOutput(targetscan_seq_input_file, predicted_targets, expression_group, miRNAs, *seeds_mature):
+    '''
+    (file, file, list, str, *set, *file) -> dict
+    Take the targetscan input sequence file, the miranda output, a list
+    of mirnas sorted according to their expression level (low, moderate, medium or high),
+    and return a dictionary with gene as key and a list with the number of
+    predicted target sites, sequence length and number of target sites
+    normalized by sequence length for all miRNAs or for conserved miRNAs only.
+    If miRNAs = conserved, the a set of conserved seeds and the fasta file with 
+    mature miRNAs is obtained from the optional arguments
+    Precondition: files are generated to include valid or all chromos    
+    '''
     
+    
+    # get seed set from optional parameter tuple
+    if miRNAs == 'conserved':
+        seeds = seeds_mature[0]
+        # make a dict of mirna {name : seed} pairs
+        mature_fasta = seeds_mature[1]
+        mir_names = mirna_to_seed(mature_fasta)    
+    
+    # get the length of the sequences used to predict target sites {gene : seq_length}
+    genes_length = get_domain_length_from_targetscan_input(targetscan_seq_input_file)
+        
+    # create a dict to store the target sites {gene: set(target1, target2, target3)} 
+    target_counts = {}
+    # create a dict with {gene : sequence length} pairs
+    target_length = {}    
+    
+    # open file for reading
+    infile = open(predicted_targets, 'r')
+    # go through file
+    for line in infile:
+        if line.startswith('>>'):
+            line = line.rstrip().split('\t')
+            # get mirna, get rid of '>>' sign
+            mirna = line[0][2:]
+            # check if mirna in expression group
+            if mirna in expression_group:
+                # get rid of species code in mirna name
+                mirna = mirna[4:]
+                # get target gene
+                gene = line[1]
+                # get sequence length
+                seq_length = int(line[8])
+                # populate dict with gene : sequence length pairs
+                if gene not in target_length:
+                    target_length[gene] = seq_length
+                # get positions
+                positions = line[9].split()
+                # check if consider all or conserved miRNA families
+                if miRNAs == 'conserved':
+                    # check that mirna seed in set of seeds
+                    if mir_names[mirna] in seeds:
+                        # record sites only if mirna seed in set of seeds
+                        # populate dict
+                        if gene not in target_counts:
+                            # inititalise value with empty list
+                            target_counts[gene] = set()
+                        # add all sites to set
+                        for pos in positions:
+                            target_counts[gene].add(pos)
+                elif miRNAs == 'all':
+                    # record all sites
+                    # populate dict
+                    if gene not in target_counts:
+                        # initialize value with empty set
+                        target_counts[gene] = set()
+                    for pos in positions:
+                        target_counts[gene].add(pos)
+                    
+    # close file after reading
+    infile.close()
+    
+    # create a dict to store the number of targets {gene: [N_sites, seq_length, N_sites/seq_length]}
+    targets = {}
+    
+    # loop over genes with predicted targets in targetscan
+    for gene in target_counts:
+        # add number of target sites
+        targets[gene] = [len(target_counts[gene])]
+        # get the length of the sequence used to predict target sites
+        seq_length = target_length[gene]
+        # add sequence length to list
+        targets[gene].append(seq_length)
+        # add number of sites normalized by sequence length
+        targets[gene].append(len(target_counts[gene]) / seq_length)
+    
+    # count 0 for genes that do not have any targets but that have a region > mininum length
+    # loop over genes in targetscan seq input
+    for gene in genes_length:
+        # check that sites are not already recorded
+        if gene not in targets:
+            # targets were not predicted
+            # check that sequence is greater than 6 bp
+            if genes_length[gene] >= 7:
+                # populate dict
+                targets[gene] = [0, genes_length[gene], 0]
+
+    return targets
+
