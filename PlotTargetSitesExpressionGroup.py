@@ -83,14 +83,15 @@ for accession in AccessionNames['Homo_sapiens']:
         for name in AccessionNames['Homo_sapiens'][accession]:
             HighExp.append(name)
     else:
-        missing.append(name)
-assert len(missing) == 0, 'some mirnas are missing'
-
+        missing.append(accession)
+print('{0} miRNAs without expression'.format(len(accession)))
+for mirna in missing:
+    print(mirna, end = '\t')
 
 # get the seq input file
 seq_input_file = 'H_sapiens_' + domain + '_' + chromos + '_targetscan.txt'
 # get the predicted targets output file
-predicted_targets = 'H_sapiens_' + domain + '_' + chromos + '_predicted_sites_' + predictors[i] + '.txt'
+predicted_targets = 'H_sapiens_' + domain + '_' + chromos + '_predicted_sites_miranda.txt'
 # use DGV 2015 release 
 CNV_file = 'H_sapiens_GRCh37_2015_CNV_all_length_valid_chromos.txt'
 
