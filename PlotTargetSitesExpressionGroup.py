@@ -55,7 +55,7 @@ for accession in AccessionNames['Homo_sapiens']:
 print('matches accessions with names')
 
 # create a dictionary {mirna accession: expression level}
-miRNAEpression = miRBAsemiRNAExpression('mirna_read_count.txt')
+miRNAExpression = miRBAsemiRNAExpression('mirna_read_count.txt')
 print('obtained mirna expression')
 
 # sort the mirna accession numbers according to the mirna expression 
