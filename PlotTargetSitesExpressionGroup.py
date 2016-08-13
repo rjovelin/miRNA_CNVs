@@ -201,18 +201,24 @@ BoxPositions = [0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.7, 3.1]
 # use a boxplot
 bp = ax.boxplot(AllData, showmeans = True, showfliers = False, widths = 0.3,
                 positions = BoxPositions, patch_artist = True) 
+
+
+
 # color CNV and non-CNV boxes differently
-i = 0    
+CNVColor = ['#f1eef6','#bdc9e1','#74a9cf','#0570b0']
+NonCNVColor = ['#ffffcc','#c2e699','#78c679','#238443']
+i, j = 0    
 # change box, whisker color to black
 for box in bp['boxes']:
     # change line color
     box.set(color = 'black')
     if i % 2 == 0:
-        # CNV data, color box in grey
-        box.set(facecolor = '#a6cee3')
+        # CNV data
+        box.set(facecolor = CNVColor[j])
     else:
-        box.set(facecolor = '#b2df8a')
+        box.set(facecolor = NonCNVColor[j])
     i += 1
+    j = int(i / 2)
 # change whisker color to black
 for wk in bp['whiskers']:
     wk.set(color = 'black', linestyle = '-')
