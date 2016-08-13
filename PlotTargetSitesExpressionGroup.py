@@ -84,9 +84,10 @@ for accession in AccessionNames['Homo_sapiens']:
             HighExp.append(name)
     else:
         missing.add(accession)
-print('{0} miRNAs without expression'.format(len(accession)))
+print('{0} miRNAs without expression'.format(len(missing)))
 for mirna in missing:
     print(mirna, end = '\t')
+print('\n')
 
 # get the seq input file
 seq_input_file = 'H_sapiens_' + domain + '_' + chromos + '_targetscan.txt'
@@ -129,7 +130,7 @@ print('added gene CNV status to each gene')
 
 # create a dict with expression group as key and a list with the number of targets
 # for CNv and non-CNV genes {expression: [[CNV], [non-CNV]]}
-TargetsData = []
+TargetsData = {}
 # initialize dict
 TargetsData['low'], TargetsData['moderate'], TargetsData['medium'], TargetsData['high'] = [[], []], [[], []], [[], []], [[], []]
 for gene in TargetsLowExp:
@@ -168,12 +169,11 @@ print('generated lists of target sites for CNV and non-CNV genes')
 CompTargets = {}
 for group in TargetsData:
     Pval = stats.ranksums(TargetsData[group][0], TargetsData[group][1])[1]
-    CompTargets[group] = Pval
+    CompTargets[group] = Pval    
+    print('{0} -  cnv: N = {1}, mean = {2}, non-cnv: N = {3}, mean = {4}, P = {5}'.format(group,
+          len(TargetsData[group][0]), np.mean(TargetsData[group][0]), len(TargetsData[group][1]),
+          np.mean(TargetsData[group][1]), Pval))    
 print('compared CNV and non-CNV genes')
-# print P-values
-for group in CompTargets:
-    print(group, CompTargets[group])
-
 
 # make a list with all data
 AllData = []
@@ -195,7 +195,7 @@ fig = plt.figure(1, figsize = (4, 2.5))
 
 # create subplot in figure
 # add a plot to figure (N row, N column, plot N)
-ax = figure.add_subplot(1, 1, 1)
+ax = fig.add_subplot(1, 1, 1)
 # create a list of positions for the box plot    
 BoxPositions = [0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.7, 3.1]
 # use a boxplot
