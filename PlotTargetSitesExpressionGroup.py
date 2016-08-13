@@ -244,7 +244,7 @@ ExGroups = ['Low', 'Moderate', 'Medium', 'High']
 plt.xticks(xtickpos, ExGroups, ha = 'center', fontsize = 8, **FigFont)
 
 ## add a range for the Y and X axis
-#plt.ylim([0, YMax])
+plt.ylim([0, 0.14])
 plt.xlim([-0.25, 3.15])
     
 # do not show lines around figure  
