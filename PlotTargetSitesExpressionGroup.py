@@ -85,9 +85,7 @@ for accession in AccessionNames['Homo_sapiens']:
     else:
         missing.add(accession)
 print('{0} miRNAs without expression'.format(len(missing)))
-for mirna in missing:
-    print(mirna, end = '\t')
-print('\n')
+
 
 # get the seq input file
 seq_input_file = 'H_sapiens_' + domain + '_' + chromos + '_targetscan.txt'
@@ -190,9 +188,6 @@ print('data consolidated in array')
 # create figure
 fig = plt.figure(1, figsize = (4, 2.5))
 
-
-# CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, SpeciesNames, XScale):
-
 # create subplot in figure
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
@@ -202,12 +197,10 @@ BoxPositions = [0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.7, 3.1]
 bp = ax.boxplot(AllData, showmeans = True, showfliers = False, widths = 0.3,
                 positions = BoxPositions, patch_artist = True) 
 
-
-
 # color CNV and non-CNV boxes differently
 CNVColor = ['#f1eef6','#bdc9e1','#74a9cf','#0570b0']
 NonCNVColor = ['#ffffcc','#c2e699','#78c679','#238443']
-i, j = 0    
+i, j = 0, 0    
 # change box, whisker color to black
 for box in bp['boxes']:
     # change line color
@@ -233,9 +226,7 @@ for mean in bp['means']:
     mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 3)
    
 
-## write title   
-#ax.set_title(Title, size = 8)
-    
+   
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
     
@@ -287,55 +278,35 @@ for label in ax.get_yticklabels():
 # create a margin around the x axis
 plt.margins(0.05)
    
-      
-## annotate Graph with significance level
-#PvalTargetScanAbsolute, PvalMirandaAbsolute, PvalTargetScanNormalized, PvalMirandaNormalized = [], [], [], []
-#for species in species_names:
-#    # get the significance level for target sites
-#    if CompTargetscan[species][0] >= 0.05:
-#        PvalTargetScanAbsolute.append('')
-#    elif CompTargetscan[species][0] < 0.05 and CompTargetscan[species][0] >= 0.01:
-#        PvalTargetScanAbsolute.append('*')
-#    elif CompTargetscan[species][0] < 0.01 and CompTargetscan[species][0] >= 0.001:
-#        PvalTargetScanAbsolute.append('**')
-#    elif CompTargetscan[species][0] < 0.001:
-#        PvalTargetScanAbsolute.append('***')
-#    # get the significance level of normalized target sites
-#    if CompTargetscan[species][1] >= 0.05:
-#        PvalTargetScanNormalized.append('')
-#    elif CompTargetscan[species][1] < 0.05 and CompTargetscan[species][1] >= 0.01:
-#        PvalTargetScanNormalized.append('*')
-#    elif CompTargetscan[species][1] < 0.01 and CompTargetscan[species][1] >= 0.001:
-#        PvalTargetScanNormalized.append('**')
-#    elif CompTargetscan[species][1] < 0.001:
-#        PvalTargetScanNormalized.append('***')
-#
-#
-## create list of Y and X positions to annotate figure with significance level
-#if domain == '3UTR':
-#    # make a list of Y positions
-#    YposTargetscanAbsolute = [1390, 420, 400, 990, 390, 580]
-#    YposMirandaAbsolute = [820, 270, 210, 590, 220, 320]
-#    YposTargetscanNormalized = [0.42, 0.11, 0.16, 0.33, 0.15, 0.21]
-#    YposMirandaNormalized = [0.34, 0.10, 0.12, 0.23, 0.13, 0.16]
-#    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
-#
-#
-#for i in range(len(PvalTargetScanAbsolute)):
-#    ax1.text(Xpos[i], YposTargetscanAbsolute[i], PvalTargetScanAbsolute[i], horizontalalignment = 'center',
-#             verticalalignment = 'center', color = 'black', size = 8)
-#    ax2.text(Xpos[i], YposTargetscanNormalized[i], PvalTargetScanNormalized[i], horizontalalignment = 'center',
-#             verticalalignment = 'center', color = 'black', size = 8)         
-#for i in range(len(PvalMirandaAbsolute)):
-#    ax3.text(Xpos[i], YposMirandaAbsolute[i], PvalMirandaAbsolute[i], horizontalalignment = 'center',
-#             verticalalignment = 'center', color = 'black', size = 8)
-#    ax4.text(Xpos[i], YposMirandaNormalized[i], PvalMirandaNormalized[i], horizontalalignment = 'center',
-#             verticalalignment = 'center', color = 'black', size = 8)
-#
-## add legend relative to ax1 using ax1 coordinates
-#C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
-#N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
-#ax1.legend(handles = [C, N], loc = (0.8, 1.2), fontsize = 8, frameon = False, ncol = 2)
+# annotate Graph with significance level
+Pvalues = []
+for group in Groups:
+    # get the significance level for target sites
+    if CompTargets[group] >= 0.05:
+        Pvalues.append('')
+    elif CompTargets[group] < 0.05 and CompTargets[group] >= 0.01:
+        Pvalues.append('*')
+    elif CompTargets[group] < 0.01 and CompTargets[group] >= 0.001:
+        Pvalues.append('**')
+    elif CompTargets[group] < 0.001:
+        Pvalues.append('***')
+
+# create list of Y and X positions to annotate figure with significance level
+if domain == '3UTR':
+    # make a list of Y positions
+    Ypos = [0.13, 0.10, 0.09, 0.09]
+    Xpos = [0.2, 1.1, 2, 2.9]
+
+
+# annotate figure with significance levels
+for i in range(len(Pvalues)):
+    ax.text(Xpos[i], Ypos[i], Pvalues[i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+
+
+# add legend relative to ax1 using ax1 coordinates
+C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
+N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
+ax.legend(handles = [C, N], loc = (0.8, 1.2), fontsize = 8, frameon = False, ncol = 2)
 
 
 
