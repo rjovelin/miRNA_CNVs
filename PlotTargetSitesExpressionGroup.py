@@ -198,8 +198,8 @@ bp = ax.boxplot(AllData, showmeans = True, showfliers = False, widths = 0.3,
                 positions = BoxPositions, patch_artist = True) 
 
 # color CNV and non-CNV boxes differently
-CNVColor = ['#f1eef6','#bdc9e1','#74a9cf','#0570b0']
-NonCNVColor = ['#ffffcc','#c2e699','#78c679','#238443']
+CNVColor = ['#a6bddb','#74a9cf','#2b8cbe','#045a8d']
+NonCNVColor = ['#99d8c9','#66c2a4','#2ca25f','#006d2c']
 i, j = 0, 0    
 # change box, whisker color to black
 for box in bp['boxes']:
@@ -242,7 +242,7 @@ plt.xticks(xtickpos, ExGroups, ha = 'center', fontsize = 8, **FigFont)
 
 ## add a range for the Y and X axis
 plt.ylim([0, 0.14])
-plt.xlim([-0.25, 3.15])
+plt.xlim([-0.25, 3.35])
     
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
@@ -304,14 +304,10 @@ for i in range(len(Pvalues)):
 
 
 # add legend relative to ax1 using ax1 coordinates
-C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
-N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
-ax.legend(handles = [C, N], loc = (0.8, 1.2), fontsize = 8, frameon = False, ncol = 2)
+C = mpatches.Patch(facecolor = '#a6bddb', edgecolor = 'black', linewidth = 1, label= 'CNV')
+N = mpatches.Patch(facecolor = '#99d8c9', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
+ax.legend(handles = [C, N], loc = (0.2, 1), fontsize = 8, frameon = False, ncol = 2)
 
-
-
-
-#
 ## build outputfile with arguments
 #outputfile = 'truc_' + domain + '_' + chromos + '_' + cnv_length
 #print(outputfile)
