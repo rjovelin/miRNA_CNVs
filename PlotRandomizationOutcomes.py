@@ -62,15 +62,12 @@ for i in range(len(predictors)):
     # loop over species names
     for species in species_codes:
         print(species)
-        
         # get the seq input file
         seq_input_file = species + '_' + domain + '_' + chromos + '_targetscan.txt'
         print(seq_input_file)
-        
         # get the predicted targets output file
         predicted_targets = species + '_' + domain + '_' + chromos + '_predicted_sites_' + predictors[i] + '.txt'
         print(predicted_targets)
-        
         # parse the predictor outputfile to get a dict {gene: [targets, seq_length, normalized_targets]}
         if i == 0:
             targets = parse_targetscan_output(seq_input_file, predicted_targets, 'all')
@@ -78,22 +75,6 @@ for i in range(len(predictors)):
             targets = parse_miranda_output(seq_input_file, predicted_targets, 'all')
         print('targets', len(targets))    
         
-        # check if species is human
-        if species == 'H_sapiens':
-            # use DGV 2015 release 
-            CNV_file = 'H_sapiens_GRCh37_2015_CNV_all_length_valid_chromos.txt'
-        else:
-            CNV_file = species + '_' + cnv_length + '_' + chromos + '.txt' 
-        print(CNV_file)
-        
-        # get CNV gene status
-        CNV_status = sort_genes_CNV_status(CNV_file)
-        print('CNV status', len(CNV_status))
-        
-        # add CNV status
-        for gene in targets:
-            targets[gene].append(CNV_status[gene])
-            
         # initialize inner dict
         if i == 0:
             targetscan[species] = {}
@@ -104,145 +85,138 @@ for i in range(len(predictors)):
             for gene in targets:
                 miranda[species][gene] = list(targets[gene])
 
-print('combined targets and CNV status')
+print('obtained target sites')
 # check that the same number of species are recorded for miranda and targetscan
 assert len(targetscan) == len(miranda), 'different number of species depending on predictor'
-# check that list values have the correct number of items
-for species in targetscan:
-    for gene in targetscan[species]:
-        assert len(targetscan[species][gene]) == 4, 'gene in targetscan does not have all required values'
-    for gene  in miranda[species]:
-        assert len(miranda[species][gene]) == 4, 'gene in miranda does not have all required values'
-
 
 # write functions used to randonly bootstrap genes
 
 # use this function to match numbers and genes to randomly sample genes
-def MatchNumbersGenes(cnvtargets):
+def AddNumberToGenes(targets):
     '''
     (dict) -> dict
     Take the dict with target sites per gene and species and return a dict with
-    number : gene pairs for each species and for CNV and non-CNV genes    
+    number : gene pairs for each species    
     '''
-
-    # create a dictionary {species: {CNV_status: {num: gene}}} 
+    # create a dictionary {species: {num: gene}}} 
     tosamplefrom = {}
     # loop over species
-    for species in cnvtargets:
+    for species in targets:
         # initialize dict
         tosamplefrom[species] = {}
-        tosamplefrom[species]['CNV'], tosamplefrom[species]['not_CNV'] = {}, {}
-        # initialize counters for CNV and non-CNV genes
-        i, j = 0, 0
+        # initialize counter
+        i = 0
         # loop over genes for given species
-        for gene in cnvtargets[species]:
-            if cnvtargets[species][gene][-1] == 'CNV':
-                # populate dict with num: gene pair and update counter
-                tosamplefrom[species]['CNV'][i] = gene
-                i += 1
-            elif cnvtargets[species][gene][-1] == 'not_CNV':
-                # populate dict with num: gene pair and update counter
-                tosamplefrom[species]['not_CNV'][j] = gene
-                j += 1            
+        for gene in targets[species]:
+            # populate dict with num: gene pair and update counter
+            tosamplefrom[species][i] = gene
+            i += 1
     return tosamplefrom
 
 
-# create a function to perform the bootstraping
-def BootstrapGenes(tosamplefrom, cnvtargets):
+# create a function to randomzie gene CNV status
+def RandomizeCNVStatus(tosamplefrom, targets):
     '''
     (dict, dict) -> dict
-    Take a dictionary with number : gene pairs for CNV and non-CNV genes and 
-    return a dictionary with species as key and a list with number of boostrap
-    replicates for which CNV genes have more targets, less targets or similar
+    Take a dictionary with number : gene pairs and a dictionary with mirna targets
+    and return a dictionary with species as key and a list with number of random
+    datasets for which CNV genes have more targets, less targets or similar
     number of targets as non-CNV genes
     Precondition: use normalized number of targets
     '''
     
-    # tosamplefrom  is the form {species: {CNV_status: {num: gene}}} 
-    # cnvtargets is the form {species: {species: [targets, seq_length, normalized_targets, CNV_status]}}    
+    # tosamplefrom  is the form {species: {num: gene}}} 
+    # targets is the form {species: {gene: [targets, seq_length, normalized_targets]}}    
     
-    # create a dict for each study with a list with numbers of each different outcomes when comparing targets in CNV and non-CNV genes
+    # create a dict for each species with a list with numbers of each different outcomes
+    # when comparing targets in CNV and non-CNV genes
     # {species: [# replicates CNV > non-CNV, # replicates CNV < non-CNV, # replicates no differences]}
-    BootStrap = {}
+    RandomizedDatasets = {}
     # initialize list values
     for species in tosamplefrom:
-        BootStrap[species] = [0, 0, 0]
+        RandomizedDatasets[species] = [0, 0, 0]
+    # create a list with CNV status to randomly assign status to genes
+    CNVStatus = ['CNV', 'not_CNV']
     # loop over studies in dict to sample from
     for species in tosamplefrom:
-        print('bootstraping', species)
+        print('randomizing', species)
         # set number of replicates
         replicates = 10000
+        # create lists with number of cnv and non-cnv genes for each random dataset
+        a, b = [], []
         while replicates != 0:
             # make list of targets for CNV and non-CNV genes
             repCNVtargets, repNonCNVtargets = [], []
-            # draw 800 CNV genes and 800 non-CNV genes with replacement
-            for i in range(500):
+            # draw 1000 genes at random
+            for i in range(1000):
                 # draw a random CNV gene
-                j = random.randint(0, len(tosamplefrom[species]['CNV']) - 1)
-                k = random.randint(0, len(tosamplefrom[species]['not_CNV']) - 1)
+                j = random.randint(0, len(tosamplefrom[species]) - 1)
                 # get the corresponding genes
-                gene1 = tosamplefrom[species]['CNV'][j]
-                gene2 = tosamplefrom[species]['not_CNV'][k]            
-                # get the the number of targets for these 2 genes
-                assert cnvtargets[species][gene1][-1] == 'CNV', 'random gene should be CNV'
-                assert cnvtargets[species][gene2][-1] == 'not_CNV', 'random gene should be non-CNV'
-                repCNVtargets.append(cnvtargets[species][gene1][2])
-                repNonCNVtargets.append(cnvtargets[species][gene2][2])
+                randomgene = tosamplefrom[species][j]
+                # assign CNV status at random
+                k = random.randint(0, 1)
+                RandomCNVStatus = CNVStatus[k]
+                # check if gene is CNV or not CNV
+                if RandomCNVStatus == 'CNV':
+                    repCNVtargets.append(targets[species][randomgene][2])
+                elif RandomCNVStatus == 'not_CNV':
+                    repNonCNVtargets.append(targets[species][randomgene][2])
             # make sure that the correct numbers of genes is drawn
-            assert len(repCNVtargets) == 500, '500 CNV genes should be drawn'
-            assert len(repNonCNVtargets) == 500, '500 non-CNV genes should be drawn'
+            assert len(repCNVtargets) + len(repNonCNVtargets) == 1000, '1000 non-CNV genes should be drawn'
+            # record the number of cnv and non-cnv genes            
+            a.append(len(repCNVtargets))
+            b.append(len(repNonCNVtargets))
             # compare CNV and non-CNV genes
             Pval = stats.ranksums(repCNVtargets, repNonCNVtargets)[1]
             # check significance
             if Pval >= 0.05:
-                # difference is not significance
-                BootStrap[species][2] += 1
+                # difference is not significant
+                RandomizedDatasets[species][2] += 1
             elif Pval < 0.05:
                 # difference is significance, check if CNV genes have a greater number of targets
                 if np.mean(repCNVtargets) > np.mean(repNonCNVtargets):
-                    BootStrap[species][0] += 1
+                    RandomizedDatasets[species][0] += 1
                 elif np.mean(repCNVtargets) < np.mean(repNonCNVtargets):
-                    BootStrap[species][1] += 1
+                    RandomizedDatasets[species][1] += 1
             # update replicate number
             replicates -= 1
+        # print mean number of cnv and non-cnv genes
+        print(species, 'mean CNV genes', np.mean(a), 'mean non-cnv genes', np.mean(b))
 
-    return BootStrap
+    return RandomizedDatasets
 
 
-
-# boostrap CNV and non-CNV genes to compare miRNA targets
-# create a dictionary {species: {CNV_status: {num: gene}}} 
-ToSampleFromTargetScan = MatchNumbersGenes(targetscan)
-ToSampleFromMiranda = MatchNumbersGenes(miranda)
+# assign numbers to gene to sample from {species: {num: gene}}} 
+ToSampleFromTargetScan = AddNumberToGenes(targetscan)
+ToSampleFromMiranda = AddNumberToGenes(miranda)
 print('matched genes with numbers for sampling')        
 
-# print the number of CNV and non-CNV genes for each species and predictor
-for method in [ToSampleFromTargetScan, ToSampleFromMiranda]:
-    for species in method:
-        print(species, 'cnv: {0}, non-cnv: {1}'.format(len(method[species]['CNV']), len(method[species]['not_CNV'])))
+RandomizedTargetscan = RandomizeCNVStatus(ToSampleFromTargetScan, targetscan)
+print('done randomizing for targetscan')        
+RandomizedMiranda = RandomizeCNVStatus(ToSampleFromMiranda, miranda)
+print('done randomizing for miranda')        
 
-BootStrapTargetscan = BootstrapGenes(ToSampleFromTargetScan, targetscan)
-print('done with boostraping for targetscan')        
-BootStrapMiranda = BootstrapGenes(ToSampleFromMiranda, miranda)
-print('done with boostraping for miranda')        
-
+# print outcomes
+for species in SpeciesNames:
+    print(RandomizedTargetscan[species])
+for species in SpeciesNames:
+    print(RandomizedMiranda[species])
 
 # create parallel list of proportions 
 GreaterTargetscan, LowerTargetscan, NodiffTargetscan, GreaterMiranda, LowerMiranda, NodiffMiranda = [], [] ,[], [], [], []
 SpeciesNames = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
 # loop over species, get the proportions of replicates for each outcome
 for species in SpeciesNames:
-    GreaterTargetscan.append(BootStrapTargetscan[species][0] / sum(BootStrapTargetscan[species]))
-    LowerTargetscan.append(BootStrapTargetscan[species][1] / sum(BootStrapTargetscan[species]))
-    NodiffTargetscan.append(BootStrapTargetscan[species][2] / sum(BootStrapTargetscan[species]))
-    GreaterMiranda.append(BootStrapMiranda[species][0] / sum(BootStrapMiranda[species]))
-    LowerMiranda.append(BootStrapMiranda[species][1] / sum(BootStrapMiranda[species]))
-    NodiffMiranda.append(BootStrapMiranda[species][2] / sum(BootStrapMiranda[species]))
+    GreaterTargetscan.append(RandomizedTargetscan[species][0] / sum(RandomizedTargetscan[species]))
+    LowerTargetscan.append(RandomizedTargetscan[species][1] / sum(RandomizedTargetscan[species]))
+    NodiffTargetscan.append(RandomizedTargetscan[species][2] / sum(RandomizedTargetscan[species]))
+    GreaterMiranda.append(RandomizedMiranda[species][0] / sum(RandomizedMiranda[species]))
+    LowerMiranda.append(RandomizedMiranda[species][1] / sum(RandomizedMiranda[species]))
+    NodiffMiranda.append(RandomizedMiranda[species][2] / sum(RandomizedMiranda[species]))
 
 # create a list with all the proportion lists
 ProportionsTargetscan = [GreaterTargetscan, LowerTargetscan, NodiffTargetscan]
 ProportionsMiranda = [GreaterMiranda, LowerMiranda, NodiffMiranda]
-
 
 # create figure
 fig = plt.figure(1, figsize = (4, 6))
@@ -342,10 +316,10 @@ ax1.legend(handles = [N, G, L], loc = (0, 1), fontsize = 8, frameon = False, nco
 # make sure subplots do not overlap
 plt.tight_layout()
 
-# get outputfile
-outputfile = 'PlotBootstrap' + '_' + domain + '_' + chromos + '_' + cnv_length 
-print(outputfile)
+## get outputfile
+#outputfile = 'PlotBootstrap' + '_' + domain + '_' + chromos + '_' + cnv_length 
+#print(outputfile)
 
 # save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+fig.savefig('truc.pdf', bbox_inches = 'tight')
        
