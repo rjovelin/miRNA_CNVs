@@ -308,10 +308,10 @@ C = mpatches.Patch(facecolor = '#a6bddb', edgecolor = 'black', linewidth = 1, la
 N = mpatches.Patch(facecolor = '#99d8c9', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
 ax.legend(handles = [C, N], loc = (0.2, 1), fontsize = 8, frameon = False, ncol = 2)
 
-## build outputfile with arguments
-#outputfile = 'truc_' + domain + '_' + chromos + '_' + cnv_length
-#print(outputfile)
+# build outputfile with arguments
+outputfile = 'PlotTargetsmiRNAExpression_' + domain + '_' + chromos + '_' + cnv_length
+print(outputfile)
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
 
