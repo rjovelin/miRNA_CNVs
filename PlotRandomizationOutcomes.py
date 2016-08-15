@@ -316,10 +316,10 @@ ax1.legend(handles = [N, G, L], loc = (0, 1), fontsize = 8, frameon = False, nco
 # make sure subplots do not overlap
 plt.tight_layout()
 
-## get outputfile
-#outputfile = 'PlotBootstrap' + '_' + domain + '_' + chromos + '_' + cnv_length 
-#print(outputfile)
+# get outputfile
+outputfile = 'PlotRandomization' + '_' + domain + '_' + chromos + '_' + cnv_length 
+print(outputfile)
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
        
