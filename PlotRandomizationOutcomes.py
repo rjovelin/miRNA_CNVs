@@ -196,15 +196,17 @@ print('done randomizing for targetscan')
 RandomizedMiranda = RandomizeCNVStatus(ToSampleFromMiranda, miranda)
 print('done randomizing for miranda')        
 
+# create a list of species names to loop over
+SpeciesNames = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
+
 # print outcomes
-for species in ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']:
+for species in SpeciesNames:
     print(RandomizedTargetscan[species])
 for species in SpeciesNames:
     print(RandomizedMiranda[species])
 
 # create parallel list of proportions 
 GreaterTargetscan, LowerTargetscan, NodiffTargetscan, GreaterMiranda, LowerMiranda, NodiffMiranda = [], [] ,[], [], [], []
-SpeciesNames = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
 # loop over species, get the proportions of replicates for each outcome
 for species in SpeciesNames:
     GreaterTargetscan.append(RandomizedTargetscan[species][0] / sum(RandomizedTargetscan[species]))
