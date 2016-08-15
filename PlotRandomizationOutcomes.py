@@ -197,7 +197,7 @@ RandomizedMiranda = RandomizeCNVStatus(ToSampleFromMiranda, miranda)
 print('done randomizing for miranda')        
 
 # print outcomes
-for species in SpeciesNames:
+for species in ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']:
     print(RandomizedTargetscan[species])
 for species in SpeciesNames:
     print(RandomizedMiranda[species])
