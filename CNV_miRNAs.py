@@ -2281,3 +2281,121 @@ def SelectmiRNAsMirandaOutput(targetscan_seq_input_file, predicted_targets, expr
 
     return targets
 
+
+
+# use this function to generate a score for target
+def TargetScore(AccessionNames, miRNAExpression, NBins, species):
+    '''
+    (dict, dict, int, str) -> dict
+    Take the dictionary with accession: mature names pairs for each species,
+    the dictionary with mirna accession: expression pairs, the end boundary for 
+    expression range and the species name and return a dict with mature name:
+    score pairs. The score is simply the bin position of the mirna in the
+    distribution of mirna expression.    
+    '''
+    
+    # AccessionNames is a dict in the form {species: {mirna accession : mature names pairs}}
+    # species is in the form Genus_species
+    # miRNAExpression is a dict in the form {mirna accession: expression level}
+         
+    # map mature names with expression level {mirna: expression}
+    MatureExpression = {}
+    for accession in AccessionNames[species]:
+        if accession in miRNAExpression:
+            for mature in AccessionNames[species][accession]:
+                MatureExpression[mature] = miRNAExpression[accession]
+    print('matched mature names and expression level', len(MatureExpression))
+
+    # make a list of expression level 
+    ExpressionLevel = [MatureExpression[mature] for mature in MatureExpression]
+    print('mirnas with expression', len(ExpressionLevel))
+    ExpressionLevel.sort()
+    print(len(ExpressionLevel), min(ExpressionLevel), max(ExpressionLevel), np.mean(ExpressionLevel), np.median(ExpressionLevel))
+
+    # create a histogram with expression level 
+    HistoCounts, HistoLimits = np.histogram(ExpressionLevel, range(0, NBins, 10))
+
+    # Create a score based on miRNA expression to weight the importance of mirna targets
+    # score is simply the bin position of the mirna expression
+    Score = {}
+    for mirna in MatureExpression:
+        for i in range(0, len(HistoLimits) - 1):
+            if MatureExpression[mirna] >= HistoLimits[i] and MatureExpression[mirna] < HistoLimits[i+1]:
+                Score[mirna] = i+1
+        if MatureExpression[mirna] >= HistoLimits[i+1]:
+            Score[mirna] = len(HistoLimits)
+    assert len(Score) == len(MatureExpression), 'scores are not recorded for some mirnas'
+
+    return Score
+
+
+# use this function to count the number of miranda target sites weighted by the mirna expression level
+def WeightTargetsMirandaOutput(targetscan_seq_input_file, predicted_targets, Score):
+    '''
+    (file, file, dict) -> dict
+    Take the targetscan input sequence file, the miranda output, the dictionary with 
+    mirna: expression score pairs and return a dictionary with gene as key and
+    a list with the number of predicted target sites, sequence length and number of target sites
+    normalized by sequence length for all miRNAs or for conserved miRNAs only.
+    All target counts are weighted by a score to take into account the expression of the cognate miRNA
+    '''
+    
+    # get the length of the sequences used to predict target sites {gene : seq_length}
+    genes_length = get_domain_length_from_targetscan_input(targetscan_seq_input_file)
+        
+    # create a dict to store the target sites {gene: number of weighted targets} 
+    target_counts = {}
+    # create a dict with {gene : sequence length} pairs
+    target_length = {}    
+    
+    # open file for reading
+    infile = open(predicted_targets, 'r')
+    # go through file
+    for line in infile:
+        if line.startswith('>>'):
+            line = line.rstrip().split('\t')
+            # get mirna, get rid of '>>' sign
+            mirna = line[0][2:]
+            # get target gene
+            gene = line[1]
+            # get sequence length
+            seq_length = int(line[8])
+            # populate dict with gene : sequence length pairs
+            if gene not in target_length:
+                target_length[gene] = seq_length
+            # get positions
+            positions = line[9].split()
+            # populate dict
+            if gene not in target_counts:
+                # initialize value 
+                target_counts[gene] = 0
+            # count the number of target sites weighted by the score of the mirna
+            target_counts[gene] += (len(positions) * Score[mirna])
+    # close file after reading
+    infile.close()
+    
+    # create a dict to store the number of targets {gene: [N_sites, seq_length, N_sites/seq_length]}
+    targets = {}
+    # loop over genes with predicted targets
+    for gene in target_counts:
+        # add number of target sites
+        targets[gene] = [target_counts[gene]]
+        # get the length of the sequence used to predict target sites
+        seq_length = target_length[gene]
+        # add sequence length to list
+        targets[gene].append(seq_length)
+        # add number of sites normalized by sequence length
+        targets[gene].append(target_counts[gene] / seq_length)
+    
+    # count 0 for genes that do not have any targets but that have a region > mininum length
+    # loop over genes in targetscan seq input
+    for gene in genes_length:
+        # check that sites are not already recorded
+        if gene not in targets:
+            # targets were not predicted
+            # check that sequence is greater than 6 bp
+            if genes_length[gene] >= 7:
+                # populate dict
+                targets[gene] = [0, genes_length[gene], 0]
+
+    return targets
