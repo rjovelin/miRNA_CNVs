@@ -2284,7 +2284,7 @@ def SelectmiRNAsMirandaOutput(targetscan_seq_input_file, predicted_targets, expr
 
 
 # use this function to generate a score for target
-def TargetScore(AccessionNames, miRNAExpression, NBins, species):
+def TargetScore(miRBaseFastaFile, NBins, species, miRBaseFile = 'miRNA.dat', ExpressionFile = 'mirna_read_count.txt'):
     '''
     (dict, dict, int, str) -> dict
     Take the dictionary with accession: mature names pairs for each species,
@@ -2294,24 +2294,44 @@ def TargetScore(AccessionNames, miRNAExpression, NBins, species):
     distribution of mirna expression.    
     '''
     
-    # AccessionNames is a dict in the form {species: {mirna accession : mature names pairs}}
-    # species is in the form Genus_species
-    # miRNAExpression is a dict in the form {mirna accession: expression level}
-         
-    # map mature names with expression level {mirna: expression}
-    MatureExpression = {}
+    # species is in the form Genus_species    
+    
+    # create a dictionary with {species: {mirna accession : mature names pairs}}
+    AccessionNames = MatchmiRNAAccessionNumbers('accession', miRBaseFile)
+    
+    # create a dict {mature accession: mirna accession}
+    miRNAAccessions = {}
     for accession in AccessionNames[species]:
-        if accession in miRNAExpression:
-            for mature in AccessionNames[species][accession]:
-                MatureExpression[mature] = miRNAExpression[accession]
-    print('matched mature names and expression level', len(MatureExpression))
+        for mature in AccessionNames[species][accession]:
+            miRNAAccessions[mature] = accession
+    
+    # match mature accessions to mature names {mature accession: mature names}
+    MatureAccessions = MatchMatureAccessionsNames(miRBaseFastaFile)
 
+    # create a dictionary {mirna accession: expression level}
+    miRNAExpression = miRBAsemiRNAExpression(ExpressionFile)
+    
+    # create a dictionary with mature expression pairs {mature names: expression}
+    MatureExpression = {}
+    # loop over mature accessions
+    for mature in MatureAccessions:
+        # get mature name
+        name = MatureAccessions[mature]
+        # verify that mature has a mirna accession 
+        assert mature in miRNAAccessions, 'mature accession should match a miRNA accession'
+        # get mirna accession
+        mirna = miRNAAccessions[mature]
+        # get expression level
+        if mirna in miRNAExpression:
+            expression_level = miRNAExpression[mirna]
+            # populate dict with mature name and expression level
+            assert name not in MatureExpression, 'mature name should not already be recorded'
+            MatureExpression[name] = expression_level
+            
     # make a list of expression level 
     ExpressionLevel = [MatureExpression[mature] for mature in MatureExpression]
-    print('mirnas with expression', len(ExpressionLevel))
     ExpressionLevel.sort()
-    print(len(ExpressionLevel), min(ExpressionLevel), max(ExpressionLevel), np.mean(ExpressionLevel), np.median(ExpressionLevel))
-
+    
     # create a histogram with expression level 
     HistoCounts, HistoLimits = np.histogram(ExpressionLevel, range(0, NBins, 10))
 
@@ -2399,3 +2419,30 @@ def WeightTargetsMirandaOutput(targetscan_seq_input_file, predicted_targets, Sco
                 targets[gene] = [0, genes_length[gene], 0]
 
     return targets
+
+
+
+# use this function to match mature accession to mature names for mirnas used to opredict sites
+def MatchMatureAccessionsNames(miRBaseFastaFile):
+    '''
+    (file) -> dict
+    Take the miRBase fasta file of unaligned mature sequences and return a dict
+    matching the mature name with the mature accession
+    '''
+    
+    # create a dict {accession: name}
+    mature = {}
+    # open file for reading
+    infile = open(miRBaseFastaFile)
+    for line in infile:
+        if line.startswith('>'):
+            line = line.rstrip().split()
+            # get accession name
+            accession = line[1]
+            # get mirna name, remove '>'
+            name = line[0][1:]
+            mature[accession] = name
+    infile.close()
+    return mature
+    
+    
