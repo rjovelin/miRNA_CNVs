@@ -50,7 +50,7 @@ CNV_size = 'all'
 fastafile = 'H_sapiens_miRBaseMatureAccession.txt'
 # create a dict mature name : score pairs
 scores = TargetScore(fastafile, 1000, 'Homo_sapiens', miRBaseFile = 'miRNA.dat', ExpressionFile = 'mirna_read_count.txt')
-print('match scores to mature miRNAs')
+print('match scores to mature miRNAs', len(scores))
 
 # get the seq input file
 seq_input_file = 'H_sapiens_' + domain + '_' + chromos + '_targetscan.txt'
@@ -62,16 +62,16 @@ CNV_file = 'H_sapiens_GRCh37_2015_CNV_all_length_valid_chromos.txt'
 # record the number of miranda target sites for each gene weighted by the mirna expression score
 #  {gene: [N_targets, Sequence_length, N_targets_normalized, CNV_status}}
 Targets = WeightTargetsMirandaOutput(seq_input_file, predicted_targets, scores)
-print('computed weighted targets for all genes')
+print('computed weighted targets for all genes', len(Targets))
 
 # get CNV gene status
 CNV_status = sort_genes_CNV_status(CNV_file)
-print('recorded CNV gene status')
+print('recorded CNV gene status', len(CNV_status))
 
 # add CNV status
 for gene in Targets:
     Targets[gene].append(CNV_status[gene])
-    assert len(TargetsLowExp[gene]) == 4, 'gene in Targets does not have all required values'
+    assert len(Targets[gene]) == 4, 'gene in Targets does not have all required values'
 print('added gene CNV status to each gene')
 
 # create a list of list with weighted targets for CNV and non-CNV genes
