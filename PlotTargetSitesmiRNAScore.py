@@ -89,7 +89,7 @@ print('generated lists of target sites for CNV and non-CNV genes')
 # perform stattistical tests between CNV and non-CNV genes
 Pval = stats.ranksums(AllData[0], AllData[1])[1]
 print('cnv: N = {0}, mean = {1}, non-cnv: N = {2}, mean = {3}, P = {4}'.format(len(AllData[0]),
-      np.mean(AllData[0]), len(AllData[1]), np.mean(AllData[group][1]), Pval))    
+      np.mean(AllData[0]), len(AllData[1]), np.mean(AllData[1]), Pval))    
 print('compared CNV and non-CNV genes')
 
 # create figure
