@@ -141,7 +141,7 @@ CNVLabels = ['CNV', 'non-CNV']
 plt.xticks(xtickpos, CNVLabels, ha = 'center', fontsize = 8, **FigFont)
 
 ## add a range for the Y and X axis
-plt.ylim([0, 0.14])
+plt.ylim([0, 12])
 plt.xlim([-0.25, 3.35])
     
 # do not show lines around figure  
