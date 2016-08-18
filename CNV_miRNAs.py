@@ -2383,14 +2383,16 @@ def WeightTargetsMirandaOutput(targetscan_seq_input_file, predicted_targets, Sco
             # populate dict with gene : sequence length pairs
             if gene not in target_length:
                 target_length[gene] = seq_length
-            # get positions
-            positions = line[9].split()
-            # populate dict
-            if gene not in target_counts:
-                # initialize value 
-                target_counts[gene] = 0
-            # count the number of target sites weighted by the score of the mirna
-            target_counts[gene] += (len(positions) * Score[mirna])
+            # check that mirna has a score (ie has expression)
+            if mirna in Score:
+                # get positions
+                positions = line[9].split()
+                # populate dict
+                if gene not in target_counts:
+                    # initialize value 
+                    target_counts[gene] = 0
+                # count the number of target sites weighted by the score of the mirna
+                target_counts[gene] += (len(positions) * Score[mirna])
     # close file after reading
     infile.close()
     
