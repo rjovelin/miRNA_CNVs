@@ -5,22 +5,8 @@ Created on Fri Aug 19 12:11:53 2016
 @author: RJovelin
 """
 
-
-
-
-
-
-
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Aug 12 12:11:59 2016
-
-@author: RJovelin
-"""
-
-
-# use this script to compare target sites between human CNV and non-CNv genes
-# for mirnas in different expression groups
+# use this script to compare target sites between CNV and non-CNv genes
+# for mirnas in different expression groups in each species
 
 # usage PlotTargetSitesExpressionGroup.py [options]
 # [3UTR/5UTR/CDS]: gene domain to consider
