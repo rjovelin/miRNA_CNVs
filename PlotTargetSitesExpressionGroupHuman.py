@@ -9,7 +9,7 @@ Created on Fri Aug 12 12:11:59 2016
 # use this script to compare target sites between human CNV and non-CNv genes
 # for mirnas in different expression groups
 
-# usage PlotTargetSitesExpressionGroup.py [options]
+# usage PlotTargetSitesExpressionGroupHuman.py [options]
 # [3UTR/5UTR/CDS]: gene domain to consider
 
 # use Agg backend on server without X server
