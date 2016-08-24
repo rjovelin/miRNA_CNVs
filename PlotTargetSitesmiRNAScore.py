@@ -48,7 +48,7 @@ Genus = {'H_sapiens': 'Homo_sapiens', 'P_troglodytes': 'Pan_troglodytes', 'M_mul
 species_codes = {'H_sapiens': 'Hsa', 'P_troglodytes': 'Ptr', 'M_mulatta': 'Mml',
                  'M_musculus': 'Mmu', 'B_taurus': 'Bta', 'G_gallus':'Gga'}
 # create a list of domains
-domains = ['3UTR', '5UTR', 'CDS']
+regions = ['3UTR', '5UTR', 'CDS']
 
 
 # record weighted number of sites for each species and domain 
@@ -76,7 +76,7 @@ for species in SpeciesNames:
     CNV_status = sort_genes_CNV_status(CNV_file)
     print('recorded CNV gene status', len(CNV_status))
     # loop over domain
-    for region in domains:
+    for domain in regions:
         # get the seq input file
         seq_input_file = species + '_' + domain + '_' + chromos + '_targetscan.txt'
         # get the predicted targets output file
@@ -116,7 +116,7 @@ print('generated lists of sites for CNV and non-CNV genes for all species')
 
 
 # create figure
-fig = plt.figure(1, figsize = (8, 8))
+fig = plt.figure(1, figsize = (8, 6))
 
 # create list of labels and tick positions for the X axis
 xtickpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
@@ -221,12 +221,12 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, Domains
 
 Ylabel = 'Weighted number of miRNA\nsites per nucleotide'
 # plot data
-ax1 = CreateAx(6, 1, 1, AllData[SpeciesNames[0]], fig, Genus[SpeciesNames[0]], Ylabel, 20, domains, xtickpos, False)
-ax2 = CreateAx(6, 1, 2, AllData[SpeciesNames[1]], fig, Genus[SpeciesNames[1]], Ylabel, 20, domains, xtickpos, False)
-ax3 = CreateAx(6, 1, 3, AllData[SpeciesNames[2]], fig, Genus[SpeciesNames[2]], Ylabel, 20, domains, xtickpos, False)
-ax4 = CreateAx(6, 1, 4, AllData[SpeciesNames[3]], fig, Genus[SpeciesNames[3]], Ylabel, 20, domains, xtickpos, False)
-ax5 = CreateAx(6, 1, 5, AllData[SpeciesNames[4]], fig, Genus[SpeciesNames[4]], Ylabel, 20, domains, xtickpos, False)
-ax6 = CreateAx(6, 1, 6, AllData[SpeciesNames[5]], fig, Genus[SpeciesNames[5]], Ylabel, 20, domains, xtickpos, True)
+ax1 = CreateAx(6, 1, 1, AllData[SpeciesNames[0]], fig, Genus[SpeciesNames[0]], Ylabel, 20, regions, xtickpos, False)
+ax2 = CreateAx(6, 1, 2, AllData[SpeciesNames[1]], fig, Genus[SpeciesNames[1]], Ylabel, 20, regions, xtickpos, False)
+ax3 = CreateAx(6, 1, 3, AllData[SpeciesNames[2]], fig, Genus[SpeciesNames[2]], Ylabel, 20, regions, xtickpos, False)
+ax4 = CreateAx(6, 1, 4, AllData[SpeciesNames[3]], fig, Genus[SpeciesNames[3]], Ylabel, 20, regions, xtickpos, False)
+ax5 = CreateAx(6, 1, 5, AllData[SpeciesNames[4]], fig, Genus[SpeciesNames[4]], Ylabel, 20, regions, xtickpos, False)
+ax6 = CreateAx(6, 1, 6, AllData[SpeciesNames[5]], fig, Genus[SpeciesNames[5]], Ylabel, 20, regions, xtickpos, True)
 
 # perform statistical tests between CNV and non-CNV genes
 Pval = {}
@@ -259,10 +259,10 @@ print('assessed significance for each comparisons')
 
 
     
-# annotate figure with significance levels
-Ypos = 0.13
-Xpos = 0.2
-ax.text(Xpos, Ypos, Significance, horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+## annotate figure with significance levels
+#Ypos = 0.13
+#Xpos = 0.2
+#ax.text(Xpos, Ypos, Significance, horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
 
 ## add legend relative to ax1 using ax1 coordinates
 #C = mpatches.Patch(facecolor = '#a6bddb', edgecolor = 'black', linewidth = 1, label= 'CNV')
