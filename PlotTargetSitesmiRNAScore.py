@@ -42,7 +42,7 @@ CNV_size = 'all'
 # make a list of species names
 SpeciesNames = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
 # create a dict with full species names
-Genus = {'H_sapiens': 'Homo_sapiens', 'P_troglodytes': 'Pan_troglodytes', 'M_mulatta': 'Macula_mulatta',
+Genus = {'H_sapiens': 'Homo_sapiens', 'P_troglodytes': 'Pan_troglodytes', 'M_mulatta': 'Macaca_mulatta',
                  'M_musculus': 'Mus_musculus', 'B_taurus': 'Bos_taurus', 'G_gallus':'Gallus_gallus'}
 # make a dictionary of species names : species code
 species_codes = {'H_sapiens': 'Hsa', 'P_troglodytes': 'Ptr', 'M_mulatta': 'Mml',
@@ -93,22 +93,22 @@ for species in SpeciesNames:
         print('added gene CNV status to each gene')
         # add the number of weighted targets to CNV and non-CNV lists
         for gene in Targets:
-            if region == '3UTR' and Targets[gene][-1] == 'CNV':
+            if domain == '3UTR' and Targets[gene][-1] == 'CNV':
                 # add weigted number of targets to cnv list for 3'UTR
                 AllData[species][0].append(Targets[gene][2])
-            elif region == '3UTR' and Targets[gene][-1] == 'not_CNV':
+            elif domain == '3UTR' and Targets[gene][-1] == 'not_CNV':
                 # add weighted number of targets to non-cnv list for 3'UTR
                 AllData[species][1].append(Targets[gene][2])
-            elif region == '5UTR' and Targets[gene][-1] == 'CNV':
+            elif domain == '5UTR' and Targets[gene][-1] == 'CNV':
                 # add weighted number of targets to cnv for 5'UTR 
                 AllData[species][2].append(Targets[gene][2])
-            elif region == '5UTR' and Targets[gene][-1] == 'not_CNV':
+            elif domain == '5UTR' and Targets[gene][-1] == 'not_CNV':
                 # add weighted number of targets to non-cnv for 5'UTR
                 AllData[species][3].append(Targets[gene][2])
-            elif region == 'CDS' and Targets[gene][-1] == 'CNV':
+            elif domain == 'CDS' and Targets[gene][-1] == 'CNV':
                 # add weighted number of targets to cnv list for CDS
                 AllData[species][4].append(Targets[gene][2])
-            elif region == 'CDS' and Targets[gene][-1] == 'not_CNV':
+            elif domain == 'CDS' and Targets[gene][-1] == 'not_CNV':
                 # add weighted number of targets to non-cnv list for CDS
                 AllData[species][5].append(Targets[gene][2])
         print('generated lists of target sites for {0}'.format(species))
