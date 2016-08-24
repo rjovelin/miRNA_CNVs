@@ -60,6 +60,7 @@ for species in SpeciesNames:
 Scores = {}
 # loop over species
 for species in SpeciesNames:
+    print(species)
     # get the file with mature names and accession numbers
     fastafile = species + '_miRBaseMatureAccession.txt'
     # create a dict mature name : score pairs
