@@ -237,11 +237,11 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, Domains
 
 Ylabel = 'Weighted number of miRNA\nsites per nucleotide'
 # plot data, note that chimp has no expression data 
-ax1 = CreateAx(1, 5, 1, AllData[SpeciesNames[0]], fig, ''.join(['$', Genus[SpeciesNames[0]].replace('_', ' '), '$']), Ylabel, 12, regions, xtickpos, False)
-ax2 = CreateAx(1, 5, 2, AllData[SpeciesNames[2]], fig, '$' + Genus[SpeciesNames[2]].replace('_', ' ') + '$', Ylabel, 4, regions, xtickpos, False)
-ax3 = CreateAx(1, 5, 3, AllData[SpeciesNames[3]], fig, '$' + Genus[SpeciesNames[3]].replace('_', ' ') + '$', Ylabel, 8, regions, xtickpos, False)
-ax4 = CreateAx(1, 5, 4, AllData[SpeciesNames[4]], fig, '$' + Genus[SpeciesNames[4]].replace('_', ' ') + '$', Ylabel, 4, regions, xtickpos, False)
-ax5 = CreateAx(1, 5, 5, AllData[SpeciesNames[5]], fig, '$' + Genus[SpeciesNames[5]].replace('_', ' ') + '$', Ylabel, 6, regions, xtickpos, True)
+ax1 = CreateAx(1, 5, 1, AllData[SpeciesNames[0]], fig, Genus[SpeciesNames[0]].replace('_', ' '), Ylabel, 12, regions, xtickpos, False)
+ax2 = CreateAx(1, 5, 2, AllData[SpeciesNames[2]], fig, Genus[SpeciesNames[2]].replace('_', ' '), Ylabel, 4, regions, xtickpos, False)
+ax3 = CreateAx(1, 5, 3, AllData[SpeciesNames[3]], fig, Genus[SpeciesNames[3]].replace('_', ' '), Ylabel, 8, regions, xtickpos, False)
+ax4 = CreateAx(1, 5, 4, AllData[SpeciesNames[4]], fig, Genus[SpeciesNames[4]].replace('_', ' '), Ylabel, 4, regions, xtickpos, False)
+ax5 = CreateAx(1, 5, 5, AllData[SpeciesNames[5]], fig, Genus[SpeciesNames[5]].replace('_', ' '), Ylabel, 6, regions, xtickpos, True)
 
 # perform statistical tests between CNV and non-CNV genes
 Pval = {}
