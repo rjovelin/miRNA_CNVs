@@ -65,59 +65,60 @@ for species in SpeciesNames:
     fastafile = species + '_miRBaseMatureAccession.txt'
     # create a dict mature name : score pairs
     scores = TargetScore(fastafile, 1000, Genus[species], miRBaseFile = 'miRNA.dat', ExpressionFile = 'mirna_read_count.txt')    
-    print('match scores to mature miRNAs', len(scores))
+    print('match scores to mature miRNAs', species, len(scores))
     # populate score dict
-    Scores[species] = dict(scores)
-    # get the CNV file, use the DGV 2015 release for human
-    if species == 'H_sapiens':
-        CNV_file = 'H_sapiens_GRCh37_2015_CNV_all_length_valid_chromos.txt'
-    else:
-        CNV_file = species + '_' + cnv_length + '_' + chromos + '.txt' 
-    # get CNV gene status
-    CNV_status = sort_genes_CNV_status(CNV_file)
-    print('recorded CNV gene status', len(CNV_status))
-    # loop over domain
-    for domain in regions:
-        # get the seq input file
-        seq_input_file = species + '_' + domain + '_' + chromos + '_targetscan.txt'
-        # get the predicted targets output file
-        predicted_targets = species + '_' + domain + '_' + chromos + '_predicted_sites_miranda.txt'
-        # record the number of miranda target sites for each gene weighted by the mirna expression score
-        #  {gene: [N_targets, Sequence_length, N_targets_normalized, CNV_status}}
-        Targets = WeightTargetsMirandaOutput(seq_input_file, predicted_targets, Scores[species])
-        print('computed weighted targets for all genes', len(Targets))
-        # add CNV status
-        for gene in Targets:
-            Targets[gene].append(CNV_status[gene])
-            assert len(Targets[gene]) == 4, 'gene in Targets does not have all required values'
-        print('added gene CNV status to each gene')
-        # add the number of weighted targets to CNV and non-CNV lists
-        for gene in Targets:
-            if domain == '3UTR' and Targets[gene][-1] == 'CNV':
-                # add weigted number of targets to cnv list for 3'UTR
-                AllData[species][0].append(Targets[gene][2])
-            elif domain == '3UTR' and Targets[gene][-1] == 'not_CNV':
-                # add weighted number of targets to non-cnv list for 3'UTR
-                AllData[species][1].append(Targets[gene][2])
-            elif domain == '5UTR' and Targets[gene][-1] == 'CNV':
-                # add weighted number of targets to cnv for 5'UTR 
-                AllData[species][2].append(Targets[gene][2])
-            elif domain == '5UTR' and Targets[gene][-1] == 'not_CNV':
-                # add weighted number of targets to non-cnv for 5'UTR
-                AllData[species][3].append(Targets[gene][2])
-            elif domain == 'CDS' and Targets[gene][-1] == 'CNV':
-                # add weighted number of targets to cnv list for CDS
-                AllData[species][4].append(Targets[gene][2])
-            elif domain == 'CDS' and Targets[gene][-1] == 'not_CNV':
-                # add weighted number of targets to non-cnv list for CDS
-                AllData[species][5].append(Targets[gene][2])
-        print('generated lists of target sites for {0}'.format(species))
+    if len(scores) != 0:
+        Scores[species] = dict(scores)
+        # get the CNV file, use the DGV 2015 release for human
+        if species == 'H_sapiens':
+            CNV_file = 'H_sapiens_GRCh37_2015_CNV_all_length_valid_chromos.txt'
+        else:
+            CNV_file = species + '_' + cnv_length + '_' + chromos + '.txt' 
+        # get CNV gene status
+        CNV_status = sort_genes_CNV_status(CNV_file)
+        print('recorded CNV gene status', len(CNV_status))
+        # loop over domain
+        for domain in regions:
+            # get the seq input file
+            seq_input_file = species + '_' + domain + '_' + chromos + '_targetscan.txt'
+            # get the predicted targets output file
+            predicted_targets = species + '_' + domain + '_' + chromos + '_predicted_sites_miranda.txt'
+            # record the number of miranda target sites for each gene weighted by the mirna expression score
+            #  {gene: [N_targets, Sequence_length, N_targets_normalized, CNV_status}}
+            Targets = WeightTargetsMirandaOutput(seq_input_file, predicted_targets, Scores[species])
+            print('computed weighted targets for all genes', len(Targets))
+            # add CNV status
+            for gene in Targets:
+                Targets[gene].append(CNV_status[gene])
+                assert len(Targets[gene]) == 4, 'gene in Targets does not have all required values'
+            print('added gene CNV status to each gene')
+            # add the number of weighted targets to CNV and non-CNV lists
+            for gene in Targets:
+                if domain == '3UTR' and Targets[gene][-1] == 'CNV':
+                    # add weigted number of targets to cnv list for 3'UTR
+                    AllData[species][0].append(Targets[gene][2])
+                elif domain == '3UTR' and Targets[gene][-1] == 'not_CNV':
+                    # add weighted number of targets to non-cnv list for 3'UTR
+                    AllData[species][1].append(Targets[gene][2])
+                elif domain == '5UTR' and Targets[gene][-1] == 'CNV':
+                    # add weighted number of targets to cnv for 5'UTR 
+                    AllData[species][2].append(Targets[gene][2])
+                elif domain == '5UTR' and Targets[gene][-1] == 'not_CNV':
+                    # add weighted number of targets to non-cnv for 5'UTR
+                    AllData[species][3].append(Targets[gene][2])
+                elif domain == 'CDS' and Targets[gene][-1] == 'CNV':
+                    # add weighted number of targets to cnv list for CDS
+                    AllData[species][4].append(Targets[gene][2])
+                elif domain == 'CDS' and Targets[gene][-1] == 'not_CNV':
+                    # add weighted number of targets to non-cnv list for CDS
+                    AllData[species][5].append(Targets[gene][2])
+            print('generated lists of target sites for {0}'.format(species))
 print('generated lists of sites for CNV and non-CNV genes for all species')
 
 
 
 # create figure
-fig = plt.figure(1, figsize = (8, 6))
+fig = plt.figure(1, figsize = (5, 9))
 
 # create list of labels and tick positions for the X axis
 xtickpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
@@ -125,7 +126,7 @@ xtickpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, Domains, XScale, YaxisLine):
+def CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, Domains, XScale, YAxisLine):
     '''
     (int, int, int, dict, figure_object, str, str, int, list, list, bool)
     Take the number of a column, and rows in the figure object and the position of
@@ -198,18 +199,33 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, Domains
     # hide these grids behind plot objects
     ax.set_axisbelow(True)
 
-    # do not show ticks
-    plt.tick_params(
-        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-        which='both',      # both major and minor ticks are affected
-        bottom='on',      # ticks along the bottom edge are off
-        top='off',         # ticks along the top edge are off
-        right = 'off',
-        left = 'off',          
-        labelbottom='on', # labels along the bottom edge are on
-        colors = 'black',
-        labelsize = 8,
-        direction = 'out') # ticks are outside the frame when bottom = 'on'  
+
+    if YAxisLine == True:
+        # do not show ticks
+        plt.tick_params(
+            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+            which='both',      # both major and minor ticks are affected
+            bottom='on',      # ticks along the bottom edge are off
+            top='off',         # ticks along the top edge are off
+            right = 'off',
+            left = 'off',          
+            labelbottom='on', # labels along the bottom edge are on
+            colors = 'black',
+            labelsize = 8,
+            direction = 'out') # ticks are outside the frame when bottom = 'on'  
+    elif YAxisLine == False:
+        # do not show ticks
+        plt.tick_params(
+            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+            which='both',      # both major and minor ticks are affected
+            bottom='off',      # ticks along the bottom edge are off
+            top='off',         # ticks along the top edge are off
+            right = 'off',
+            left = 'off',          
+            labelbottom='off', # labels along the bottom edge are on
+            colors = 'black',
+            labelsize = 8,
+            direction = 'out') # ticks are outside the frame when bottom = 'on'  
     
     # Set the tick labels font name
     for label in ax.get_yticklabels():
@@ -219,15 +235,13 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, Domains
     
     return ax      
 
-
 Ylabel = 'Weighted number of miRNA\nsites per nucleotide'
-# plot data
-ax1 = CreateAx(6, 1, 1, AllData[SpeciesNames[0]], fig, Genus[SpeciesNames[0]], Ylabel, 20, regions, xtickpos, False)
-ax2 = CreateAx(6, 1, 2, AllData[SpeciesNames[1]], fig, Genus[SpeciesNames[1]], Ylabel, 20, regions, xtickpos, False)
-ax3 = CreateAx(6, 1, 3, AllData[SpeciesNames[2]], fig, Genus[SpeciesNames[2]], Ylabel, 20, regions, xtickpos, False)
-ax4 = CreateAx(6, 1, 4, AllData[SpeciesNames[3]], fig, Genus[SpeciesNames[3]], Ylabel, 20, regions, xtickpos, False)
-ax5 = CreateAx(6, 1, 5, AllData[SpeciesNames[4]], fig, Genus[SpeciesNames[4]], Ylabel, 20, regions, xtickpos, False)
-ax6 = CreateAx(6, 1, 6, AllData[SpeciesNames[5]], fig, Genus[SpeciesNames[5]], Ylabel, 20, regions, xtickpos, True)
+# plot data, note that chimp has no expression data 
+ax1 = CreateAx(1, 5, 1, AllData[SpeciesNames[0]], fig, ''.join(['$', Genus[SpeciesNames[0]].replace('_', ' '), '$']), Ylabel, 12, regions, xtickpos, False)
+ax2 = CreateAx(1, 5, 2, AllData[SpeciesNames[2]], fig, '$' + Genus[SpeciesNames[2]].replace('_', ' ') + '$', Ylabel, 4, regions, xtickpos, False)
+ax3 = CreateAx(1, 5, 3, AllData[SpeciesNames[3]], fig, '$' + Genus[SpeciesNames[3]].replace('_', ' ') + '$', Ylabel, 8, regions, xtickpos, False)
+ax4 = CreateAx(1, 5, 4, AllData[SpeciesNames[4]], fig, '$' + Genus[SpeciesNames[4]].replace('_', ' ') + '$', Ylabel, 4, regions, xtickpos, False)
+ax5 = CreateAx(1, 5, 5, AllData[SpeciesNames[5]], fig, '$' + Genus[SpeciesNames[5]].replace('_', ' ') + '$', Ylabel, 6, regions, xtickpos, True)
 
 # perform statistical tests between CNV and non-CNV genes
 Pval = {}
@@ -273,6 +287,10 @@ print('assessed significance for each comparisons')
 ## build outputfile with arguments
 #outputfile = 'truc_' + domain + '_' + chromos + '_' + cnv_length
 #print(outputfile)
+
+
+# make sure subplots do not overlap
+plt.tight_layout()
 
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
