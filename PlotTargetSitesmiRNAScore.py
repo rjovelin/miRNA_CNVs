@@ -120,7 +120,7 @@ print('generated lists of sites for CNV and non-CNV genes for all species')
 
 
 # create figure
-fig = plt.figure(1, figsize = (4.5, 8))
+fig = plt.figure(1, figsize = (4, 7.5))
 
 # create list of labels and tick positions for the X axis
 xtickpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
