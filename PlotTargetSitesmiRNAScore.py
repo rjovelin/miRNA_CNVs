@@ -120,7 +120,7 @@ print('generated lists of sites for CNV and non-CNV genes for all species')
 
 
 # create figure
-fig = plt.figure(1, figsize = (4, 7.5))
+fig = plt.figure(1, figsize = (3.5, 7))
 
 # create list of labels and tick positions for the X axis
 xtickpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
@@ -297,10 +297,10 @@ for species in Significance:
         for i in range(len(Ypos)):
             ax5.text(Xpos[i], Ypos[i], Significance[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
 
-## add legend relative to ax1 using ax1 coordinates
-#C = mpatches.Patch(facecolor = '#a6bddb', edgecolor = 'black', linewidth = 1, label= 'CNV')
-#N = mpatches.Patch(facecolor = '#99d8c9', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
-#ax.legend(handles = [C, N], loc = (0.2, 1), fontsize = 8, frameon = False, ncol = 2)
+# add legend relative to ax1 using ax1 coordinates
+C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
+N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
+ax1.legend(handles = [C, N], loc = (0.2, 1), fontsize = 8, frameon = False, ncol = 2)
 
 ## build outputfile with arguments
 #outputfile = 'truc_' + domain + '_' + chromos + '_' + cnv_length
