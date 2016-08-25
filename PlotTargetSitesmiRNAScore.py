@@ -300,7 +300,7 @@ for species in Significance:
 # add legend relative to ax1 using ax1 coordinates
 C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
 N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
-ax1.legend(handles = [C, N], loc = (0.2, 1), fontsize = 8, frameon = False, ncol = 2)
+ax1.legend(handles = [C, N], loc = (0.2, 1.2), fontsize = 8, frameon = False, ncol = 2)
 
 ## build outputfile with arguments
 #outputfile = 'truc_' + domain + '_' + chromos + '_' + cnv_length
