@@ -302,14 +302,14 @@ C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, la
 N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
 ax1.legend(handles = [C, N], loc = (0.2, 1.2), fontsize = 8, frameon = False, ncol = 2)
 
-## build outputfile with arguments
-#outputfile = 'truc_' + domain + '_' + chromos + '_' + cnv_length
-#print(outputfile)
+# build outputfile with arguments
+outputfile = 'PlotWeightedTargets_' + domain + '_' + chromos + '_' + cnv_length
+print(outputfile)
 
 
 # make sure subplots do not overlap
 plt.tight_layout()
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
 
