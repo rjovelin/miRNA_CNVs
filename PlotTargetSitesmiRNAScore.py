@@ -120,7 +120,7 @@ print('generated lists of sites for CNV and non-CNV genes for all species')
 
 
 # create figure
-fig = plt.figure(1, figsize = (5, 9))
+fig = plt.figure(1, figsize = (4.5, 8))
 
 # create list of labels and tick positions for the X axis
 xtickpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
@@ -238,7 +238,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, Domains
     
     return ax      
 
-Ylabel = 'Weighted number of miRNA\nsites per nucleotide'
+Ylabel = 'Weighted number of\nsites / nt'
 # plot data, note that chimp has no expression data 
 ax1 = CreateAx(1, 5, 1, AllData[SpeciesNames[0]], fig, Genus[SpeciesNames[0]].replace('_', ' '), Ylabel, 12, regions, xtickpos, False)
 ax2 = CreateAx(1, 5, 2, AllData[SpeciesNames[2]], fig, Genus[SpeciesNames[2]].replace('_', ' '), Ylabel, 4, regions, xtickpos, False)
