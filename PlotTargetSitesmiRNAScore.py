@@ -272,14 +272,30 @@ for species in Pval:
 print('assessed significance for each comparisons')
 
 # annotate figure with significance level
-
-
-
-   
-## annotate figure with significance levels
-#Ypos = 0.13
-#Xpos = 0.2
-#ax.text(Xpos, Ypos, Significance, horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+# create list of positions for significance
+Xpos = [0.2, 1.1, 2]
+for species in Significance:
+    if species == 'H_sapiens':
+        # make a list of Y axis position
+        Ypos = [11, 11, 11]
+        for i in range(len(Ypos)):
+            ax1.text(Xpos[i], Ypos[i], Significance[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+    elif species == 'M_mulatta':
+        Ypos = [3.5, 3.5, 3.5]
+        for i in range(len(Ypos)):
+            ax2.text(Xpos[i], Ypos[i], Significance[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+    elif species == 'M_musculus':
+        Ypos = [7, 7, 7]
+        for i in range(len(Ypos)):
+            ax3.text(Xpos[i], Ypos[i], Significance[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+    elif species == 'B_tautus':
+        Ypos = [3.7, 3.7, 3.5]
+        for i in range(len(Ypos)):
+            ax4.text(Xpos[i], Ypos[i], Significance[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+    elif species == 'G_gallus':
+        Ypos = [5, 5, 4]
+        for i in range(len(Ypos)):
+            ax5.text(Xpos[i], Ypos[i], Significance[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
 
 ## add legend relative to ax1 using ax1 coordinates
 #C = mpatches.Patch(facecolor = '#a6bddb', edgecolor = 'black', linewidth = 1, label= 'CNV')
