@@ -45,45 +45,80 @@ CNV_size = 'all'
 # CNV_size = 'long'
 
 
+# make a list of species names
+SpeciesNames = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
+# create a dict with full species names
+Genus = {'H_sapiens': 'Homo_sapiens', 'P_troglodytes': 'Pan_troglodytes', 'M_mulatta': 'Macaca_mulatta',
+                 'M_musculus': 'Mus_musculus', 'B_taurus': 'Bos_taurus', 'G_gallus':'Gallus_gallus'}
+# make a dictionary of species names : species code
+species_codes = {'H_sapiens': 'Hsa', 'P_troglodytes': 'Ptr', 'M_mulatta': 'Mml',
+                 'M_musculus': 'Mmu', 'B_taurus': 'Bta', 'G_gallus':'Gga'}
+
 # create a dictionary with {species: {mirna accession : mature names pairs}}
 AccessionNames = MatchmiRNAAccessionNumbers('name', miRBaseFile = 'miRNA.dat')
-# check that mirna names are for human mirna accession numbers
+# check that mirna names: mirna accession numbers pairs correspond to the correct species
 for accession in AccessionNames['Homo_sapiens']:
     for name in AccessionNames['Homo_sapiens'][accession]:
-        assert name.startswith('hsa'), 'mirna name should start with hsa'
+        if species == 'Homo_sapiens':
+            assert name.startswith('hsa'), 'mirna name should start with hsa'
+        elif species == 'Macaca_mulatta':
+            assert name.startswith('mml'), 'mirna name should start with mml'
+        elif species == 'Pan_troglodytes':
+            assert name.startswith('ptr'), 'mirna name should start with ptr'
+        elif species == 'Mus_musculus':
+            assert name.startswith('mmu'), 'mirna name should start with mmu'
+        elif species == 'Gallus_gallus':
+            assert name.startswith('gga'), 'mirna name should start with gga'
+        elif species == 'Bos_taurus':
+            assert name.startswith('bta'), 'mirna name should start with bta'
 print('matches accessions with names')
 
 # create a dictionary {mirna accession: expression level}
 miRNAExpression = miRBAsemiRNAExpression('mirna_read_count.txt')
 print('obtained mirna expression')
 
-# sort the mirna accession numbers according to the mirna expression 
-AccessionExpressionGroups = SortmiRNAQuartileExpression('Homo_sapiens', miRNAExpression, AccessionNames)    
-print('sorted accessions according to expression')
 
-missing = set()
-# Sort mirna names in expression groups
-LowExp, ModerateExp, MediumExp, HighExp = [], [], [], []
-for accession in AccessionNames['Homo_sapiens']:
-    if accession in AccessionExpressionGroups[0]:
-        # add names to low expression group
-        for name in AccessionNames['Homo_sapiens'][accession]:
-            LowExp.append(name)
-    elif accession in AccessionExpressionGroups[1]:
-        # add names to moderate expression group
-        for name in AccessionNames['Homo_sapiens'][accession]:
-            ModerateExp.append(name)
-    elif accession in AccessionExpressionGroups[2]:
-        # add names to medium expression group
-        for name in AccessionNames['Homo_sapiens'][accession]:
-            MediumExp.append(name)
-    elif accession in AccessionExpressionGroups[3]:
-        # add names to high expression group
-        for name in AccessionNames['Homo_sapiens'][accession]:
-            HighExp.append(name)
-    else:
-        missing.add(accession)
-print('{0} miRNAs without expression'.format(len(missing)))
+for species in SpeciesNames:
+    # get the genus_species
+    Species = Genus[species]
+    print(Species)
+    # sort the mirna accession numbers according to the mirna expression 
+    AccessionExpressionGroups = SortmiRNAQuartileExpression(Species, miRNAExpression, AccessionNames)    
+    print('sorted accessions according to expression')
+    # Sort mirna names in expression groups
+    missing = set()
+    LowExp, ModerateExp, MediumExp, HighExp = [], [], [], []
+    for accession in AccessionNames[Species]:
+        if accession in AccessionExpressionGroups[0]:
+            # add names to low expression group
+            for name in AccessionNames[Species][accession]:
+                LowExp.append(name)
+        elif accession in AccessionExpressionGroups[1]:
+            # add names to moderate expression group
+            for name in AccessionNames[Species][accession]:
+                ModerateExp.append(name)
+        elif accession in AccessionExpressionGroups[2]:
+            # add names to medium expression group
+            for name in AccessionNames[Species][accession]:
+                MediumExp.append(name)
+        elif accession in AccessionExpressionGroups[3]:
+            # add names to high expression group
+            for name in AccessionNames[Species][accession]:
+                HighExp.append(name)
+        else:
+            missing.add(accession)
+    print('{0} miRNAs without expression in {1}'.format(len(missing), Species))
+
+
+
+
+############ continue here
+
+
+
+
+
+
 
 
 # get the seq input file
@@ -124,6 +159,13 @@ for gene in TargetsHighExp:
     TargetsHighExp[gene].append(CNV_status[gene])
     assert len(TargetsHighExp[gene]) == 4, 'gene in TargetsHighExp does not have all required values'
 print('added gene CNV status to each gene')
+
+
+
+
+
+
+
 
 # create a dict with expression group as key and a list with the number of targets
 # for CNv and non-CNV genes {expression: [[CNV], [non-CNV]]}
