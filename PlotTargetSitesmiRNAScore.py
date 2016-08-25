@@ -16,8 +16,9 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib import rc
-# activate latex text rendering
-rc('text', usetex=True)
+rc('mathtext', default='regular')
+## activate latex text rendering
+#rc('text', usetex=True)
 # import modules
 import numpy as np
 from scipy import stats
@@ -173,7 +174,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, Domains
 
 
     # write title   
-    ax.set_title(r"\textit{" + Title + "}", size = 8)
+    ax.set_title(Title, size = 8, style = 'italic')
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for y axis
@@ -245,26 +246,6 @@ ax3 = CreateAx(1, 5, 3, AllData[SpeciesNames[3]], fig, Genus[SpeciesNames[3]].re
 ax4 = CreateAx(1, 5, 4, AllData[SpeciesNames[4]], fig, Genus[SpeciesNames[4]].replace('_', ' '), Ylabel, 4, regions, xtickpos, False)
 ax5 = CreateAx(1, 5, 5, AllData[SpeciesNames[5]], fig, Genus[SpeciesNames[5]].replace('_', ' '), Ylabel, 6, regions, xtickpos, True)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # perform statistical tests between CNV and non-CNV genes
 Pval = {}
 for species in AllData:
@@ -290,12 +271,11 @@ for species in Pval:
             Significance[species].append('***')
 print('assessed significance for each comparisons')
 
+# annotate figure with significance level
 
 
-############### continue here
 
-
-    
+   
 ## annotate figure with significance levels
 #Ypos = 0.13
 #Xpos = 0.2
