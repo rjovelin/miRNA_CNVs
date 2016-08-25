@@ -16,7 +16,8 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib import rc
-rc('mathtext', default='regular')
+# activate latex text rendering
+rc('text', usetex=True)
 # import modules
 import numpy as np
 from scipy import stats
@@ -169,9 +170,10 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, Domains
     # change the mean marker and marker
     for mean in bp['means']:
         mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 3)
-    
+
+
     # write title   
-    ax.set_title(Title, size = 8)
+    ax.set_title(r"\textit{" + Title + "}", size = 8)
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for y axis
@@ -242,6 +244,26 @@ ax2 = CreateAx(1, 5, 2, AllData[SpeciesNames[2]], fig, Genus[SpeciesNames[2]].re
 ax3 = CreateAx(1, 5, 3, AllData[SpeciesNames[3]], fig, Genus[SpeciesNames[3]].replace('_', ' '), Ylabel, 8, regions, xtickpos, False)
 ax4 = CreateAx(1, 5, 4, AllData[SpeciesNames[4]], fig, Genus[SpeciesNames[4]].replace('_', ' '), Ylabel, 4, regions, xtickpos, False)
 ax5 = CreateAx(1, 5, 5, AllData[SpeciesNames[5]], fig, Genus[SpeciesNames[5]].replace('_', ' '), Ylabel, 6, regions, xtickpos, True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # perform statistical tests between CNV and non-CNV genes
 Pval = {}
