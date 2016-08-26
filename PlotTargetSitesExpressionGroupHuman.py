@@ -309,7 +309,7 @@ N = mpatches.Patch(facecolor = '#99d8c9', edgecolor = 'black', linewidth = 1, la
 ax.legend(handles = [C, N], loc = (0.2, 1), fontsize = 8, frameon = False, ncol = 2)
 
 # build outputfile with arguments
-outputfile = 'PlotTargetsmiRNAExpression_' + domain + '_' + chromos + '_' + cnv_length
+outputfile = 'PlotTargetsmiRNAExpressionHuman_' + domain + '_' + chromos + '_' + cnv_length
 print(outputfile)
 
 # save figure
