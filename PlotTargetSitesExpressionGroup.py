@@ -273,7 +273,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, YAxisLine):
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for x and y axis
-    ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 8, ha = 'center', **FigFont)
+    ax.set_ylabel('miRNA sites / nt', color = 'black',  size = 8, ha = 'center', **FigFont)
     if YAxisLine == True:
         ax.set_xlabel('miRNA expression level', color = 'black',  size = 8, ha = 'center', **FigFont)
     
@@ -339,13 +339,18 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, YAxisLine):
 
 # create figure
 fig = plt.figure(1, figsize = (3.5, 7))
-
 # plot data, note that chimp has no expression data 
-ax1 = CreateAx(1, 5, 1, AllData[SpeciesNames[0]], fig, Genus[SpeciesNames[0]].replace('_', ' '), 0.5, False)
-ax2 = CreateAx(1, 5, 2, AllData[SpeciesNames[1]], fig, Genus[SpeciesNames[1]].replace('_', ' '), 0.5, False)
-ax3 = CreateAx(1, 5, 3, AllData[SpeciesNames[2]], fig, Genus[SpeciesNames[2]].replace('_', ' '), 0.5, False)
-ax4 = CreateAx(1, 5, 4, AllData[SpeciesNames[3]], fig, Genus[SpeciesNames[3]].replace('_', ' '), 0.5, False)
-ax5 = CreateAx(1, 5, 5, AllData[SpeciesNames[4]], fig, Genus[SpeciesNames[4]].replace('_', ' '), 0.5, True)
+if domain == '3UTR':
+    YAxisLimit = [0.14, 0.05, 0.08, 0.04, 0.05]
+elif domain == '5UTR':
+    YAxisLimit = [0.14, 0.04, 0.09, 0.04, 0.07]
+elif domain == 'CDS':
+    YAxisLimit = [0.14, 0.04, 0.08, 0.035, 0.05]
+ax1 = CreateAx(1, 5, 1, AllData[SpeciesNames[0]], fig, Genus[SpeciesNames[0]].replace('_', ' '), YAxisLimit[0], False)
+ax2 = CreateAx(1, 5, 2, AllData[SpeciesNames[1]], fig, Genus[SpeciesNames[1]].replace('_', ' '), YAxisLimit[1], False)
+ax3 = CreateAx(1, 5, 3, AllData[SpeciesNames[2]], fig, Genus[SpeciesNames[2]].replace('_', ' '), YAxisLimit[2], False)
+ax4 = CreateAx(1, 5, 4, AllData[SpeciesNames[3]], fig, Genus[SpeciesNames[3]].replace('_', ' '), YAxisLimit[3], False)
+ax5 = CreateAx(1, 5, 5, AllData[SpeciesNames[4]], fig, Genus[SpeciesNames[4]].replace('_', ' '), YAxisLimit[4], True)
 
 # annotate Graph with significance level
 Pvalues = {}
@@ -362,30 +367,81 @@ for species in SpeciesNames:
         elif CompTargets[species][group] < 0.001:
             Pvalues[species].append('***')
 
+# annotate figure with significance level
 # create list of Y and X positions to annotate figure with significance level
-if domain == '3UTR':
-    # make a list of Y positions
-    Ypos = [0.13, 0.10, 0.09, 0.09]
-    Xpos = [0.2, 1.1, 2, 2.9]
-elif domain == '5UTR':
-    # make a list of Y positions
-    Ypos = [0.13, 0.10, 0.09, 0.09]
-    Xpos = [0.2, 1.1, 2, 2.9]
-elif domain == 'CDS':
-    # make a list of Y positions
-    Ypos = [0.13, 0.10, 0.09, 0.09]
-    Xpos = [0.2, 1.1, 2, 2.9]
+Xpos = [0.2, 1.1, 2, 2.9]
 
-
-## annotate figure with significance levels
-#for i in range(len(Pvalues)):
-#    ax.text(Xpos[i], Ypos[i], Pvalues[i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
-
+for species in Pvalues:
+    if species == 'H_sapiens':
+        # make a list of Y axis position
+        if domain == '3UTR':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.09]
+        elif domain == '5UTR':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.10]
+        elif domain == 'CDS':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.09]
+        for i in range(len(Ypos)):
+            ax1.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+    elif species == 'M_mulatta':
+        if domain == '3UTR':
+            # make a list of Y positions
+            Ypos = [0.035, 0.04, 0.045, 0.04]
+        elif domain == '5UTR':
+            # make a list of Y positions
+            Ypos = [0.035, 0.035, 0.038, 0.035]
+        elif domain == 'CDS':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.09]
+        for i in range(len(Ypos)):
+            ax2.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+    elif species == 'M_musculus':
+        if domain == '3UTR':
+            # make a list of Y positions
+            Ypos = [0.08, 0.08, 0.06, 0.06]
+        elif domain == '5UTR':
+            # make a list of Y positions
+            Ypos = [0.08, 0.075, 0.06, 0.06]
+        elif domain == 'CDS':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.09]
+        for i in range(len(Ypos)):
+            ax3.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+    elif species == 'B_tautus':
+        if domain == '3UTR':
+            # make a list of Y positions
+            Ypos = [0.037, 0.035, 0.032, 0.03]
+        elif domain == '5UTR':
+            # make a list of Y positions
+            Ypos = [0.035, 0.035, 0.035, 0.035]
+        elif domain == 'CDS':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.09]
+        for i in range(len(Ypos)):
+            ax4.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+    elif species == 'G_gallus':
+        if domain == '3UTR':
+            # make a list of Y positions
+            Ypos = [0.04, 0.042, 0.045, 0.04]
+        elif domain == '5UTR':
+            # make a list of Y positions
+            Ypos = [0.055, 0.055, 0.062, 0.055]
+        elif domain == 'CDS':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.09]
+        for i in range(len(Ypos)):
+            ax5.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
 
 # add legend relative to ax1 using ax1 coordinates
 C = mpatches.Patch(facecolor = '#a6bddb', edgecolor = 'black', linewidth = 1, label= 'CNV')
 N = mpatches.Patch(facecolor = '#99d8c9', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
 ax1.legend(handles = [C, N], loc = (0.2, 1.2), fontsize = 8, frameon = False, ncol = 2)
+
+# make sure subplots do not overlap
+plt.tight_layout()
+
 
 ## build outputfile with arguments
 #outputfile = 'PlotTargetsmiRNAExpression_' + domain + '_' + chromos + '_' + cnv_length
