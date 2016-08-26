@@ -377,7 +377,12 @@ if domain == '3UTR':
 # add legend relative to ax1 using ax1 coordinates
 C = mpatches.Patch(facecolor = '#a6bddb', edgecolor = 'black', linewidth = 1, label= 'CNV')
 N = mpatches.Patch(facecolor = '#99d8c9', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
-ax.legend(handles = [C, N], loc = (0.2, 1), fontsize = 8, frameon = False, ncol = 2)
+ax.legend(handles = [C, N], loc = (0.2, 1.2), fontsize = 8, frameon = False, ncol = 2)
+
+
+
+
+
 
 ## build outputfile with arguments
 #outputfile = 'PlotTargetsmiRNAExpression_' + domain + '_' + chromos + '_' + cnv_length
