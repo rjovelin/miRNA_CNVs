@@ -163,190 +163,226 @@ for species in SpeciesNames:
     for gene in TargetsLowExp:
         if TargetsLowExp[gene][-1] == 'CNV':
             # add number of normalized targets to cnv list 
-            TargetsData['low'][0].append(TargetsLowExp[gene][2])
+            TargetsData[species]['low'][0].append(TargetsLowExp[gene][2])
         elif TargetsLowExp[gene][-1] == 'not_CNV':
             # add number of normalized targets to non-cnv list
-            TargetsData['low'][1].append(TargetsLowExp[gene][2])
+            TargetsData[species]['low'][1].append(TargetsLowExp[gene][2])
     for gene in TargetsModerateExp:
         if TargetsModerateExp[gene][-1] == 'CNV':
             # add number of normalized targets to cnv list
-            TargetsData['moderate'][0].append(TargetsModerateExp[gene][2])
+            TargetsData[species]['moderate'][0].append(TargetsModerateExp[gene][2])
         elif TargetsModerateExp[gene][-1] == 'not_CNV':
             # add number of normalized targets to non-cnv list
-            TargetsData['moderate'][1].append(TargetsModerateExp[gene][2])
+            TargetsData[species]['moderate'][1].append(TargetsModerateExp[gene][2])
     for gene in TargetsMediumExp:
         if TargetsMediumExp[gene][-1] == 'CNV':
             # add number of normalized targets to cnv list
-            TargetsData['medium'][0].append(TargetsMediumExp[gene][2])
+            TargetsData[species]['medium'][0].append(TargetsMediumExp[gene][2])
         elif TargetsMediumExp[gene][-1] == 'not_CNV':
             # add numner of normnalized targets to non-cnv list
-            TargetsData['medium'][1].append(TargetsMediumExp[gene][2])
+            TargetsData[species]['medium'][1].append(TargetsMediumExp[gene][2])
     for gene in TargetsHighExp:
         if TargetsHighExp[gene][-1] == 'CNV':
             # add number of normalized targets to cnv list
-            TargetsData['high'][0].append(TargetsHighExp[gene][2])
+            TargetsData[species]['high'][0].append(TargetsHighExp[gene][2])
         elif TargetsHighExp[gene][-1] == 'not_CNV':
             # add number of normalized targets to non-cnv list
-            TargetsData['high'][1].append(TargetsHighExp[gene][2])
+            TargetsData[species]['high'][1].append(TargetsHighExp[gene][2])
     print('sorted targets for CNV and non-CNV genes in each expression group for {0}'.format(species))
 
 
+# perform stattistical tests between CNV and non-CNV genes
+# create dicts to store results {species: {expression group: P-value normalized targets}}
+CompTargets = {}
+for species in TargetsData:
+    CompTargets[species] = {}
+    for group in TargetsData[species]:
+        Pval = stats.ranksums(TargetsData[species][group][0], TargetsData[species][group][1])[1]
+        CompTargets[species][group] = Pval    
+print('compared CNV and non-CNV genes')
+
+
+# make a list of expression group 
+Groups = ['low', 'moderate', 'medium', 'high']
+
+# {species: [[targets CNV low], [targets non-CNV high], [ targets CNV moderate], [targets non-CNV moderate],
+#            [targets CNV medium], [targets non-CNV medium], [targets CNV high], [targets non-CNV high]}
+AllData = {}
+for species in TargetsData:
+    AllData[species] = []
+    for group in Groups:
+        AllData[species].append(TargetsData[species][group][0])
+        AllData[species].append(TargetsData[species][group][1])
+print('data consolidated in array for each species')
 
 
 
+# create list of labels and tick positions for the X axis
+#xtickpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
+
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, YAxisLine):
+    '''
+    (int, int, int, dict, figure_object, str, str, int, list, list, bool)
+    Take the number of a column, and rows in the figure object and the position of
+    the ax in figure, a list of data, a title, a maximum value for the Y axis,
+    a list with species names and list of X axis tick positions and return an
+    ax instance in the figure
+    '''    
+    
+    # create subplot in figure
+    # add a plot to figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    # create a list of positions for the box plot    
+    BoxPositions = [0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.7, 3.1]
+
+    # use a boxplot
+    bp = ax.boxplot(Data, showmeans = True, showfliers = False, widths = 0.3,
+                    positions = BoxPositions, patch_artist = True) 
+
+    # color CNV and non-CNV boxes differently
+    CNVColor = ['#a6bddb','#74a9cf','#2b8cbe','#045a8d']
+    NonCNVColor = ['#99d8c9','#66c2a4','#2ca25f','#006d2c']
+    i, j = 0, 0    
+    # change box, whisker color to black
+    for box in bp['boxes']:
+        # change line color
+        box.set(color = 'black')
+        if i % 2 == 0:
+            # CNV data
+            box.set(facecolor = CNVColor[j])
+        else:
+            box.set(facecolor = NonCNVColor[j])
+        i += 1
+        j = int(i / 2)
+    # change whisker color to black
+    for wk in bp['whiskers']:
+        wk.set(color = 'black', linestyle = '-')
+    # change color of the caps
+    for cap in bp['caps']:
+        cap.set(color = 'black')
+    # change the color and line width of the medians
+    for median in bp['medians']:
+        median.set(color = 'black')
+    # change the mean marker and marker
+    for mean in bp['means']:
+        mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 3)
+
+    # write title   
+    ax.set_title(Title, size = 8, style = 'italic')
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
+    # write label for x and y axis
+    ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 8, ha = 'center', **FigFont)
+    if YAxisLine == True:
+        ax.set_xlabel('miRNA expression level', color = 'black',  size = 8, ha = 'center', **FigFont)
+    
+    # write label for x axis
+    plt.xticks([0.2, 1.1, 2, 2.9], list(map(lambda x: x.capitalize(), Groups)), ha = 'center', fontsize = 8, **FigFont)
+    # add a range for the Y axis
+    plt.ylim([0, YMax])
+    plt.xlim([-0.25, 3.35])
+
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["right"].set_visible(False)    
+    ax.spines["left"].set_visible(False)  
+    if YAxisLine == False:
+        ax.spines["bottom"].set_visible(False)    
+    elif YAxisLine == True:
+        ax.spines["bottom"].set_visible(True)    
+        # offset the spines
+        for spine in ax.spines.values():
+            spine.set_position(('outward', 5))
+    
+    # add a light grey horizontal grid to the plot, semi-transparent, 
+    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
+    # hide these grids behind plot objects
+    ax.set_axisbelow(True)
 
 
+    if YAxisLine == True:
+        # do not show ticks
+        plt.tick_params(
+            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+            which='both',      # both major and minor ticks are affected
+            bottom='on',      # ticks along the bottom edge are off
+            top='off',         # ticks along the top edge are off
+            right = 'off',
+            left = 'off',          
+            labelbottom='on', # labels along the bottom edge are on
+            colors = 'black',
+            labelsize = 8,
+            direction = 'out') # ticks are outside the frame when bottom = 'on'  
+    elif YAxisLine == False:
+        # do not show ticks
+        plt.tick_params(
+            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+            which='both',      # both major and minor ticks are affected
+            bottom='off',      # ticks along the bottom edge are off
+            top='off',         # ticks along the top edge are off
+            right = 'off',
+            left = 'off',          
+            labelbottom='off', # labels along the bottom edge are on
+            colors = 'black',
+            labelsize = 8,
+            direction = 'out') # ticks are outside the frame when bottom = 'on'  
+    
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')
+    # create a margin around the x axis
+    plt.margins(0.05)
+    
+    return ax      
 
-## perform stattistical tests between CNV and non-CNV genes
-## create dicts to store results {expression group: P-value normalized targets}
-#CompTargets = {}
-#for group in TargetsData:
-#    Pval = stats.ranksums(TargetsData[group][0], TargetsData[group][1])[1]
-#    CompTargets[group] = Pval    
-#    print('{0} -  cnv: N = {1}, mean = {2}, non-cnv: N = {3}, mean = {4}, P = {5}'.format(group,
-#          len(TargetsData[group][0]), np.mean(TargetsData[group][0]), len(TargetsData[group][1]),
-#          np.mean(TargetsData[group][1]), Pval))    
-#print('compared CNV and non-CNV genes')
-#
-## make a list with all data
-#AllData = []
-#Groups = ['low', 'moderate', 'medium', 'high']
-## loop over expression groups,  
-#for group in Groups:
-#    # add list of targets for cnv genes
-#    AllData.append(TargetsData[group][0])
-#    # add list of targets for non-cnv genes
-#    AllData.append(TargetsData[group][1])
-#print('data consolidated in array')
-#
-#
-## create figure
-#fig = plt.figure(1, figsize = (4, 2.5))
-#
-## create subplot in figure
-## add a plot to figure (N row, N column, plot N)
-#ax = fig.add_subplot(1, 1, 1)
-## create a list of positions for the box plot    
-#BoxPositions = [0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.7, 3.1]
-## use a boxplot
-#bp = ax.boxplot(AllData, showmeans = True, showfliers = False, widths = 0.3,
-#                positions = BoxPositions, patch_artist = True) 
-#
-## color CNV and non-CNV boxes differently
-#CNVColor = ['#a6bddb','#74a9cf','#2b8cbe','#045a8d']
-#NonCNVColor = ['#99d8c9','#66c2a4','#2ca25f','#006d2c']
-#i, j = 0, 0    
-## change box, whisker color to black
-#for box in bp['boxes']:
-#    # change line color
-#    box.set(color = 'black')
-#    if i % 2 == 0:
-#        # CNV data
-#        box.set(facecolor = CNVColor[j])
-#    else:
-#        box.set(facecolor = NonCNVColor[j])
-#    i += 1
-#    j = int(i / 2)
-## change whisker color to black
-#for wk in bp['whiskers']:
-#    wk.set(color = 'black', linestyle = '-')
-## change color of the caps
-#for cap in bp['caps']:
-#    cap.set(color = 'black')
-## change the color and line width of the medians
-#for median in bp['medians']:
-#    median.set(color = 'black')
-## change the mean marker and marker
-#for mean in bp['means']:
-#    mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 3)
-#   
-#
-#   
-## set font for all text in figure
-#FigFont = {'fontname':'Arial'}   
-#    
-## write label for y and x axis
-#ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 8, ha = 'center', **FigFont)
-#ax.set_xlabel('miRNA expression level', color = 'black',  size = 8, ha = 'center', **FigFont)
-#
-## create list of labels and tick positions for the X axis
-#xtickpos = [0.2, 1.1, 2, 2.9]
-#ExGroups = ['Low', 'Moderate', 'Medium', 'High']
-## write label for x axis
-#plt.xticks(xtickpos, ExGroups, ha = 'center', fontsize = 8, **FigFont)
-#
-### add a range for the Y and X axis
-#plt.ylim([0, 0.14])
-#plt.xlim([-0.25, 3.35])
-#    
-## do not show lines around figure  
-#ax.spines["top"].set_visible(False)    
-#ax.spines["bottom"].set_visible(True)    
-#ax.spines["right"].set_visible(False)    
-#ax.spines["left"].set_visible(False)  
-## offset the spines
-#for spine in ax.spines.values():
-#    spine.set_position(('outward', 5))
-#    
-## add a light grey horizontal grid to the plot, semi-transparent, 
-#ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
-## hide these grids behind plot objects
-#ax.set_axisbelow(True)
-#
-## do not show ticks
-#plt.tick_params(
-#    axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-#    which='both',      # both major and minor ticks are affected
-#    bottom='on',      # ticks along the bottom edge are off
-#    top='off',         # ticks along the top edge are off
-#    right = 'off',
-#    left = 'off',          
-#    labelbottom='on', # labels along the bottom edge are on
-#    colors = 'black',
-#    labelsize = 8,
-#    direction = 'out') # ticks are outside the frame when bottom = 'on'  
-#      
-## Set the tick labels font name
-#for label in ax.get_yticklabels():
-#    label.set_fontname('Arial')
-#   
-## create a margin around the x axis
-#plt.margins(0.05)
-#   
-## annotate Graph with significance level
-#Pvalues = []
-#for group in Groups:
-#    # get the significance level for target sites
-#    if CompTargets[group] >= 0.05:
-#        Pvalues.append('')
-#    elif CompTargets[group] < 0.05 and CompTargets[group] >= 0.01:
-#        Pvalues.append('*')
-#    elif CompTargets[group] < 0.01 and CompTargets[group] >= 0.001:
-#        Pvalues.append('**')
-#    elif CompTargets[group] < 0.001:
-#        Pvalues.append('***')
-#
-## create list of Y and X positions to annotate figure with significance level
-#if domain == '3UTR':
-#    # make a list of Y positions
-#    Ypos = [0.13, 0.10, 0.09, 0.09]
-#    Xpos = [0.2, 1.1, 2, 2.9]
-#
-#
+
+# create figure
+fig = plt.figure(1, figsize = (3.5, 7))
+
+# plot data, note that chimp has no expression data 
+ax1 = CreateAx(1, 5, 1, AllData[SpeciesNames[0]], fig, Genus[SpeciesNames[0]].replace('_', ' '), 0.5, False)
+ax2 = CreateAx(1, 5, 2, AllData[SpeciesNames[1]], fig, Genus[SpeciesNames[1]].replace('_', ' '), 0.5, False)
+ax3 = CreateAx(1, 5, 3, AllData[SpeciesNames[2]], fig, Genus[SpeciesNames[2]].replace('_', ' '), 0.5, False)
+ax4 = CreateAx(1, 5, 4, AllData[SpeciesNames[3]], fig, Genus[SpeciesNames[3]].replace('_', ' '), 0.5, False)
+ax5 = CreateAx(1, 5, 5, AllData[SpeciesNames[4]], fig, Genus[SpeciesNames[4]].replace('_', ' '), 0.5, True)
+
+# annotate Graph with significance level
+Pvalues = {}
+for species in SpeciesNames:
+    Pvalues[species] = []
+    for group in Groups:
+        # get the significance level for target sites
+        if CompTargets[group] >= 0.05:
+            Pvalues[species].append('')
+        elif CompTargets[group] < 0.05 and CompTargets[group] >= 0.01:
+            Pvalues[species].append('*')
+        elif CompTargets[group] < 0.01 and CompTargets[group] >= 0.001:
+            Pvalues[species].append('**')
+        elif CompTargets[group] < 0.001:
+            Pvalues[species].append('***')
+
+# create list of Y and X positions to annotate figure with significance level
+if domain == '3UTR':
+    # make a list of Y positions
+    Ypos = [0.13, 0.10, 0.09, 0.09]
+    Xpos = [0.2, 1.1, 2, 2.9]
+
+
 ## annotate figure with significance levels
 #for i in range(len(Pvalues)):
 #    ax.text(Xpos[i], Ypos[i], Pvalues[i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
-#
-#
-## add legend relative to ax1 using ax1 coordinates
-#C = mpatches.Patch(facecolor = '#a6bddb', edgecolor = 'black', linewidth = 1, label= 'CNV')
-#N = mpatches.Patch(facecolor = '#99d8c9', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
-#ax.legend(handles = [C, N], loc = (0.2, 1), fontsize = 8, frameon = False, ncol = 2)
-#
+
+
+# add legend relative to ax1 using ax1 coordinates
+C = mpatches.Patch(facecolor = '#a6bddb', edgecolor = 'black', linewidth = 1, label= 'CNV')
+N = mpatches.Patch(facecolor = '#99d8c9', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
+ax.legend(handles = [C, N], loc = (0.2, 1), fontsize = 8, frameon = False, ncol = 2)
+
 ## build outputfile with arguments
 #outputfile = 'PlotTargetsmiRNAExpression_' + domain + '_' + chromos + '_' + cnv_length
 #print(outputfile)
-#
-## save figure
-#fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
-#
+
+# save figure
+fig.savefig('truc.pdf', bbox_inches = 'tight')
+
