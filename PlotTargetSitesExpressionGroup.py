@@ -353,17 +353,25 @@ for species in SpeciesNames:
     Pvalues[species] = []
     for group in Groups:
         # get the significance level for target sites
-        if CompTargets[group] >= 0.05:
+        if CompTargets[species][group] >= 0.05:
             Pvalues[species].append('')
-        elif CompTargets[group] < 0.05 and CompTargets[group] >= 0.01:
+        elif CompTargets[species][group] < 0.05 and CompTargets[species][group] >= 0.01:
             Pvalues[species].append('*')
-        elif CompTargets[group] < 0.01 and CompTargets[group] >= 0.001:
+        elif CompTargets[species][group] < 0.01 and CompTargets[species][group] >= 0.001:
             Pvalues[species].append('**')
-        elif CompTargets[group] < 0.001:
+        elif CompTargets[species][group] < 0.001:
             Pvalues[species].append('***')
 
 # create list of Y and X positions to annotate figure with significance level
 if domain == '3UTR':
+    # make a list of Y positions
+    Ypos = [0.13, 0.10, 0.09, 0.09]
+    Xpos = [0.2, 1.1, 2, 2.9]
+elif domain == '5UTR':
+    # make a list of Y positions
+    Ypos = [0.13, 0.10, 0.09, 0.09]
+    Xpos = [0.2, 1.1, 2, 2.9]
+elif domain == 'CDS':
     # make a list of Y positions
     Ypos = [0.13, 0.10, 0.09, 0.09]
     Xpos = [0.2, 1.1, 2, 2.9]
