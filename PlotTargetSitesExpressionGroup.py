@@ -81,6 +81,11 @@ print('obtained mirna expression')
 ChimpExpression = [miRNAExpression[mirna] for mirna in miRNAExpression if mirna in AccessionNames['Pan_troglodytes']]
 print('no expression recorded in miRBase for Chimp: ', len(ChimpExpression))
 
+
+# create a dict with expression group as key and a list with the number of targets
+# for CNv and non-CNV genes for all species {species: {expression: [[CNV], [non-CNV]]}}
+TargetsData = {}
+# loop over species, sort mirna to expression group and record the number of targets for each groups and CNV status
 for species in SpeciesNames:
     # get the genus_species
     Species = Genus[species]
@@ -112,100 +117,86 @@ for species in SpeciesNames:
             missing.add(accession)
     print('{0} miRNAs without expression in {1}'.format(len(missing), Species))
 
+    # get the seq input file
+    seq_input_file = species + '_' + domain + '_' + chromos + '_targetscan.txt'
+    # get the predicted targets output file
+    predicted_targets = species + '_' + domain + '_' + chromos + '_predicted_sites_miranda.txt'
+    # get the CNV file, use DGV 2015 release for human
+    if species == 'H_sapiens':
+        CNV_file = 'H_sapiens_GRCh37_2015_CNV_all_length_valid_chromos.txt'
+    else:
+        CNV_file = species + '_' + cnv_length + '_' + chromos + '.txt'         
+        
+    # record the number of miranda target sites for each gene for each expression group
+    #  {gene: [N_targets, Sequence_length, N_targets_normalized, CNV_status}}
+    TargetsLowExp = SelectmiRNAsMirandaOutput(seq_input_file, predicted_targets, LowExp, 'all')
+    print('recorded targets for each mirnas in low expression group')
+    TargetsModerateExp = SelectmiRNAsMirandaOutput(seq_input_file, predicted_targets, ModerateExp, 'all')
+    print('recorded targets for each mirnas in moderate expression group')
+    TargetsMediumExp = SelectmiRNAsMirandaOutput(seq_input_file, predicted_targets, MediumExp, 'all')
+    print('recorded targets for each mirnas in medium expression group')
+    TargetsHighExp = SelectmiRNAsMirandaOutput(seq_input_file, predicted_targets, HighExp, 'all')
+    print('recorded targets for each mirnas in high expression group')
+
+    # get CNV gene status
+    CNV_status = sort_genes_CNV_status(CNV_file)
+    print('recorded CNV gene status')
+
+    # add CNV status
+    for gene in TargetsLowExp:
+        TargetsLowExp[gene].append(CNV_status[gene])
+        assert len(TargetsLowExp[gene]) == 4, 'gene in TargetsLowExp does not have all required values'
+    for gene in TargetsModerateExp:
+        TargetsModerateExp[gene].append(CNV_status[gene])
+        assert len(TargetsModerateExp[gene]) == 4, 'gene in TargetsModerateExp does not have all required values'
+    for gene in TargetsMediumExp:
+        TargetsMediumExp[gene].append(CNV_status[gene])
+        assert len(TargetsMediumExp[gene]) == 4, 'gene in TargetsMediumExp does not have all required values'
+    for gene in TargetsHighExp:
+        TargetsHighExp[gene].append(CNV_status[gene])
+        assert len(TargetsHighExp[gene]) == 4, 'gene in TargetsHighExp does not have all required values'
+    print('added gene CNV status to each gene')
+
+    # initialize dict
+    TargetsData[species] = {}
+    TargetsData[species]['low'], TargetsData[species]['moderate'], TargetsData[species]['medium'], TargetsData[species]['high'] = [[], []], [[], []], [[], []], [[], []]
+    for gene in TargetsLowExp:
+        if TargetsLowExp[gene][-1] == 'CNV':
+            # add number of normalized targets to cnv list 
+            TargetsData['low'][0].append(TargetsLowExp[gene][2])
+        elif TargetsLowExp[gene][-1] == 'not_CNV':
+            # add number of normalized targets to non-cnv list
+            TargetsData['low'][1].append(TargetsLowExp[gene][2])
+    for gene in TargetsModerateExp:
+        if TargetsModerateExp[gene][-1] == 'CNV':
+            # add number of normalized targets to cnv list
+            TargetsData['moderate'][0].append(TargetsModerateExp[gene][2])
+        elif TargetsModerateExp[gene][-1] == 'not_CNV':
+            # add number of normalized targets to non-cnv list
+            TargetsData['moderate'][1].append(TargetsModerateExp[gene][2])
+    for gene in TargetsMediumExp:
+        if TargetsMediumExp[gene][-1] == 'CNV':
+            # add number of normalized targets to cnv list
+            TargetsData['medium'][0].append(TargetsMediumExp[gene][2])
+        elif TargetsMediumExp[gene][-1] == 'not_CNV':
+            # add numner of normnalized targets to non-cnv list
+            TargetsData['medium'][1].append(TargetsMediumExp[gene][2])
+    for gene in TargetsHighExp:
+        if TargetsHighExp[gene][-1] == 'CNV':
+            # add number of normalized targets to cnv list
+            TargetsData['high'][0].append(TargetsHighExp[gene][2])
+        elif TargetsHighExp[gene][-1] == 'not_CNV':
+            # add number of normalized targets to non-cnv list
+            TargetsData['high'][1].append(TargetsHighExp[gene][2])
+    print('sorted targets for CNV and non-CNV genes in each expression group for {0}'.format(species))
 
 
 
-############ continue here
 
 
 
-#
-#
-#
-#
-#
-## get the seq input file
-#seq_input_file = 'H_sapiens_' + domain + '_' + chromos + '_targetscan.txt'
-## get the predicted targets output file
-#predicted_targets = 'H_sapiens_' + domain + '_' + chromos + '_predicted_sites_miranda.txt'
-## use DGV 2015 release 
-#CNV_file = 'H_sapiens_GRCh37_2015_CNV_all_length_valid_chromos.txt'
-#
-#
-## record the number of miranda target sites for each gene for each expression group
-##  {gene: [N_targets, Sequence_length, N_targets_normalized, CNV_status}}
-#TargetsLowExp = SelectmiRNAsMirandaOutput(seq_input_file, predicted_targets, LowExp, 'all')
-#print('recorded targets for each mirnas in low expression group')
-#TargetsModerateExp = SelectmiRNAsMirandaOutput(seq_input_file, predicted_targets, ModerateExp, 'all')
-#print('recorded targets for each mirnas in moderate expression group')
-#TargetsMediumExp = SelectmiRNAsMirandaOutput(seq_input_file, predicted_targets, MediumExp, 'all')
-#print('recorded targets for each mirnas in medium expression group')
-#TargetsHighExp = SelectmiRNAsMirandaOutput(seq_input_file, predicted_targets, HighExp, 'all')
-#print('recorded targets for each mirnas in high expression group')
-#
-## get CNV gene status
-#CNV_status = sort_genes_CNV_status(CNV_file)
-#print('recorded CNV gene status')
-#
-#
-## add CNV status
-#for gene in TargetsLowExp:
-#    TargetsLowExp[gene].append(CNV_status[gene])
-#    assert len(TargetsLowExp[gene]) == 4, 'gene in TargetsLowExp does not have all required values'
-#for gene in TargetsModerateExp:
-#    TargetsModerateExp[gene].append(CNV_status[gene])
-#    assert len(TargetsModerateExp[gene]) == 4, 'gene in TargetsModerateExp does not have all required values'
-#for gene in TargetsMediumExp:
-#    TargetsMediumExp[gene].append(CNV_status[gene])
-#    assert len(TargetsMediumExp[gene]) == 4, 'gene in TargetsMediumExp does not have all required values'
-#for gene in TargetsHighExp:
-#    TargetsHighExp[gene].append(CNV_status[gene])
-#    assert len(TargetsHighExp[gene]) == 4, 'gene in TargetsHighExp does not have all required values'
-#print('added gene CNV status to each gene')
-#
-#
-#
-#
-#
-#
-#
-#
-## create a dict with expression group as key and a list with the number of targets
-## for CNv and non-CNV genes {expression: [[CNV], [non-CNV]]}
-#TargetsData = {}
-## initialize dict
-#TargetsData['low'], TargetsData['moderate'], TargetsData['medium'], TargetsData['high'] = [[], []], [[], []], [[], []], [[], []]
-#for gene in TargetsLowExp:
-#    if TargetsLowExp[gene][-1] == 'CNV':
-#        # add number of normalized targets to cnv list 
-#        TargetsData['low'][0].append(TargetsLowExp[gene][2])
-#    elif TargetsLowExp[gene][-1] == 'not_CNV':
-#        # add number of normalized targets to non-cnv list
-#        TargetsData['low'][1].append(TargetsLowExp[gene][2])
-#for gene in TargetsModerateExp:
-#    if TargetsModerateExp[gene][-1] == 'CNV':
-#        # add number of normalized targets to cnv list
-#        TargetsData['moderate'][0].append(TargetsModerateExp[gene][2])
-#    elif TargetsModerateExp[gene][-1] == 'not_CNV':
-#        # add number of normalized targets to non-cnv list
-#        TargetsData['moderate'][1].append(TargetsModerateExp[gene][2])
-#for gene in TargetsMediumExp:
-#    if TargetsMediumExp[gene][-1] == 'CNV':
-#        # add number of normalized targets to cnv list
-#        TargetsData['medium'][0].append(TargetsMediumExp[gene][2])
-#    elif TargetsMediumExp[gene][-1] == 'not_CNV':
-#        # add numner of normnalized targets to non-cnv list
-#        TargetsData['medium'][1].append(TargetsMediumExp[gene][2])
-#for gene in TargetsHighExp:
-#    if TargetsHighExp[gene][-1] == 'CNV':
-#        # add number of normalized targets to cnv list
-#        TargetsData['high'][0].append(TargetsHighExp[gene][2])
-#    elif TargetsHighExp[gene][-1] == 'not_CNV':
-#        # add number of normalized targets to non-cnv list
-#        TargetsData['high'][1].append(TargetsHighExp[gene][2])
-#print('generated lists of target sites for CNV and non-CNV genes')
-#
-#
+
+
 ## perform stattistical tests between CNV and non-CNV genes
 ## create dicts to store results {expression group: P-value normalized targets}
 #CompTargets = {}
@@ -358,4 +349,4 @@ for species in SpeciesNames:
 #
 ## save figure
 #fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
-
+#
