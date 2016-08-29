@@ -269,7 +269,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, YAxisLine):
         mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 3)
 
     # write title   
-    ax.set_title(Title, size = 8, style = 'italic')
+    ax.set_title(Title + '\n', size = 8, style = 'italic')
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for x and y axis
