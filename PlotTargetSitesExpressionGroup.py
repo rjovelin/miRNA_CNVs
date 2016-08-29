@@ -269,7 +269,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, YAxisLine):
         mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 3)
 
     # write title   
-    ax.set_title(Title + '\n', size = 8, style = 'italic')
+    ax.set_title(Title, size = 8, style = 'italic')
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for x and y axis
@@ -442,11 +442,10 @@ ax1.legend(handles = [C, N], loc = (0.2, 1.2), fontsize = 8, frameon = False, nc
 # make sure subplots do not overlap
 plt.tight_layout()
 
-
-## build outputfile with arguments
-#outputfile = 'PlotTargetsmiRNAExpression_' + domain + '_' + chromos + '_' + cnv_length
-#print(outputfile)
+# build outputfile with arguments
+outputfile = 'PlotTargetsmiRNAExpression_' + domain + '_' + chromos + '_' + cnv_length
+print(outputfile)
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
 
