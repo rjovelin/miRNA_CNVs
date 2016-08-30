@@ -26,3 +26,6 @@ infile.close()
 files = [i for i in os.listdir() if i[-3:] == '.gz']
 print(len(files))
 assert len(files) == total, 'numbers of files to unzip and to download do not match'
+
+for filename in files:
+    os.system('gunzip ' + filename)
