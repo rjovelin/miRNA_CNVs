@@ -8,9 +8,15 @@ Created on Tue Aug 30 14:21:28 2016
 # use this script to make a file of chromosome names matched to scaffold/contig names
 
 import os
+import sys
 import numpy as np
 from scipy import stats
 import math
+
+
+# get option to use stingent or inclusive CNV definitions
+CNVFilter = sys.argv[1]
+assert CNVFilter in ['stringent', 'inclusive'], 'should use appropriate option'
 
 
 # make a list of fasta files
@@ -40,9 +46,14 @@ for filename in files:
 print('done matching chromosome names', len(chromos))
                 
 
-# get CNVR coordinates for Stringent and Inclusive filters
-StringentCoord = {}
-infile = open('Stringent.Gain+Loss.hg19.2015-02-03.txt')   
+# get CNVR coordinates {CNVR: [chromo, start, end]}
+if CNVFilter == 'stringent':
+    CNVFile = 'Stringent.Gain+Loss.hg19.2015-02-03.txt'
+elif CNVFilter == 'inclusive':
+    CNVFile = 'Inclusive.Gain+Loss.hg19.2015-02-03.txt'
+
+CNVCoord = {}
+infile = open(CNVFile)   
 # skip header, read file
 infile.readline()
 for line in infile:
@@ -55,24 +66,9 @@ for line in infile:
         if state == 'CNV':
             StringentCoord = [chromo, start, end]
 infile.close()
-print('got Stringent CNVR coordinates', len(StringentCoord))
+print('got CNVR coordinates', len(CNVCoord))
 
-InclusiveCoord = {}
-infile = open('Inclusive.Gain+Loss.hg19.2015-02-03.txt')   
-# skip header, read file
-infile.readline()
-for line in infile:
-    line = line.rstrip()
-    if line != '':
-        line = line.split()
-        # get chromo, start, end, state
-        chromo, start, end, state = line[0], int(line[1]) -1, int(line[2]), line[3]
-        # check that state is CNV
-        if state == 'CNV':
-            InclusiveCoord = [chromo, start, end]
-infile.close()
-print('got Inclusive CNVR coordinates', len(InclusiveCoord))
-       
+      
 # get the gene coordinates, keeping the longest mRNA per gene
 GFF_file = 'ref_GRCh37.p5_top_level.gff3'       
        
@@ -232,4 +228,6 @@ infile.close()
 for rna in mRNACoord:
     # get mRNA coord
     rna_chromo, rna_start, rna_end = mRNACoord[rna][0], mRNACoord[rna][1], mRNACoord[rna][2]
+    # loop through CNVR
+    
 
