@@ -112,36 +112,20 @@ for line in infile:
             TranscriptToGeneID[TS] = gene
 # close file
 infile.close()
-print('matched gene to transcripts', len(TranscriptToGeneID))
-
+print('matched transcripts to parent genes', len(TranscriptToGeneID))
 
 # make a dict to match genes to transcripts {gene_id: [list of transcripts]}
 GeneToTranscript = {}
+for TS in TranscriptToGeneID:
+    # check if gene is key in dict
+    if TranscriptToGeneID[TS] in GeneToTranscript:
+        # add transcript to list
+        GeneToTranscript[TranscriptToGeneID[TS]].append(TS)
+    else:
+        # create a list of transcript
+        GeneToTranscript[TranscriptToGeneID[TS]] = [TS]
+print('matched genes to transcripts', len(GeneToTranscript))
 
-
-def (GFF_file, valid_chromo_file, keep_valid_chromos):
-    '''
-    (file, file, bool) -> dict
-    Return a dictionary with gene ID : list of of transcript pairs for all
-    chromosomes (including MT, unplaced and unlocalized) if keep_valid_chromos 
-    is False or for assembled nuclear chromosomes if True
-    '''
-    
-    # create a dict of transcript ID : gene ID
-    transcripts = transcript_to_geneID(GFF_file, valid_chromo_file, keep_valid_chromos)
-        
-    # reverse dictionary
-    genes = {}
-    for TS in transcripts:
-        # check if gene is key in dict
-        if transcripts[TS] in genes:
-            # add transcript to list
-            genes[transcripts[TS]].append(TS)
-        else:
-            # create a list of transcript
-            genes[transcripts[TS]] = [TS]
-            
-    return genes
 
 
 # use this function to get a dict with gene ID : gene name pair
