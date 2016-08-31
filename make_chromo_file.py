@@ -167,64 +167,41 @@ for line in infile:
 infile.close()
 
 
-
-
-# use this function to match a RNA ID with a gene ID
-def match_mRNA_to_gene(GFF_file, valid_chromo_file, keep_valid_chromos):
-    '''
-    (file, file, bool) -> dict
-    Return a dictionary with RNA ID : gene ID pairs for all
-    chromosomes (including MT, unplaced and unlocalized) if keep_valid_chromos 
-    is False or for assembled nuclear chromosomes if True
-    '''
-    
-    # make a set of valid chromos
-    valid_chromos = get_valid_chromos(valid_chromo_file)
-       
-    # create a dict {RNA ID : gene ID}
-    rnas = {}
-    
-    # open file for reading
-    infile = open(GFF_file, 'r')
-    # loop over file
-    for line in infile:
-        # find lines with mRNA
-        if 'mRNA' in line:
-            line = line.rstrip().split('\t')
-            if line[2] == 'mRNA':
-                # get chromo
-                chromo = line[0]
-                # extract rna id
-                rna_id = line[-1][line[-1].index('ID=') + 3: line[-1].index(';')]
-                # parse description line and extract gene ID
-                description = line[-1].split(';')
-                for i in range(len(description)):
-                    # find and extract gene ID
-                    if 'GeneID:' in description[i]:
-                        gene = description[i]
-                # further parse transcript ID and gene ID
-                if ',' in gene:
-                    # check if comma happens before or after geneID
-                    if gene.count(',') == 1 and gene.index(',') < gene.index('GeneID:'):
-                        gene = gene[gene.index('GeneID:') + 7:]
-                    else:
-                        gene = gene[gene.index('GeneID:') + 7: gene.index(',', gene.index('GeneID:'))]                    
+# match RNA ID to gene ID {RNA ID : gene ID} 
+mRNAToGene = {}
+# open file for reading
+infile = open(GFF_file, 'r')
+# loop over file
+for line in infile:
+    # find lines with mRNA
+    if 'mRNA' in line:
+        line = line.rstrip().split('\t')
+        if line[2] == 'mRNA':
+            # get chromo
+            chromo = line[0]
+            # extract rna id
+            rna_id = line[-1][line[-1].index('ID=') + 3: line[-1].index(';')]
+            # parse description line and extract gene ID
+            description = line[-1].split(';')
+            for i in range(len(description)):
+                # find and extract gene ID
+                if 'GeneID:' in description[i]:
+                    gene = description[i]
+            # further parse transcript ID and gene ID
+            if ',' in gene:
+                # check if comma happens before or after geneID
+                if gene.count(',') == 1 and gene.index(',') < gene.index('GeneID:'):
+                    gene = gene[gene.index('GeneID:') + 7:]
                 else:
-                    gene = gene[gene.index('GeneID:') + 7: ]                    
-                 
-                # check if need to consider only valid chromos
-                if keep_valid_chromos == True:
-                    # check that gene in valid chromo
-                    if chromo in valid_chromos:
-                        rnas[rna_id] = gene
-                elif keep_valid_chromos == False:
-                    # record all genes, regardless of linkage
-                    rnas[rna_id] = gene
-
-    # close file
-    infile.close()
+                    gene = gene[gene.index('GeneID:') + 7: gene.index(',', gene.index('GeneID:'))]                    
+            else:
+                gene = gene[gene.index('GeneID:') + 7: ]                    
+            # populate dict 
+            mRNAToGene[rna_id] = gene
+# close file
+infile.close()
     
-    return rnas
+
 
 
 # use this function to get the mRNA ID of each CDS ID
