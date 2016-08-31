@@ -22,7 +22,7 @@ assert CNVFilter in ['stringent', 'inclusive'], 'should use appropriate option'
 # make a list of fasta files
 files = [i for i in os.listdir() if i[-3:] == '.fa']
 
-# make a dictionary of chromosome: scaffold
+# make a dictionary of scaffold: chromosome
 chromos = {}
 
 # loop over fasta files
@@ -38,10 +38,8 @@ for filename in files:
             LG = LG.replace('Homo sapiens', '')
             LG = LG.replace(' ', "")
             LG = LG.replace('omosome', '')
-            if LG in chromos:
-                chromos[LG].append(scaffold)
-            else:
-                chromos[LG] = [scaffold]
+            assert scaffold not in chromos, 'scaffold is already recorded'            
+            chromos[scaffold] = LG
     infile.close()
 print('done matching chromosome names', len(chromos))
                 
@@ -64,7 +62,7 @@ for line in infile:
         chromo, start, end, state = line[0], int(line[1]) -1, int(line[2]), line[3]
         # check that state is CNV
         if state == 'CNV':
-            StringentCoord = [chromo, start, end]
+            CNVCoord = [chromo, start, end]
 infile.close()
 print('got CNVR coordinates', len(CNVCoord))
 
