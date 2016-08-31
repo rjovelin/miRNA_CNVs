@@ -115,6 +115,7 @@ for line in infile:
 infile.close()
 print('matched transcripts to parent genes', len(TranscriptToGeneID))
 
+
 # make a dict to match genes to transcripts {gene_id: [list of transcripts]}
 GeneToTranscript = {}
 for TS in TranscriptToGeneID:
@@ -127,68 +128,44 @@ for TS in TranscriptToGeneID:
         GeneToTranscript[TranscriptToGeneID[TS]] = [TS]
 print('matched genes to transcripts', len(GeneToTranscript))
 
-
-
-# use this function to get a dict with gene ID : gene name pair
-def geneID_to_gene_name(GFF_file, valid_chromo_file, keep_valid_chromos):
-    '''
-    (file, file, bool) -> dict
-    Return a dictionary with gene ID : gene name pairs for all
-    chromosomes (including MT, unplaced and unlocalized) if keep_valid_chromos 
-    is False or for assembled nuclear chromosomes if True
-    '''
-    
-    # create a set of valid chromosomes
-    valid_chromos = get_valid_chromos(valid_chromo_file)
-        
-    # create a dict
-    genes = {}    
-    # open file for reading
-    infile = open(GFF_file)
-    # loop over file
-    for line in infile:
-        # get line with mRNA
-        if 'gene' in line:
-            line = line.rstrip().split('\t')
-            if line[2] == 'gene':
-                # get chromo
-                chromo = line[0]
-                # parse descriptor string
-                # separate on ';' because line doesn't always have the same structure
-                description = line[-1].split(';')
-                # loop over strings in list, find and extract GeneID
-                for i in range(len(description)):
-                    if 'GeneID:' in description[i]:
-                        ID = description[i]
-                    if 'Name=' in description[i]:
-                        name = description[i]
-                # parse ID and name
-                if ',' in ID:
-                    # check if comma happens before or after geneID
-                    if ID.count(',') == 1 and ID.index(',') < ID.index('GeneID:'):
-                        ID = ID[ID.index('GeneID:') + 7:]
-                    else:
-                        ID = ID[ID.index('GeneID:') + 7: ID.index(',', ID.index('GeneID:'))]
-                else:
+# match gene ID to gene name  {gene ID : gene name}
+GeneIDToGeneName = {}
+# open file for reading
+infile = open(GFF_file)
+# loop over file
+for line in infile:
+    # get line with mRNA
+    if 'gene' in line:
+        line = line.rstrip().split('\t')
+        if line[2] == 'gene':
+            # get chromo
+            chromo = line[0]
+            # parse descriptor string
+            # separate on ';' because line doesn't always have the same structure
+            description = line[-1].split(';')
+            # loop over strings in list, find and extract GeneID
+            for i in range(len(description)):
+                if 'GeneID:' in description[i]:
+                    ID = description[i]
+                if 'Name=' in description[i]:
+                    name = description[i]
+            # parse ID and name
+            if ',' in ID:
+                # check if comma happens before or after geneID
+                if ID.count(',') == 1 and ID.index(',') < ID.index('GeneID:'):
                     ID = ID[ID.index('GeneID:') + 7:]
-                if ',' in name:
-                    name = name[name.index('Name=') + 5: name.index(',', name.index('Name='))]
                 else:
-                    name = name[name.index('Name=') + 5:]
-                
-                # check if need to consider only valid chromos
-                if keep_valid_chromos == True:
-                    # check that gene in valid chromo
-                    if chromo in valid_chromos:
-                        genes[ID] = name
-                elif keep_valid_chromos == False:
-                    # record all genes, regardless of linkage
-                    genes[ID] = name
-                
-    # close file
-    infile.close()
-    
-    return genes
+                    ID = ID[ID.index('GeneID:') + 7: ID.index(',', ID.index('GeneID:'))]
+            else:
+                ID = ID[ID.index('GeneID:') + 7:]
+            if ',' in name:
+                name = name[name.index('Name=') + 5: name.index(',', name.index('Name='))]
+            else:
+                name = name[name.index('Name=') + 5:]
+            GeneIDToGeneName[ID] = name
+# close file
+infile.close()
+
 
 
 
