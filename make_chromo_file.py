@@ -21,6 +21,7 @@ assert CNVFilter in ['stringent', 'inclusive'], 'should use appropriate option'
 
 # make a list of fasta files
 files = [i for i in os.listdir() if i[-3:] == '.fa']
+print(len(files))
 
 # make a dictionary of scaffold: chromosome
 chromos = {}
@@ -58,11 +59,11 @@ for line in infile:
     line = line.rstrip()
     if line != '':
         line = line.split()
-        # get chromo, start, end, state
-        chromo, start, end, state = line[0], int(line[1]) -1, int(line[2]), line[3]
+        # get chromo, start, end, state, region
+        chromo, start, end, state, CNVR = line[0], int(line[1]) -1, int(line[2]), line[3], line[4]
         # check that state is CNV
         if state == 'CNV':
-            CNVCoord = [chromo, start, end]
+            CNVCoord[CNVR] = [chromo, start, end]
 infile.close()
 print('got CNVR coordinates', len(CNVCoord))
 
@@ -159,7 +160,7 @@ for line in infile:
             GeneIDToGeneName[ID] = name
 # close file
 infile.close()
-
+print('matched gene ID to gene name', len(GeneIDToGeneName))
 
 # match RNA ID to gene ID {RNA ID : gene ID} 
 mRNAToGene = {}
@@ -171,8 +172,6 @@ for line in infile:
     if 'mRNA' in line:
         line = line.rstrip().split('\t')
         if line[2] == 'mRNA':
-            # get chromo
-            chromo = line[0]
             # extract rna id
             rna_id = line[-1][line[-1].index('ID=') + 3: line[-1].index(';')]
             # parse description line and extract gene ID
@@ -194,7 +193,7 @@ for line in infile:
             mRNAToGene[rna_id] = gene
 # close file
 infile.close()
-    
+print('matched mRNA ID to gene ID', len(mRNAToGene))
 
 # get the coordinates of all mRNAs
 # create a dict {rna_id: [chromo, start, end , orientation]}
@@ -211,21 +210,66 @@ for line in infile:
             # extract RNA ID
             rna_id = line[-1][line[-1].index('ID=') + 3: line[-1].index(';')]
             # get chromo
-            chromo = line[0]
-            # get orientation
-            orientation = line[6]
-            # get start, end positions 0-based
-            start = int(line[3]) -1
-            end = int(line[4])
-            mRNACoord[rna_id] = [chromo, start, end, orientation]  
+            LG = line[0]
+            # get chromo name (eg chr1)
+            if LG in chromos:
+                chromo = chromos[LG]
+                # get orientation
+                orientation = line[6]
+                # get start, end positions 0-based
+                start = int(line[3]) -1
+                end = int(line[4])
+                mRNACoord[rna_id] = [chromo, start, end, orientation]  
 # close file
 infile.close()
+print('extracted mRNA coordinates', len(mRNACoord))    
     
-
+    
+# record all overlaps between mRNAs and CNVR
+overlap = {}
+# record the CNV status of all mRNAs {rna ID: CNV status}
+mRNACNV = {}
 # find all mRNAs affected by CNVR
 for rna in mRNACoord:
     # get mRNA coord
     rna_chromo, rna_start, rna_end = mRNACoord[rna][0], mRNACoord[rna][1], mRNACoord[rna][2]
+    # set boolean
+    FoundCNV = False    
     # loop through CNVR
-    
+    for CNVR in CNVCoord:
+        # get chromo, start and end
+        cnv_chromo, cnv_start, cnv_end  = CNVCoord[CNVR][0], CNVCoord[CNVR][1], CNVCoord[CNVR][2]
+        if cnv_chromo == rna_chromo:
+            overlapping = len(set(range(cnv_start, cnv_end)).intersection(set(range(rna_start, rna_end))))
+            if overlapping != 0:
+                # record overlap
+                if rna in overlap:
+                    overlap[rna].append(overlapping)
+                else:
+                    overlap[rna] = [overlapping]
+                # update boolean
+                FoundCNV = True
+                # exit loop
+                break
+    # check if the mrna overlaps with a CNV region
+    if FoundCNV == True:
+        # rna is found in CNVR
+        mRNACNV[rna] = 'CNV'
+    else:
+        # rna not found in any of the CNVR
+        mRNACNV[rna] = 'not_CNV'
+                
+# count the number of cnv and non-cnv mRNAs
+a, b = 0, 0
+for rna in mRNACNV:
+    if mRNACNV[rna] == 'CNV':
+        a += 1
+    elif mRNACNV[rna] == 'not_CNV':
+        b += 1
+print(a, b)
 
+size = []
+for rna in overlap:
+    size.extend(overlap[rna])
+if len(size) != 0:
+    print(min(size), max(size), np.median(size), np.mean(size))
