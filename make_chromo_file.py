@@ -195,6 +195,15 @@ for line in infile:
 infile.close()
 print('matched mRNA ID to gene ID', len(mRNAToGene))
 
+# make a dict with gene ID as key and a list of corresponding mRNA ID {gene ID: [rna ID]}
+GeneTomRNA = {}
+for rna in mRNAToGene:
+    if mRNAToGene[rna] in GeneTomRNA:
+        GeneTomRNA[mRNAToGene[rna]].append(rna)
+    else:
+        GeneTomRNA[mRNAToGene[rna]] = [rna]
+print('matched Gene ID with all their mRNA ID', len(GeneTomRNA))
+
 # get the coordinates of all mRNAs
 # create a dict {rna_id: [chromo, start, end , orientation]}
 mRNACoord = {}
