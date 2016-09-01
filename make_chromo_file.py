@@ -227,10 +227,13 @@ print('extracted mRNA coordinates', len(mRNACoord))
     
 # record all overlaps between mRNAs and CNVR
 overlap = {}
+# count the number of cnv and non-cnv mRNAs
+a, b, c = 0, 0, len(mRNACoord)
 # record the CNV status of all mRNAs {rna ID: CNV status}
 mRNACNV = {}
 # find all mRNAs affected by CNVR
 for rna in mRNACoord:
+    c -= 1
     # get mRNA coord
     rna_chromo, rna_start, rna_end = mRNACoord[rna][0], mRNACoord[rna][1], mRNACoord[rna][2]
     # set boolean
@@ -255,18 +258,13 @@ for rna in mRNACoord:
     if FoundCNV == True:
         # rna is found in CNVR
         mRNACNV[rna] = 'CNV'
+        a += 1
     else:
         # rna not found in any of the CNVR
         mRNACNV[rna] = 'not_CNV'
-                
-# count the number of cnv and non-cnv mRNAs
-a, b = 0, 0
-for rna in mRNACNV:
-    if mRNACNV[rna] == 'CNV':
-        a += 1
-    elif mRNACNV[rna] == 'not_CNV':
         b += 1
-print(a, b)
+    print('cnv: {0}, non-cnv: {1}, remaining: {2}'.format(a, b, c), sep = '\t', end = '\r')   
+             
 
 size = []
 for rna in overlap:
