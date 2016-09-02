@@ -14,6 +14,7 @@ from scipy import stats
 import math
 
 
+
 # get option to use stingent or inclusive CNV definitions
 CNVFilter = sys.argv[1]
 assert CNVFilter in ['stringent', 'inclusive'], 'should use appropriate option'
@@ -292,3 +293,19 @@ for chromo in GeneChromo:
 print('\n')
 print('chromo: {0}, cnv: {1}, non-cnv: {2}, remaining: {3}'.format(chromo, a, b, c), sep = '\t', end = '\n')   
              
+
+
+
+# get synonymous genes
+os.chdir('../')
+from CNV_miRNAs import *
+os.chdir('./GRCH37_genome')
+synonyms = get_synonyms(GFF_file)
+# remove genes that are not in the gene to rna dict (ie genes that have been removed previously)
+to_remove = [i for i in synonyms if i not in GeneTomRNA]
+for i in to_remove:
+    del synonyms[i]
+if len(to_remove) != 0:
+    print('removed {0} genes with synonyms'.format(len(to_remove)))
+
+
