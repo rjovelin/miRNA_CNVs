@@ -199,6 +199,7 @@ for gene in GeneTomRNA:
     for rna in GeneTomRNA[gene]:
         if rna not in mRNACoord:
             to_remove.append(rna)
+    print('rna to remove: {0}'.format(len(to_remove)), end = '\r')
     for rna in to_remove:
         GeneTomRNA[gene].remove(rna)
 print('removed rna without coordinates')
@@ -207,7 +208,26 @@ to_remove = [gene for gene in GeneTomRNA if len(GeneTomRNA[gene]) == 0]
 if len(to_remove) != 0:
     for gene in to_remove:
         del GeneTomRNA[gene]
-    print('removed genes without rnas')
+    print('removed genes without rnas', len(GeneTomRNA))
+
+# remove the few genes that are mapped to different chromosomes
+# match the chromos of each mRNA to their parent gene {gene: {set of chromos}}
+checkgene = {}
+for gene in GeneTomRNA:
+    # get the chromo of each rna
+    for rna in GeneTomRNA[gene]:
+        LG = mRNACoord[rna][0]
+        if gene not in checkgene:
+            checkgene[gene] = set()
+        checkgene[gene].add(LG)
+# remove genes mapped to more than 1 chromo
+to_remove = []
+for gene in GeneTomRNA:
+    if len(checkgene[gene]) > 1:
+        to_remove.append(gene)            
+for gene in to_remove:
+    del GeneTomRNA[gene]
+print('removed genes mapped to more than 1 chromosome', len(GeneTomRNA))
 
 
 # record gene per chromosome
@@ -218,27 +238,14 @@ for gene in GeneTomRNA:
     # loop over the rna of that gene
     for rna in GeneTomRNA[gene]:
         LG = mRNACoord[rna][0]
-        if chromo != LG:
-            print(gene, rna, chromo, LG)
-            print(GeneTomRNA[gene])
-            print(mRNAToGene[rna])
-        #assert chromo == LG, 'mRNAs of the same gene should be on the same chromosome'
-    if LG != chromo:
-        break
+        assert chromo == LG, 'mRNAs of the same gene should be on the same chromosome'
     if chromo in GeneChromo:
         GeneChromo[chromo].append(gene)
     else:
         GeneChromo[chromo] = [gene]
 print('recorded genes for each chromosome')
        
-   
-assert 4 > 5  
-   
-   
-   
-   
-# record all overlaps between genes and CNVR
-overlap = {}
+
 # count the number of cnv and non-cnv mRNAs
 a, b, c = 0, 0, len(GeneTomRNA)
 # record the CNV status of all genes {gene name: CNV status}
@@ -258,20 +265,14 @@ for chromo in GeneChromo:
             # get mRNA coord
             rna_chromo, rna_start, rna_end = mRNACoord[rna][0], mRNACoord[rna][1], mRNACoord[rna][2]
             # loop through CNVR on that chromo
-            for CNVR in CNVRChromo:
+            for CNVR in CNVRChromo[chromo]:
                 # get chromo, start and end
                 cnv_chromo, cnv_start, cnv_end  = CNVCoord[CNVR][0], CNVCoord[CNVR][1], CNVCoord[CNVR][2]
                 assert cnv_chromo == rna_chromo, 'chromos for cnv and rna should match'
-                overlapping = len(set(range(cnv_start, cnv_end)).intersection(set(range(rna_start, rna_end))))
-                if overlapping != 0:
-                    # record overlap
-                    if rna in overlap:
-                        overlap[rna].append(overlapping)
-                    else:
-                        overlap[rna] = [overlapping]
-                    # update boolean
+                # check positions to see if rna is affected by CNVR                
+                if rna_start < cnv_end and (rna_end > cnv_start or rna_end > cnv_end):
                     FoundCNV = True
-                    # exit loop, no need to check other CNVR
+                    # exit loop, no need to check the other CNVR
                     break
             # check if the mrna overlaps with a CNV region
             if FoundCNV == True:
@@ -287,56 +288,7 @@ for chromo in GeneChromo:
             GeneCNV[name] = 'not_CNV'
             b += 1
         print('chromo: {0}, cnv: {1}, non-cnv: {2}, remaining: {3}'.format(chromo, a, b, c), sep = '\t', end = '\r')   
-             
-        
-#
-#for gene in GeneTomRNA:
-#    # get gene name
-#    name = GeneIDToGeneName[gene]
-#    # update counter
-#    c -= 1
-#    # loop over the gene's mRNAs
-#    for rna in GeneTomRNA[gene]:
-#        if rna in mRNACoord:
-#            # get mRNA coord
-#            rna_chromo, rna_start, rna_end = mRNACoord[rna][0], mRNACoord[rna][1], mRNACoord[rna][2]
-#            # set boolean
-#            FoundCNV = False    
-#            # loop through CNVR
-#            for CNVR in CNVCoord:
-#                # get chromo, start and end
-#                cnv_chromo, cnv_start, cnv_end  = CNVCoord[CNVR][0], CNVCoord[CNVR][1], CNVCoord[CNVR][2]
-#                # compare cnv and mRNA on the same chromo
-#                if cnv_chromo == rna_chromo:
-#                    overlapping = len(set(range(cnv_start, cnv_end)).intersection(set(range(rna_start, rna_end))))
-#                    if overlapping != 0:
-#                        # record overlap
-#                        if rna in overlap:
-#                            overlap[rna].append(overlapping)
-#                        else:
-#                            overlap[rna] = [overlapping]
-#                        # update boolean
-#                        FoundCNV = True
-#                        # exit loop, no need to check other CNVR
-#                        break
-#            # check if the mrna overlaps with a CNV region
-#            if FoundCNV == True:
-#                # rna is found in CNVR, update gene status
-#                GeneCNV[name] = 'CNV'
-#                # update counter and exit loop, no need to check other mRNAs
-#                a += 1
-#                break
-#    # check if any rna has been found in CNVR
-#    if FoundCNV == False:
-#        assert name not in GeneCNV, 'CNV status for that gene should not have been already recorded'
-#        # update counter and CNV status after all the mRNAs have beeb checked
-#        GeneCNV[name] = 'not_CNV'
-#        b += 1
-#    print('cnv: {0}, non-cnv: {1}, remaining: {2}'.format(a, b, c), sep = '\t', end = '\r')   
-#             
 
-size = []
-for rna in overlap:
-    size.extend(overlap[rna])
-if len(size) != 0:
-    print(min(size), max(size), np.median(size), np.mean(size))
+print('\n')
+print('chromo: {0}, cnv: {1}, non-cnv: {2}, remaining: {3}'.format(chromo, a, b, c), sep = '\t', end = '\n')   
+             
