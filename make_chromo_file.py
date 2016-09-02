@@ -67,62 +67,21 @@ for line in infile:
 infile.close()
 print('got CNVR coordinates', len(CNVCoord))
 
+
+# record CNVR per chromo
+CNVRChromo = {}
+for cnv in CNVCoord:
+    chromo = CNVCoord[cnv][0]
+    if chromo in CNVRChromo:
+        CNVRChromo[chromo].append(cnv)
+    else:
+        CNVRChromo[chromo] = [cnv]
+print('recorded CNVR for each chromosome')
+
       
 # get the gene coordinates, keeping the longest mRNA per gene
 GFF_file = 'ref_GRCh37.p5_top_level.gff3'       
        
-# get a dict with transcript ID : gene ID pair
-TranscriptToGeneID = {}
-infile = open(GFF_file)
-# loop over file
-for line in infile:
-    # get line with mRNA
-    if 'mRNA' in line:
-        line = line.rstrip().split('\t')
-        if line[2] == 'mRNA':
-            # get chromo
-            chromo = line[0]
-            # parse descriptor string
-            description = line[-1].split(';')
-            # loop over string in description list
-            for i in range(len(description)):
-                # find and extract gene ID
-                if 'GeneID:' in description[i]:
-                    gene = description[i]
-                # find and extract transcript id
-                if 'transcript_id=' in description[i]:
-                    TS = description[i]
-            # further parse transcript ID and gene ID
-            if ',' in gene:
-                # check if comma happens before or after geneID
-                if gene.count(',') == 1 and gene.index(',') < gene.index('GeneID:'):
-                    gene = gene[gene.index('GeneID:') + 7:]
-                else:
-                    gene = gene[gene.index('GeneID:') + 7: gene.index(',', gene.index('GeneID:'))]                    
-            else:
-                gene = gene[gene.index('GeneID:') + 7: ]
-            if ',' in TS:
-                TS = TS[TS.index('transcript_id=') + 14: TS.index(',', TS.index('transcript_id'))]
-            else:
-                TS = TS[TS.index('transcript_id=') + 14: ]
-            TranscriptToGeneID[TS] = gene
-# close file
-infile.close()
-print('matched transcripts to parent genes', len(TranscriptToGeneID))
-
-
-# make a dict to match genes to transcripts {gene_id: [list of transcripts]}
-GeneToTranscript = {}
-for TS in TranscriptToGeneID:
-    # check if gene is key in dict
-    if TranscriptToGeneID[TS] in GeneToTranscript:
-        # add transcript to list
-        GeneToTranscript[TranscriptToGeneID[TS]].append(TS)
-    else:
-        # create a list of transcript
-        GeneToTranscript[TranscriptToGeneID[TS]] = [TS]
-print('matched genes to transcripts', len(GeneToTranscript))
-
 # match gene ID to gene name  {gene ID : gene name}
 GeneIDToGeneName = {}
 # open file for reading
@@ -232,48 +191,149 @@ for line in infile:
 # close file
 infile.close()
 print('extracted mRNA coordinates', len(mRNACoord))    
-    
-    
-# record all overlaps between mRNAs and CNVR
+
+
+# remove rna with no coord
+for gene in GeneTomRNA:
+    to_remove = []
+    for rna in GeneTomRNA[gene]:
+        if rna not in mRNACoord:
+            to_remove.append(rna)
+    for rna in to_remove:
+        GeneTomRNA[gene].remove(rna)
+print('removed rna without coordinates')
+# remove genes without rnas
+to_remove = [gene for gene in GeneTomRNA if len(GeneTomRNA[gene]) == 0]
+if len(to_remove) != 0:
+    for gene in to_remove:
+        del GeneTomRNA[gene]
+    print('removed genes without rnas')
+
+
+# record gene per chromosome
+GeneChromo = {}
+for gene in GeneTomRNA:
+    # get the chromo of the first rna
+    chromo = mRNACoord[GeneTomRNA[gene][0]][0]
+    # loop over the rna of that gene
+    for rna in GeneTomRNA[gene]:
+        LG = mRNACoord[rna][0]
+        if chromo != LG:
+            print(gene, rna, chromo, LG)
+            print(GeneTomRNA[gene])
+            print(mRNAToGene[rna])
+        #assert chromo == LG, 'mRNAs of the same gene should be on the same chromosome'
+    if LG != chromo:
+        break
+    if chromo in GeneChromo:
+        GeneChromo[chromo].append(gene)
+    else:
+        GeneChromo[chromo] = [gene]
+print('recorded genes for each chromosome')
+       
+   
+assert 4 > 5  
+   
+   
+   
+   
+# record all overlaps between genes and CNVR
 overlap = {}
 # count the number of cnv and non-cnv mRNAs
-a, b, c = 0, 0, len(mRNACoord)
-# record the CNV status of all mRNAs {rna ID: CNV status}
-mRNACNV = {}
-# find all mRNAs affected by CNVR
-for rna in mRNACoord:
-    c -= 1
-    # get mRNA coord
-    rna_chromo, rna_start, rna_end = mRNACoord[rna][0], mRNACoord[rna][1], mRNACoord[rna][2]
-    # set boolean
-    FoundCNV = False    
-    # loop through CNVR
-    for CNVR in CNVCoord:
-        # get chromo, start and end
-        cnv_chromo, cnv_start, cnv_end  = CNVCoord[CNVR][0], CNVCoord[CNVR][1], CNVCoord[CNVR][2]
-        if cnv_chromo == rna_chromo:
-            overlapping = len(set(range(cnv_start, cnv_end)).intersection(set(range(rna_start, rna_end))))
-            if overlapping != 0:
-                # record overlap
-                if rna in overlap:
-                    overlap[rna].append(overlapping)
-                else:
-                    overlap[rna] = [overlapping]
-                # update boolean
-                FoundCNV = True
-                # exit loop
+a, b, c = 0, 0, len(GeneTomRNA)
+# record the CNV status of all genes {gene name: CNV status}
+GeneCNV = {}
+# find all genes affected by CNVR
+for chromo in GeneChromo:
+    # loop through gene on that chromo
+    for gene in GeneChromo[chromo]:
+        # get gene name
+        name = GeneIDToGeneName[gene]
+        # update counter
+        c -= 1
+        # loop over the gene's mRNAs
+        for rna in GeneTomRNA[gene]:
+            # set boolean
+            FoundCNV = False
+            # get mRNA coord
+            rna_chromo, rna_start, rna_end = mRNACoord[rna][0], mRNACoord[rna][1], mRNACoord[rna][2]
+            # loop through CNVR on that chromo
+            for CNVR in CNVRChromo:
+                # get chromo, start and end
+                cnv_chromo, cnv_start, cnv_end  = CNVCoord[CNVR][0], CNVCoord[CNVR][1], CNVCoord[CNVR][2]
+                assert cnv_chromo == rna_chromo, 'chromos for cnv and rna should match'
+                overlapping = len(set(range(cnv_start, cnv_end)).intersection(set(range(rna_start, rna_end))))
+                if overlapping != 0:
+                    # record overlap
+                    if rna in overlap:
+                        overlap[rna].append(overlapping)
+                    else:
+                        overlap[rna] = [overlapping]
+                    # update boolean
+                    FoundCNV = True
+                    # exit loop, no need to check other CNVR
+                    break
+            # check if the mrna overlaps with a CNV region
+            if FoundCNV == True:
+                # rna is found in CNVR, update gene status
+                GeneCNV[name] = 'CNV'
+                # update counter and exit loop, no need to check other mRNAs
+                a += 1
                 break
-    # check if the mrna overlaps with a CNV region
-    if FoundCNV == True:
-        # rna is found in CNVR
-        mRNACNV[rna] = 'CNV'
-        a += 1
-    else:
-        # rna not found in any of the CNVR
-        mRNACNV[rna] = 'not_CNV'
-        b += 1
-    print('cnv: {0}, non-cnv: {1}, remaining: {2}'.format(a, b, c), sep = '\t', end = '\r')   
+        # check if any rna has been found in CNVR
+        if FoundCNV == False:
+            assert name not in GeneCNV, 'CNV status for that gene should not have been already recorded'
+            # update counter and CNV status after all the mRNAs have beeb checked
+            GeneCNV[name] = 'not_CNV'
+            b += 1
+        print('chromo: {0}, cnv: {1}, non-cnv: {2}, remaining: {3}'.format(chromo, a, b, c), sep = '\t', end = '\r')   
              
+        
+#
+#for gene in GeneTomRNA:
+#    # get gene name
+#    name = GeneIDToGeneName[gene]
+#    # update counter
+#    c -= 1
+#    # loop over the gene's mRNAs
+#    for rna in GeneTomRNA[gene]:
+#        if rna in mRNACoord:
+#            # get mRNA coord
+#            rna_chromo, rna_start, rna_end = mRNACoord[rna][0], mRNACoord[rna][1], mRNACoord[rna][2]
+#            # set boolean
+#            FoundCNV = False    
+#            # loop through CNVR
+#            for CNVR in CNVCoord:
+#                # get chromo, start and end
+#                cnv_chromo, cnv_start, cnv_end  = CNVCoord[CNVR][0], CNVCoord[CNVR][1], CNVCoord[CNVR][2]
+#                # compare cnv and mRNA on the same chromo
+#                if cnv_chromo == rna_chromo:
+#                    overlapping = len(set(range(cnv_start, cnv_end)).intersection(set(range(rna_start, rna_end))))
+#                    if overlapping != 0:
+#                        # record overlap
+#                        if rna in overlap:
+#                            overlap[rna].append(overlapping)
+#                        else:
+#                            overlap[rna] = [overlapping]
+#                        # update boolean
+#                        FoundCNV = True
+#                        # exit loop, no need to check other CNVR
+#                        break
+#            # check if the mrna overlaps with a CNV region
+#            if FoundCNV == True:
+#                # rna is found in CNVR, update gene status
+#                GeneCNV[name] = 'CNV'
+#                # update counter and exit loop, no need to check other mRNAs
+#                a += 1
+#                break
+#    # check if any rna has been found in CNVR
+#    if FoundCNV == False:
+#        assert name not in GeneCNV, 'CNV status for that gene should not have been already recorded'
+#        # update counter and CNV status after all the mRNAs have beeb checked
+#        GeneCNV[name] = 'not_CNV'
+#        b += 1
+#    print('cnv: {0}, non-cnv: {1}, remaining: {2}'.format(a, b, c), sep = '\t', end = '\r')   
+#             
 
 size = []
 for rna in overlap:
