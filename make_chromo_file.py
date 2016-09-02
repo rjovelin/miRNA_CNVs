@@ -302,7 +302,13 @@ from CNV_miRNAs import *
 os.chdir('./GRCH37_genome')
 synonyms = get_synonyms(GFF_file)
 # remove genes that are not in the gene to rna dict (ie genes that have been removed previously)
-to_remove = [i for i in synonyms if i not in GeneTomRNA]
+to_remove = []
+for i in synonyms:
+    if i in GeneIDToGeneName:
+        if GeneIDToGeneName[i] not in GeneTomRNA:
+            to_remove.append(i)
+    else:
+        to_remove.append(i)            
 for i in to_remove:
     del synonyms[i]
 if len(to_remove) != 0:
