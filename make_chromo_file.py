@@ -301,17 +301,38 @@ os.chdir('../')
 from CNV_miRNAs import *
 os.chdir('./GRCH37_genome')
 synonyms = get_synonyms(GFF_file)
-# remove genes that are not in the gene to rna dict (ie genes that have been removed previously)
-to_remove = []
-for i in synonyms:
-    if i in GeneIDToGeneName:
-        if GeneIDToGeneName[i] not in GeneTomRNA:
-            to_remove.append(i)
-    else:
-        to_remove.append(i)            
-for i in to_remove:
-    del synonyms[i]
-if len(to_remove) != 0:
-    print('removed {0} genes with synonyms'.format(len(to_remove)))
 
+
+# make a set of genes with prediction
+infile = open('../H_sapiens_3UTR_summary_targetscan_valid_chromos_CNV_all_length_GRCh37_2015.txt')
+predictions = set()
+for line in infile:
+    line = line.rstrip()
+    if line != '':
+        line = line.split()
+        predictions.add(line[0])
+infile.close()
+
+# remove genes if not found
+to_remove = []
+to_keep = []
+for gene in predictions:
+    keep = False
+    if gene in GeneCNV:
+        keep = True
+    else:
+        if gene in synonyms:
+            keep = True
+        else:
+            for i in synonyms:
+                if gene in synonyms[i]:
+                    keep = True
+                    break
+    if keep == False:
+        to_remove.append(gene)
+    elif keep == True:
+        to_keep.append(gene)
+
+print('keep', len(to_keep))
+print('remove', len(to_remove))
 
