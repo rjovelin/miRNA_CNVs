@@ -407,9 +407,9 @@ print('added CNV status to each gene domain')
 for region in targetscan:
     cnv, noncnv = 0, 0
     for gene in targetscan[region]:
-        if tartgetscan[region][gene][-1] == 'CNV':
+        if targetscan[region][gene][-1] == 'CNV':
             cnv += 1
-        elif tartgetscan[region][gene][-1] == 'not_CNV':
+        elif targetscan[region][gene][-1] == 'not_CNV':
             noncnv += 1
     print(region, cnv, noncnv)
     
