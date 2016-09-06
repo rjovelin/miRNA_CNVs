@@ -12,16 +12,14 @@ import sys
 import numpy as np
 from scipy import stats
 import math
-
-
+from CNV_miRNAs import *
 
 # get option to use stingent or inclusive CNV definitions
 CNVFilter = sys.argv[1]
 assert CNVFilter in ['stringent', 'inclusive'], 'should use appropriate option'
 
-
 # make a list of fasta files
-files = [i for i in os.listdir() if i[-3:] == '.fa']
+files = [i for i in os.listdir('./GRCH37_genome') if i[-3:] == '.fa']
 print(len(files))
 
 # make a dictionary of scaffold: chromosome
@@ -29,7 +27,7 @@ chromos = {}
 
 # loop over fasta files
 for filename in files:
-    infile = open(filename)
+    infile = open('./GRCH37_genome/' + filename)
     # look for sequence headers
     for line in infile:
         if line.startswith('>'):
@@ -48,9 +46,9 @@ print('done matching chromosome names', len(chromos))
 
 # get CNVR coordinates {CNVR: [chromo, start, end]}
 if CNVFilter == 'stringent':
-    CNVFile = 'Stringent.Gain+Loss.hg19.2015-02-03.txt'
+    CNVFile = './GRCH37_genome/Stringent.Gain+Loss.hg19.2015-02-03.txt'
 elif CNVFilter == 'inclusive':
-    CNVFile = 'Inclusive.Gain+Loss.hg19.2015-02-03.txt'
+    CNVFile = './GRCH37_genome/Inclusive.Gain+Loss.hg19.2015-02-03.txt'
 
 CNVCoord = {}
 infile = open(CNVFile)   
@@ -81,7 +79,7 @@ print('recorded CNVR for each chromosome')
 
       
 # get the gene coordinates, keeping the longest mRNA per gene
-GFF_file = 'ref_GRCh37.p5_top_level.gff3'       
+GFF_file = './GRCH37_genome/ref_GRCh37.p5_top_level.gff3'       
        
 # match gene ID to gene name  {gene ID : gene name}
 GeneIDToGeneName = {}
@@ -193,7 +191,6 @@ for line in infile:
 infile.close()
 print('extracted mRNA coordinates', len(mRNACoord))    
 
-
 # remove rna with no coord
 for gene in GeneTomRNA:
     to_remove = []
@@ -230,7 +227,6 @@ for gene in to_remove:
     del GeneTomRNA[gene]
 print('removed genes mapped to more than 1 chromosome', len(GeneTomRNA))
 
-
 # record gene per chromosome
 GeneChromo = {}
 for gene in GeneTomRNA:
@@ -246,7 +242,6 @@ for gene in GeneTomRNA:
         GeneChromo[chromo] = [gene]
 print('recorded genes for each chromosome')
        
-
 # count the number of cnv and non-cnv mRNAs
 a, b, c = 0, 0, len(GeneTomRNA)
 # record the CNV status of all genes {gene name: CNV status}
@@ -294,45 +289,127 @@ print('\n')
 print('chromo: {0}, cnv: {1}, non-cnv: {2}, remaining: {3}'.format(chromo, a, b, c), sep = '\t', end = '\n')   
              
 
-
-
 # get synonymous genes
-os.chdir('../')
-from CNV_miRNAs import *
-os.chdir('./GRCH37_genome')
 synonyms = get_synonyms(GFF_file)
 
-
-# make a set of genes with prediction
-infile = open('../H_sapiens_3UTR_summary_targetscan_valid_chromos_CNV_all_length_GRCh37_2015.txt')
-predictions = set()
-for line in infile:
-    line = line.rstrip()
-    if line != '':
-        line = line.split()
-        predictions.add(line[0])
-infile.close()
-
-# remove genes if not found
-to_remove = []
-to_keep = []
-for gene in predictions:
-    keep = False
+# make sets of cnv and noncnv genes, including synonyms
+cnv, noncnv = set(), set()
+for gene in GeneCNV:
+    if GeneCNV[gene] == 'CNV':
+        cnv.add(gene)
+    elif GeneCNV[gene] == 'not_CNV':
+        noncnv.add(gene)
+for gene in synonyms:
     if gene in GeneCNV:
-        keep = True
+        if GeneCNV[gene] == 'CNV':
+            cnv.add(gene)
+            for i in synonyms[gene]:
+                cnv.add(i)
+        elif GeneCNV[gene] == 'not_CNV':
+            noncnv.add(gene)
+            for i in synonyms[gene]:
+                noncnv.add(i)
     else:
-        if gene in synonyms:
-            keep = True
-        else:
-            for i in synonyms:
-                if gene in synonyms[i]:
-                    keep = True
-                    break
-    if keep == False:
-        to_remove.append(gene)
-    elif keep == True:
-        to_keep.append(gene)
+        for i in synonyms[gene]:
+            if i in GeneCNV and GeneCNV[i] == 'CNV':
+                cnv.add(gene)
+                for j in synonyms[gene]:
+                    cnv.add(j)
+            elif i in GeneCNV and GeneCNV[i] == 'not_CNV':
+                noncnv.add(gene)
+                for j in synonyms[gene]:
+                    noncnv.add(j)
+# check that gene sets do not overlap
+weird = len(cnv.intersection(noncnv)) == 0, 'genes cannot be both CNV and non-CNV'
+print(weird)
+assert len(cnv.intersection(noncnv)) == 0, 'genes cannot be both CNV and non-CNV'
 
-print('keep', len(to_keep))
-print('remove', len(to_remove))
 
+
+
+# make a dictionary with domain as key and a dictionary of gene: normalized targets as value
+# {gene: [normalized number of targets]}
+regions = ['3UTR', '5UTR', 'CDS']
+targetscan, miranda = {}, {} 
+for domain in regions:
+    targetscan[domain] = {}
+    infile = open('H_sapiens_' + domain + '_summary_targetscan_valid_chromos_CNV_all_length_GRCh37_2015.txt')
+    infile.readline()
+    for line in infile:
+        line = line.rstrip()
+        if line != '':
+            line = line.split()
+            gene, Ntargets = line[0], float(line[3])
+            targetscan[domain][gene] = [Ntargets]
+    infile.close()
+print('got targetscan targets for each domain of each gene')
+
+for domain in regions:
+    miranda[domain] = {}
+    infile = open('H_sapiens_' + domain + '_summary_miranda_valid_chromos_CNV_all_length_GRCh37_2015.txt')
+    infile.readline()
+    for line in infile:
+        line = line.rstrip()
+        if line != '':
+            line = line.split()
+            gene, Ntargets = line[0], float(line[3])
+            miranda[domain][gene] = [Ntargets]
+    infile.close()
+print('got miranda targets for each domain of each gene')
+
+
+# remove genes if genes or synonyms are not found in GFF file
+for region in targetscan:
+    to_remove, to_keep = [], []
+    for gene in targetscan[region]:
+        if gene in cnv or gene in noncnv:
+            to_keep.append(gene)
+        elif gene not in cnv and gene not in noncnv:
+            to_remove.append(gene)
+    # remove genes without a CNV status
+    for gene in to_remove:
+        del targetscan[region][gene]
+    assert len(targetscan[region]) == len(to_keep), 'numbers of genes with CNV status and targetscan targets should match'
+
+for region in miranda:
+    to_remove, to_keep = [], []
+    for gene in miranda[region]:
+        if gene in cnv or gene in noncnv:
+            to_keep.append(gene)
+        elif gene not in cnv and gene not in noncnv:
+            to_remove.append(gene)
+    # remove genes without a CNV status
+    for gene in to_remove:
+        del miranda[region][gene]
+    assert len(miranda[region]) == len(to_keep), 'numbers of genes with CNV status and miranda targets should match'
+print('removed genes without CNV status')
+
+
+# add CNV status of genes with target prediction
+for region in targetscan:
+    for gene in targetscan[region]:
+        if gene in cnv:
+            targetscan[region][gene].append('CNV')
+        elif gene in noncnv:
+            targetscan[region][gene].append('not_CNV')
+for region in miranda:
+    for gene in miranda[region]:
+        if gene in cnv:
+            miranda[region][gene].append('CNV')
+        elif gene in noncnv:
+            miranda[region][gene].append('not_CNV')
+print('added CNV status to each gene domain')    
+    
+ 
+# count cnv and non-cnv genes
+for region in targetscan:
+    cnv, noncnv = 0, 0
+    for gene in targetscan[region]:
+        if tartgetscan[region][gene][-1] == 'CNV':
+            cnv += 1
+        elif tartgetscan[region][gene][-1] == 'not_CNV':
+            noncnv += 1
+    print(region, cnv, noncnv)
+    
+    
+    
