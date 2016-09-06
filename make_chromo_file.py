@@ -320,7 +320,7 @@ for gene in synonyms:
                 for j in synonyms[gene]:
                     noncnv.add(j)
 # check that gene sets do not overlap
-weird = len(cnv.intersection(noncnv)) == 0, 'genes cannot be both CNV and non-CNV'
+weird = len(cnv.intersection(noncnv))
 print(weird)
 assert len(cnv.intersection(noncnv)) == 0, 'genes cannot be both CNV and non-CNV'
 
