@@ -299,30 +299,30 @@ for gene in GeneCNV:
         cnv.add(gene)
     elif GeneCNV[gene] == 'not_CNV':
         noncnv.add(gene)
-for gene in synonyms:
-    if gene in GeneCNV:
-        if GeneCNV[gene] == 'CNV':
-            cnv.add(gene)
-            for i in synonyms[gene]:
-                cnv.add(i)
-        elif GeneCNV[gene] == 'not_CNV':
-            noncnv.add(gene)
-            for i in synonyms[gene]:
-                noncnv.add(i)
-    else:
-        for i in synonyms[gene]:
-            if i in GeneCNV and GeneCNV[i] == 'CNV':
-                cnv.add(gene)
-                for j in synonyms[gene]:
-                    cnv.add(j)
-            elif i in GeneCNV and GeneCNV[i] == 'not_CNV':
-                noncnv.add(gene)
-                for j in synonyms[gene]:
-                    noncnv.add(j)
-# check that gene sets do not overlap
-weird = len(cnv.intersection(noncnv))
-print(weird)
-assert len(cnv.intersection(noncnv)) == 0, 'genes cannot be both CNV and non-CNV'
+#for gene in synonyms:
+#    if gene in GeneCNV:
+#        if GeneCNV[gene] == 'CNV':
+#            cnv.add(gene)
+#            for i in synonyms[gene]:
+#                cnv.add(i)
+#        elif GeneCNV[gene] == 'not_CNV':
+#            noncnv.add(gene)
+#            for i in synonyms[gene]:
+#                noncnv.add(i)
+#    else:
+#        for i in synonyms[gene]:
+#            if i in GeneCNV and GeneCNV[i] == 'CNV':
+#                cnv.add(gene)
+#                for j in synonyms[gene]:
+#                    cnv.add(j)
+#            elif i in GeneCNV and GeneCNV[i] == 'not_CNV':
+#                noncnv.add(gene)
+#                for j in synonyms[gene]:
+#                    noncnv.add(j)
+## check that gene sets do not overlap
+#weird = len(cnv.intersection(noncnv))
+#print(weird)
+#assert len(cnv.intersection(noncnv)) == 0, 'genes cannot be both CNV and non-CNV'
 
 
 
@@ -367,6 +367,7 @@ for region in targetscan:
         elif gene not in cnv and gene not in noncnv:
             to_remove.append(gene)
     # remove genes without a CNV status
+    print('remove {0} genes from {1}'.format(len(to_remove), region))    
     for gene in to_remove:
         del targetscan[region][gene]
     assert len(targetscan[region]) == len(to_keep), 'numbers of genes with CNV status and targetscan targets should match'
@@ -379,6 +380,7 @@ for region in miranda:
         elif gene not in cnv and gene not in noncnv:
             to_remove.append(gene)
     # remove genes without a CNV status
+    print('remove {0} genes from {1}'.format(len(to_remove), region))  
     for gene in to_remove:
         del miranda[region][gene]
     assert len(miranda[region]) == len(to_keep), 'numbers of genes with CNV status and miranda targets should match'
