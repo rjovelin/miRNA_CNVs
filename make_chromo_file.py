@@ -452,9 +452,6 @@ for predictor in AllData:
 print('compared CNV and non-CNV genes')
 
 
-
-
-
 # create list of labels and tick positions for the X axis
 #xtickpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
 
@@ -463,8 +460,8 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, YAxisLine):
     '''
     (int, int, int, dict, figure_object, str, str, int, list, list, bool)
     Take the number of a column, and rows in the figure object and the position of
-    the ax in figure, a list of data, a title, a maximum value for the Y axis,
-    a list with species names and list of X axis tick positions and return an
+    the ax in figure, a list of data, a title, a maximum value for the Y axis, 
+    a boolean tp specify if Y axis should be specified and return an
     ax instance in the figure
     '''    
     
@@ -472,15 +469,13 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, YAxisLine):
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
     # create a list of positions for the box plot    
-    BoxPositions = [0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.7, 3.1]
+    BoxPositions = [0, 0.4, 0.9, 1.3, 1.8, 2.2]
 
     # use a boxplot
     bp = ax.boxplot(Data, showmeans = True, showfliers = False, widths = 0.3,
                     positions = BoxPositions, patch_artist = True) 
 
     # color CNV and non-CNV boxes differently
-    CNVColor = ['#a6bddb','#74a9cf','#2b8cbe','#045a8d']
-    NonCNVColor = ['#99d8c9','#66c2a4','#2ca25f','#006d2c']
     i, j = 0, 0    
     # change box, whisker color to black
     for box in bp['boxes']:
@@ -488,9 +483,9 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, YAxisLine):
         box.set(color = 'black')
         if i % 2 == 0:
             # CNV data
-            box.set(facecolor = CNVColor[j])
+            box.set(facecolor = '#a6cee3')
         else:
-            box.set(facecolor = NonCNVColor[j])
+            box.set(facecolor = '#b2df8a')
         i += 1
         j = int(i / 2)
     # change whisker color to black
@@ -513,13 +508,12 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, YAxisLine):
     # write label for x and y axis
     ax.set_ylabel('miRNA sites / nt', color = 'black',  size = 8, ha = 'center', **FigFont)
     if YAxisLine == True:
-        ax.set_xlabel('miRNA expression level', color = 'black',  size = 8, ha = 'center', **FigFont)
-    
-    # write label for x axis
-    plt.xticks([0.2, 1.1, 2, 2.9], list(map(lambda x: x.capitalize(), Groups)), ha = 'center', fontsize = 8, **FigFont)
+        ax.set_xlabel('gene domains', color = 'black',  size = 8, ha = 'center', **FigFont)
+        # write label for x axis
+        plt.xticks([0.2, 1.1, 2], ['3\'UTR', '5\'UTR', 'CDS'], ha = 'center', fontsize = 8, **FigFont)
     # add a range for the Y axis
     plt.ylim([0, YMax])
-    plt.xlim([-0.25, 3.35])
+    plt.xlim([-0.25, 2.25])
 
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
@@ -537,7 +531,6 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, YAxisLine):
     ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
     # hide these grids behind plot objects
     ax.set_axisbelow(True)
-
 
     if YAxisLine == True:
         # do not show ticks
@@ -573,6 +566,18 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, YAxisLine):
     plt.margins(0.05)
     
     return ax      
+
+
+
+
+
+#### continue here
+
+
+
+
+
+
 
 
 # create figure
