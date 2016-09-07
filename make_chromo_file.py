@@ -7,12 +7,27 @@ Created on Tue Aug 30 14:21:28 2016
 
 # use this script to make a file of chromosome names matched to scaffold/contig names
 
-import os
-import sys
+# usage PlotTargetSitesGoldCNVMap [options]
+# - [stringent/inclusive]: filter level to define CNVR
+
+
+# use Agg backend on server without X server
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib import rc
+rc('mathtext', default='regular')
+# import modules
 import numpy as np
 from scipy import stats
 import math
+import os
+import sys
+# import custom modules
 from CNV_miRNAs import *
+
+
 
 # get option to use stingent or inclusive CNV definitions
 CNVFilter = sys.argv[1]
@@ -333,7 +348,7 @@ for domain in regions:
 print('got miranda targets for each domain of each gene')
 
 
-# remove genes if genes not found in GFF file
+# remove genes if genes do not have CNV status
 for region in targetscan:
     to_remove, to_keep = [], []
     for gene in targetscan[region]:
@@ -346,7 +361,6 @@ for region in targetscan:
     for gene in to_remove:
         del targetscan[region][gene]
     assert len(targetscan[region]) == len(to_keep), 'numbers of genes with CNV status and targetscan targets should match'
-
 for region in miranda:
     to_remove, to_keep = [], []
     for gene in miranda[region]:
@@ -360,7 +374,6 @@ for region in miranda:
         del miranda[region][gene]
     assert len(miranda[region]) == len(to_keep), 'numbers of genes with CNV status and miranda targets should match'
 print('removed genes without CNV status')
-
 
 # add CNV status of genes with target prediction
 for region in targetscan:
@@ -378,15 +391,298 @@ for region in miranda:
 print('added CNV status to each gene domain')    
     
  
-# count cnv and non-cnv genes
+# plot the number of targets for CNV and non-CNV genes for each region
+
+# create a dict with predictor as key and a list of targets for CNV and non-CNV genes for each region
+# {predictor: [[3UTR targets cnv], [3UTR targets non-cnv], [5UTR targets cnv], [5UTR targets noncnv], [CDS targets cnv], [CDS targets non-cnv]]
+AllData = {}
+AllData['targetscan'], AllData['miranda'] = [[], [], [], [], [], []], [[], [], [], [], [], []]
 for region in targetscan:
-    cnv, noncnv = 0, 0
     for gene in targetscan[region]:
-        if targetscan[region][gene][-1] == 'CNV':
-            cnv += 1
-        elif targetscan[region][gene][-1] == 'not_CNV':
-            noncnv += 1
-    print(region, cnv, noncnv)
+        if region == '3UTR' and targetscan[region][gene][-1] == 'CNV':
+            i = 0
+        elif region == '3UTR' and targetscan[region][gene][-1] == 'not_CNV':
+            i = 1
+        elif region == '5UTR' and targetscan[region][gene][-1] == 'CNV':
+            i = 2
+        elif region == '5UTR' and targetscan[region][gene][-1] == 'not_CNV':
+            i = 3
+        elif region == 'CDS' and targetscan[region][gene][-1] == 'CNV':
+            i = 4
+        elif region == 'CDS' and targetscan[region][gene][-1] == 'not_CNV':
+            i = 5
+        AllData['targetscan'][i].append(targetscan[region][gene][0])        
+for region in miranda:
+    for gene in miranda[region]:
+        if region == '3UTR' and miranda[region][gene][-1] == 'CNV':
+            i = 0
+        elif region == '3UTR' and miranda[region][gene][-1] == 'not_CNV':
+            i = 1
+        elif region == '5UTR' and miranda[region][gene][-1] == 'CNV':
+            i = 2
+        elif region == '5UTR' and miranda[region][gene][-1] == 'not_CNV':
+            i = 3
+        elif region == 'CDS' and miranda[region][gene][-1] == 'CNV':
+            i = 4
+        elif region == 'CDS' and miranda[region][gene][-1] == 'not_CNV':
+            i = 5
+        AllData['miranda'][i].append(miranda[region][gene][0])    
+print('data consolidated in array')
+
+for predictor in AllData:
+    print(predictor, end = ' ')
+    print(' '.join(list(map(lambda x: str(len(x)), AllData[predictor]))))     
+
+# perform stattistical tests between CNV and non-CNV genes
+# create dicts to store results {predictor: [list of significance levels]}
+Significance = {}
+for predictor in AllData:
+    Significance[predictor] = []
+    # compare CNV and non-CNV genes
+    for i in range(0, len(AllData[predictor]), 2):
+        Pval = stats.ranksums(AllData[predictor][i], AllData[predictor][i+1])[1]
+        if Pval >= 0.05:
+            Significance[predictor].append('')
+        elif Pval < 0.05 and Pval >= 0.01:
+            Significance[predictor].append('*')
+        elif Pval < 0.01 and Pval >= 0.001:
+            Significance[predictor].append('**')
+        elif Pval < 0.001:
+            Significance[predictor].append('***')
+print('compared CNV and non-CNV genes')
+
+
+
+
+
+# create list of labels and tick positions for the X axis
+#xtickpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
+
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, YAxisLine):
+    '''
+    (int, int, int, dict, figure_object, str, str, int, list, list, bool)
+    Take the number of a column, and rows in the figure object and the position of
+    the ax in figure, a list of data, a title, a maximum value for the Y axis,
+    a list with species names and list of X axis tick positions and return an
+    ax instance in the figure
+    '''    
     
+    # create subplot in figure
+    # add a plot to figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    # create a list of positions for the box plot    
+    BoxPositions = [0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.7, 3.1]
+
+    # use a boxplot
+    bp = ax.boxplot(Data, showmeans = True, showfliers = False, widths = 0.3,
+                    positions = BoxPositions, patch_artist = True) 
+
+    # color CNV and non-CNV boxes differently
+    CNVColor = ['#a6bddb','#74a9cf','#2b8cbe','#045a8d']
+    NonCNVColor = ['#99d8c9','#66c2a4','#2ca25f','#006d2c']
+    i, j = 0, 0    
+    # change box, whisker color to black
+    for box in bp['boxes']:
+        # change line color
+        box.set(color = 'black')
+        if i % 2 == 0:
+            # CNV data
+            box.set(facecolor = CNVColor[j])
+        else:
+            box.set(facecolor = NonCNVColor[j])
+        i += 1
+        j = int(i / 2)
+    # change whisker color to black
+    for wk in bp['whiskers']:
+        wk.set(color = 'black', linestyle = '-')
+    # change color of the caps
+    for cap in bp['caps']:
+        cap.set(color = 'black')
+    # change the color and line width of the medians
+    for median in bp['medians']:
+        median.set(color = 'black')
+    # change the mean marker and marker
+    for mean in bp['means']:
+        mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 3)
+
+    # write title   
+    ax.set_title(Title, size = 8, style = 'italic')
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
+    # write label for x and y axis
+    ax.set_ylabel('miRNA sites / nt', color = 'black',  size = 8, ha = 'center', **FigFont)
+    if YAxisLine == True:
+        ax.set_xlabel('miRNA expression level', color = 'black',  size = 8, ha = 'center', **FigFont)
     
+    # write label for x axis
+    plt.xticks([0.2, 1.1, 2, 2.9], list(map(lambda x: x.capitalize(), Groups)), ha = 'center', fontsize = 8, **FigFont)
+    # add a range for the Y axis
+    plt.ylim([0, YMax])
+    plt.xlim([-0.25, 3.35])
+
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["right"].set_visible(False)    
+    ax.spines["left"].set_visible(False)  
+    if YAxisLine == False:
+        ax.spines["bottom"].set_visible(False)    
+    elif YAxisLine == True:
+        ax.spines["bottom"].set_visible(True)    
+        # offset the spines
+        for spine in ax.spines.values():
+            spine.set_position(('outward', 5))
     
+    # add a light grey horizontal grid to the plot, semi-transparent, 
+    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
+    # hide these grids behind plot objects
+    ax.set_axisbelow(True)
+
+
+    if YAxisLine == True:
+        # do not show ticks
+        plt.tick_params(
+            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+            which='both',      # both major and minor ticks are affected
+            bottom='on',      # ticks along the bottom edge are off
+            top='off',         # ticks along the top edge are off
+            right = 'off',
+            left = 'off',          
+            labelbottom='on', # labels along the bottom edge are on
+            colors = 'black',
+            labelsize = 8,
+            direction = 'out') # ticks are outside the frame when bottom = 'on'  
+    elif YAxisLine == False:
+        # do not show ticks
+        plt.tick_params(
+            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+            which='both',      # both major and minor ticks are affected
+            bottom='off',      # ticks along the bottom edge are off
+            top='off',         # ticks along the top edge are off
+            right = 'off',
+            left = 'off',          
+            labelbottom='off', # labels along the bottom edge are on
+            colors = 'black',
+            labelsize = 8,
+            direction = 'out') # ticks are outside the frame when bottom = 'on'  
+    
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')
+    # create a margin around the x axis
+    plt.margins(0.05)
+    
+    return ax      
+
+
+# create figure
+fig = plt.figure(1, figsize = (3.5, 7))
+# plot data, note that chimp has no expression data 
+if domain == '3UTR':
+    YAxisLimit = [0.14, 0.05, 0.08, 0.04, 0.05]
+elif domain == '5UTR':
+    YAxisLimit = [0.14, 0.04, 0.09, 0.04, 0.07]
+elif domain == 'CDS':
+    YAxisLimit = [0.14, 0.04, 0.08, 0.035, 0.05]
+ax1 = CreateAx(1, 5, 1, AllData[SpeciesNames[0]], fig, Genus[SpeciesNames[0]].replace('_', ' '), YAxisLimit[0], False)
+ax2 = CreateAx(1, 5, 2, AllData[SpeciesNames[1]], fig, Genus[SpeciesNames[1]].replace('_', ' '), YAxisLimit[1], False)
+ax3 = CreateAx(1, 5, 3, AllData[SpeciesNames[2]], fig, Genus[SpeciesNames[2]].replace('_', ' '), YAxisLimit[2], False)
+ax4 = CreateAx(1, 5, 4, AllData[SpeciesNames[3]], fig, Genus[SpeciesNames[3]].replace('_', ' '), YAxisLimit[3], False)
+ax5 = CreateAx(1, 5, 5, AllData[SpeciesNames[4]], fig, Genus[SpeciesNames[4]].replace('_', ' '), YAxisLimit[4], True)
+
+# annotate Graph with significance level
+Pvalues = {}
+for species in SpeciesNames:
+    Pvalues[species] = []
+    for group in Groups:
+        # get the significance level for target sites
+        if CompTargets[species][group] >= 0.05:
+            Pvalues[species].append('')
+        elif CompTargets[species][group] < 0.05 and CompTargets[species][group] >= 0.01:
+            Pvalues[species].append('*')
+        elif CompTargets[species][group] < 0.01 and CompTargets[species][group] >= 0.001:
+            Pvalues[species].append('**')
+        elif CompTargets[species][group] < 0.001:
+            Pvalues[species].append('***')
+
+# annotate figure with significance level
+# create list of Y and X positions to annotate figure with significance level
+Xpos = [0.2, 1.1, 2, 2.9]
+
+for species in Pvalues:
+    if species == 'H_sapiens':
+        # make a list of Y axis position
+        if domain == '3UTR':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.09]
+        elif domain == '5UTR':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.10]
+        elif domain == 'CDS':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.09]
+        for i in range(len(Ypos)):
+            ax1.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+    elif species == 'M_mulatta':
+        if domain == '3UTR':
+            # make a list of Y positions
+            Ypos = [0.035, 0.04, 0.045, 0.04]
+        elif domain == '5UTR':
+            # make a list of Y positions
+            Ypos = [0.035, 0.035, 0.038, 0.035]
+        elif domain == 'CDS':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.09]
+        for i in range(len(Ypos)):
+            ax2.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+    elif species == 'M_musculus':
+        if domain == '3UTR':
+            # make a list of Y positions
+            Ypos = [0.08, 0.08, 0.06, 0.06]
+        elif domain == '5UTR':
+            # make a list of Y positions
+            Ypos = [0.08, 0.075, 0.06, 0.06]
+        elif domain == 'CDS':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.09]
+        for i in range(len(Ypos)):
+            ax3.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+    elif species == 'B_tautus':
+        if domain == '3UTR':
+            # make a list of Y positions
+            Ypos = [0.037, 0.035, 0.032, 0.03]
+        elif domain == '5UTR':
+            # make a list of Y positions
+            Ypos = [0.035, 0.035, 0.035, 0.035]
+        elif domain == 'CDS':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.09]
+        for i in range(len(Ypos)):
+            ax4.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+    elif species == 'G_gallus':
+        if domain == '3UTR':
+            # make a list of Y positions
+            Ypos = [0.04, 0.042, 0.045, 0.04]
+        elif domain == '5UTR':
+            # make a list of Y positions
+            Ypos = [0.055, 0.055, 0.062, 0.055]
+        elif domain == 'CDS':
+            # make a list of Y positions
+            Ypos = [0.13, 0.10, 0.09, 0.09]
+        for i in range(len(Ypos)):
+            ax5.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+
+# add legend relative to ax1 using ax1 coordinates
+C = mpatches.Patch(facecolor = '#a6bddb', edgecolor = 'black', linewidth = 1, label= 'CNV')
+N = mpatches.Patch(facecolor = '#99d8c9', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
+ax1.legend(handles = [C, N], loc = (0.2, 1.2), fontsize = 8, frameon = False, ncol = 2)
+
+# make sure subplots do not overlap
+plt.tight_layout()
+
+## build outputfile with arguments
+#outputfile = 'truc_' + domain + '_' + chromos + '_' + cnv_length
+#print(outputfile)
+
+# save figure
+fig.savefig('truc.pdf', bbox_inches = 'tight')    
