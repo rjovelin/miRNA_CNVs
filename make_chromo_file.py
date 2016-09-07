@@ -289,42 +289,17 @@ print('\n')
 print('chromo: {0}, cnv: {1}, non-cnv: {2}, remaining: {3}'.format(chromo, a, b, c), sep = '\t', end = '\n')   
              
 
-# get synonymous genes
-synonyms = get_synonyms(GFF_file)
-
 # make sets of cnv and noncnv genes, including synonyms
+# add all synonymous genes
 cnv, noncnv = set(), set()
 for gene in GeneCNV:
     if GeneCNV[gene] == 'CNV':
         cnv.add(gene)
     elif GeneCNV[gene] == 'not_CNV':
         noncnv.add(gene)
-#for gene in synonyms:
-#    if gene in GeneCNV:
-#        if GeneCNV[gene] == 'CNV':
-#            cnv.add(gene)
-#            for i in synonyms[gene]:
-#                cnv.add(i)
-#        elif GeneCNV[gene] == 'not_CNV':
-#            noncnv.add(gene)
-#            for i in synonyms[gene]:
-#                noncnv.add(i)
-#    else:
-#        for i in synonyms[gene]:
-#            if i in GeneCNV and GeneCNV[i] == 'CNV':
-#                cnv.add(gene)
-#                for j in synonyms[gene]:
-#                    cnv.add(j)
-#            elif i in GeneCNV and GeneCNV[i] == 'not_CNV':
-#                noncnv.add(gene)
-#                for j in synonyms[gene]:
-#                    noncnv.add(j)
-## check that gene sets do not overlap
-#weird = len(cnv.intersection(noncnv))
-#print(weird)
-#assert len(cnv.intersection(noncnv)) == 0, 'genes cannot be both CNV and non-CNV'
-
-
+weird = len(cnv.intersection(noncnv))
+print(weird)
+assert len(cnv.intersection(noncnv)) == 0, 'genes cannot be both CNV and non-CNV'
 
 
 # make a dictionary with domain as key and a dictionary of gene: normalized targets as value
@@ -358,7 +333,7 @@ for domain in regions:
 print('got miranda targets for each domain of each gene')
 
 
-# remove genes if genes or synonyms are not found in GFF file
+# remove genes if genes not found in GFF file
 for region in targetscan:
     to_remove, to_keep = [], []
     for gene in targetscan[region]:
