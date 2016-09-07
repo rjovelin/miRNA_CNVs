@@ -565,13 +565,11 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, YAxisLine):
     
     return ax      
 
-
-
 # create figure
 fig = plt.figure(1, figsize = (3.5, 7))
 # plot data 
-ax1 = CreateAx(1, 2, 1, AllData['targetscan'], fig, 'Targetscan', 0.5, False)
-ax2 = CreateAx(1, 2, 2, AllData['miranda'], fig, 'miRanda', 0.5, True)
+ax1 = CreateAx(1, 2, 1, AllData['targetscan'], fig, 'Targetscan', 0.4, False)
+ax2 = CreateAx(1, 2, 2, AllData['miranda'], fig, 'miRanda', 0.4, True)
 
 
 ## annotate figure with significance level
