@@ -568,7 +568,7 @@ def CreateAx(Columns, Rows, Position, predictor, Data, figure, Title, YAxisLine)
     return ax      
 
 # create figure
-fig = plt.figure(1, figsize = (2.3, 3.3))
+fig = plt.figure(1, figsize = (2.3, 3.1))
 # plot data 
 ax1 = CreateAx(1, 2, 1, 'targetscan', AllData['targetscan'], fig, 'Targetscan', False)
 ax2 = CreateAx(1, 2, 2, 'miranda', AllData['miranda'], fig, 'miRanda', True)
@@ -587,7 +587,7 @@ for i in range(len(Significance['targetscan'])):
 # add legend relative to ax1 using ax1 coordinates
 C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
 N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
-ax1.legend(handles = [C, N], loc = (-0.3, 1.2), fontsize = 8, frameon = False, ncol = 2)
+ax1.legend(handles = [C, N], loc = (-0.25, 1.2), fontsize = 8, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
 plt.tight_layout()
