@@ -592,9 +592,9 @@ ax1.legend(handles = [C, N], loc = (-0.25, 1.2), fontsize = 8, frameon = False, 
 # make sure subplots do not overlap
 plt.tight_layout()
 
-## build outputfile with arguments
-#outputfile = 'truc_' + domain + '_' + chromos + '_' + cnv_length
-#print(outputfile)
+# build outputfile with arguments
+outputfile = 'PlotTargetsGoldMap_' + CNVFilter.capitalize() + '_' + chromos + '_' + cnv_length
+print(outputfile)
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')    
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')    
