@@ -568,78 +568,21 @@ def CreateAx(Columns, Rows, Position, predictor, Data, figure, Title, YAxisLine)
     return ax      
 
 # create figure
-fig = plt.figure(1, figsize = (3, 4.5))
+fig = plt.figure(1, figsize = (3, 4))
 # plot data 
 ax1 = CreateAx(1, 2, 1, 'targetscan', AllData['targetscan'], fig, 'Targetscan', False)
 ax2 = CreateAx(1, 2, 2, 'miranda', AllData['miranda'], fig, 'miRanda', True)
 
 
-## annotate figure with significance level
-## create list of Y and X positions to annotate figure with significance level
-#Xpos = [0.2, 1.1, 2, 2.9]
-#
-#for species in Pvalues:
-#    if species == 'H_sapiens':
-#        # make a list of Y axis position
-#        if domain == '3UTR':
-#            # make a list of Y positions
-#            Ypos = [0.13, 0.10, 0.09, 0.09]
-#        elif domain == '5UTR':
-#            # make a list of Y positions
-#            Ypos = [0.13, 0.10, 0.09, 0.10]
-#        elif domain == 'CDS':
-#            # make a list of Y positions
-#            Ypos = [0.13, 0.10, 0.09, 0.09]
-#        for i in range(len(Ypos)):
-#            ax1.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
-#    elif species == 'M_mulatta':
-#        if domain == '3UTR':
-#            # make a list of Y positions
-#            Ypos = [0.035, 0.04, 0.045, 0.04]
-#        elif domain == '5UTR':
-#            # make a list of Y positions
-#            Ypos = [0.035, 0.035, 0.038, 0.035]
-#        elif domain == 'CDS':
-#            # make a list of Y positions
-#            Ypos = [0.13, 0.10, 0.09, 0.09]
-#        for i in range(len(Ypos)):
-#            ax2.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
-#    elif species == 'M_musculus':
-#        if domain == '3UTR':
-#            # make a list of Y positions
-#            Ypos = [0.08, 0.08, 0.06, 0.06]
-#        elif domain == '5UTR':
-#            # make a list of Y positions
-#            Ypos = [0.08, 0.075, 0.06, 0.06]
-#        elif domain == 'CDS':
-#            # make a list of Y positions
-#            Ypos = [0.13, 0.10, 0.09, 0.09]
-#        for i in range(len(Ypos)):
-#            ax3.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
-#    elif species == 'B_tautus':
-#        if domain == '3UTR':
-#            # make a list of Y positions
-#            Ypos = [0.037, 0.035, 0.032, 0.03]
-#        elif domain == '5UTR':
-#            # make a list of Y positions
-#            Ypos = [0.035, 0.035, 0.035, 0.035]
-#        elif domain == 'CDS':
-#            # make a list of Y positions
-#            Ypos = [0.13, 0.10, 0.09, 0.09]
-#        for i in range(len(Ypos)):
-#            ax4.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
-#    elif species == 'G_gallus':
-#        if domain == '3UTR':
-#            # make a list of Y positions
-#            Ypos = [0.04, 0.042, 0.045, 0.04]
-#        elif domain == '5UTR':
-#            # make a list of Y positions
-#            Ypos = [0.055, 0.055, 0.062, 0.055]
-#        elif domain == 'CDS':
-#            # make a list of Y positions
-#            Ypos = [0.13, 0.10, 0.09, 0.09]
-#        for i in range(len(Ypos)):
-#            ax5.text(Xpos[i], Ypos[i], Pvalues[species][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+# annotate figure with significance level
+# create list of Y and X positions to annotate figure with significance level
+Xpos = [0.2, 1.1, 2]
+Ypos_targetscan = [0.42, 0.40, 0.40]
+Ypos_miranda = [0.35, 0.32, 0.30]
+
+for i in range(len(Significance['targetscan'])):
+    ax1.text(Xpos[i], Ypos_targetscan[i], Significance['targetscan'][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
+    ax2.text(Xpos[i], Ypos_miranda[i], Significance['miranda'][i], horizontalalignment = 'center', verticalalignment = 'center', color = 'black', size = 8)
 
 # add legend relative to ax1 using ax1 coordinates
 C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
