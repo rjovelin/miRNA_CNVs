@@ -568,7 +568,7 @@ def CreateAx(Columns, Rows, Position, predictor, Data, figure, Title, YAxisLine)
     return ax      
 
 # create figure
-fig = plt.figure(1, figsize = (3, 4))
+fig = plt.figure(1, figsize = (2.5, 3.5))
 # plot data 
 ax1 = CreateAx(1, 2, 1, 'targetscan', AllData['targetscan'], fig, 'Targetscan', False)
 ax2 = CreateAx(1, 2, 2, 'miranda', AllData['miranda'], fig, 'miRanda', True)
