@@ -510,9 +510,9 @@ def CreateAx(Columns, Rows, Position, predictor, Data, figure, Title, YAxisLine)
         plt.xticks([0.2, 1.1, 2], ['3\'UTR', '5\'UTR', 'CDS'], ha = 'center', fontsize = 8, **FigFont)
     # add a range for the Y axis
     if predictor == 'targetscan':
-        plt.ylim([0.10, 0.45])
+        plt.ylim([0.10, 0.46])
     elif predictor == 'miranda':
-        plt.ylim([0, 0.35])
+        plt.ylim([0, 0.36])
     plt.xlim([-0.25, 2.45])
 
     # do not show lines around figure  
