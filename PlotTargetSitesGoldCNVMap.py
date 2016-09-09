@@ -316,33 +316,24 @@ assert len(cnv.intersection(noncnv)) == 0, 'genes cannot be both CNV and non-CNV
 
 
 # make a dictionary with domain as key and a dictionary of gene: normalized targets as value
-# {gene: [normalized number of targets]}
+# {domain: {gene: [targets, seq_length, normalized_targets]}}
 regions = ['3UTR', '5UTR', 'CDS']
 targetscan, miranda = {}, {} 
 for domain in regions:
-    targetscan[domain] = {}
-    infile = open('H_sapiens_' + domain + '_summary_targetscan_valid_chromos_CNV_all_length_GRCh37_2015.txt')
-    infile.readline()
-    for line in infile:
-        line = line.rstrip()
-        if line != '':
-            line = line.split()
-            gene, Ntargets = line[0], float(line[3])
-            targetscan[domain][gene] = [Ntargets]
-    infile.close()
+    # get the seq input file
+    seq_input_file = 'H_sapiens_' + domain + '_valid_chromos_targetscan.txt'
+    # get the predicted targets output file {gene: [targets, seq_length, normalized_targets]}
+    predicted_targets = 'H_sapiens_' + domain + '_valid_chromos_predicted_sites_targetscan.txt'
+    targets = parse_targetscan_output(seq_input_file, predicted_targets, 'all')
+    targetscan[domain] = dict(targets)
 print('got targetscan targets for each domain of each gene')
-
 for domain in regions:
-    miranda[domain] = {}
-    infile = open('H_sapiens_' + domain + '_summary_miranda_valid_chromos_CNV_all_length_GRCh37_2015.txt')
-    infile.readline()
-    for line in infile:
-        line = line.rstrip()
-        if line != '':
-            line = line.split()
-            gene, Ntargets = line[0], float(line[3])
-            miranda[domain][gene] = [Ntargets]
-    infile.close()
+    # get the seq input file
+    seq_input_file = 'H_sapiens_' + domain + '_valid_chromos_targetscan.txt'
+    # get the predicted targets output file {gene: [targets, seq_length, normalized_targets]}
+    predicted_targets = 'H_sapiens_' + domain + '_valid_chromos_predicted_sites_miranda.txt'
+    targets = parse_miranda_output(seq_input_file, predicted_targets, 'all')
+    miranda[domain] = dict(targets)
 print('got miranda targets for each domain of each gene')
 
 
@@ -409,7 +400,7 @@ for region in targetscan:
             i = 4
         elif region == 'CDS' and targetscan[region][gene][-1] == 'not_CNV':
             i = 5
-        AllData['targetscan'][i].append(targetscan[region][gene][0])        
+        AllData['targetscan'][i].append(targetscan[region][gene][2])        
 for region in miranda:
     for gene in miranda[region]:
         if region == '3UTR' and miranda[region][gene][-1] == 'CNV':
@@ -424,7 +415,7 @@ for region in miranda:
             i = 4
         elif region == 'CDS' and miranda[region][gene][-1] == 'not_CNV':
             i = 5
-        AllData['miranda'][i].append(miranda[region][gene][0])    
+        AllData['miranda'][i].append(miranda[region][gene][2])    
 print('data consolidated in array')
 
 for predictor in AllData:
