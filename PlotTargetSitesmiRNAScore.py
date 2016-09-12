@@ -9,6 +9,7 @@ Created on Mon Aug 15 15:55:09 2016
 # assigning different scores to miRNAs according to their expression level
 
 # usage PlotTargetSitesmiRNAScore.py 
+# [/pdf]: save as eps if no argument is provided or as PDF if pdf is given in the command
 
 # use Agg backend on server without X server
 import matplotlib as mpl
@@ -27,6 +28,14 @@ import os
 import sys
 # import custom modules
 from CNV_miRNAs import *
+
+
+# check the format of the figure (eps by default or pdf if specified)
+if len(sys.argv) == 1:
+    extension = '.eps'
+elif len(sys.argv) == 2:
+    assert sys.argv[1] == 'pdf'
+    extension = '.pdf'
 
 
 # keep genes on assembled nuclear chromosomes
@@ -311,5 +320,5 @@ print(outputfile)
 plt.tight_layout()
 
 # save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+fig.savefig(outputfile + extension, bbox_inches = 'tight')
 

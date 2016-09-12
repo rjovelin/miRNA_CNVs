@@ -9,6 +9,7 @@ Created on Fri Jul 22 16:45:59 2016
 
 # usage PlotNumberShort3UTRGenes.py [options]
 # [7/15]: 3'UTR length, genes with 3'UTR length < 7bp or < 15bp are considered short 3'UTR genes
+# [/pdf]: save as eps if no argument is provided or as PDF if pdf is given in the command
 
 # use Agg backend on server without X server
 import matplotlib as mpl
@@ -44,6 +45,13 @@ cnv_length = 'CNV_all_length'
 L = int(sys.argv[1])
 assert L in [15, 7], 'minimum 3UTR length is not correct'
 print(L)
+# check the format of the figure (eps by default or pdf if specified)
+if len(sys.argv) == 2:
+    extension = '.eps'
+elif len(sys.argv) == 3:
+    assert sys.argv[2] == 'pdf'
+    extension = '.pdf'
+
 
 # Count the number of short 3'UTR genes in CNV and non-CNV in each species
 # create a dict {species: [N short 3'UTR, N short 3UTR CNV genes, N short 3UTR non-CNV genes]}
@@ -175,5 +183,5 @@ elif L == 15:
 print(outputfile)
   
 # save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+fig.savefig(outputfile + extension, bbox_inches = 'tight')
     

@@ -11,7 +11,7 @@ Created on Thu Aug  4 15:43:27 2016
 
 # usage PlotBootstrapOutcomes.py [options]
 # [3UTR/5UTR/CDS]: gene domain to consider
-
+# [/pdf]: save as eps if no argument is provided or as PDF if pdf is given in the command
 
 # use Agg backend on server without X server
 import matplotlib as mpl
@@ -34,6 +34,13 @@ from CNV_miRNAs import *
 # get the region to consider to predict target sites [3UTR or 5UTr or CDS]
 domain = sys.argv[1]
 print(domain)
+# check the format of the figure (eps by default or pdf if specified)
+if len(sys.argv) == 2:
+    extension = '.eps'
+elif len(sys.argv) == 3:
+    assert sys.argv[2] == 'pdf'
+    extension = '.pdf'
+
 
 # keep genes on assembled nuclear chromosomes
 chromos = 'valid_chromos'
@@ -346,5 +353,5 @@ outputfile = 'PlotBootstrap' + '_' + domain + '_' + chromos + '_' + cnv_length
 print(outputfile)
 
 # save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+fig.savefig(outputfile + extension, bbox_inches = 'tight')
        

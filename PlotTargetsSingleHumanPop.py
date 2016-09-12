@@ -30,7 +30,7 @@ from CNV_miRNAs import *
 # usage PlotTargetsSingleHumanPop.py [options]
 # [3UTR/5UTR/CDS] choose the region to analyse
 # -[targetscan/miranda] : the predictor algorithm used to predict target sites
-
+# [/pdf]: save as eps if no argument is provided or as PDF if pdf is given in the command
 
 # get the region to consider to predict target sites [3UTR or 5UTr or CDS]
 domain = sys.argv[1]
@@ -38,6 +38,12 @@ print(domain)
 # get predictor from command [targetscan or miranda]
 predictor = sys.argv[2]
 print(predictor)
+# check the format of the figure (eps by default or pdf if specified)
+if len(sys.argv) == 3:
+    extension = '.eps'
+elif len(sys.argv) == 4:
+    assert sys.argv[3] == 'pdf'
+    extension = '.pdf'
 
 # keep genes on assembled chromsomes
 keep_valid_chromos = True
@@ -455,5 +461,5 @@ outputfile = 'PlotSinglePops_' + predictor + '_' + domain + '_' + chromos + '_' 
 print(outputfile)
 
 # save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+fig.savefig(outputfile + extension, bbox_inches = 'tight')
        

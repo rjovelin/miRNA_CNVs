@@ -29,6 +29,7 @@ from CNV_miRNAs import *
 # usage python3 PlotTargetSitesShort3UTRsCNVnonCNV.py options
 # [5UTR/CDS]: use target sites in 5'UTR or CDS of short 3'UTR genes
 # [7/15]: 3'UTR length, genes with 3'UTR length < 7bp or < 15bp are considered short 3'UTR genes
+# [/pdf]: save as eps if no argument is provided or as PDF if pdf is given in the command
 
 # get the region to consider to predict target sites [5UTr or CDS]
 domain = sys.argv[1]
@@ -37,6 +38,12 @@ print(domain)
 L = int(sys.argv[2])
 assert L in [15, 7], 'minimum 3UTR length is not correct'
 print(L)
+# check the format of the figure (eps by default or pdf if specified)
+if len(sys.argv) == 3:
+    extension = '.eps'
+elif len(sys.argv) == 4:
+    assert sys.argv[3] == 'pdf'
+    extension = '.pdf'
 
 # use all chromos (including unplaced, unlocated, and MT) or only valid chromos 
 # note: only CNVs on valid chromos are reported in DGV, so if all chromos are
@@ -348,5 +355,5 @@ elif L == 7:
 print(outputfile)
 
 # save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+fig.savefig(outputfile + extension, bbox_inches = 'tight')
        

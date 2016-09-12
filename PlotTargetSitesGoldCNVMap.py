@@ -9,7 +9,7 @@ Created on Tue Aug 30 14:21:28 2016
 
 # usage PlotTargetSitesGoldCNVMap [options]
 # - [stringent/inclusive]: filter level to define CNVR
-
+# [/pdf]: save as eps if no argument is provided or as PDF if pdf is given in the command
 
 # use Agg backend on server without X server
 import matplotlib as mpl
@@ -32,6 +32,13 @@ from CNV_miRNAs import *
 # get option to use stingent or inclusive CNV definitions
 CNVFilter = sys.argv[1]
 assert CNVFilter in ['stringent', 'inclusive'], 'should use appropriate option'
+# check the format of the figure (eps by default or pdf if specified)
+if len(sys.argv) == 2:
+    extension = '.eps'
+elif len(sys.argv) == 3:
+    assert sys.argv[2] == 'pdf'
+    extension = '.pdf'
+
 
 # make a list of fasta files
 files = [i for i in os.listdir('./GRCH37_genome') if i[-3:] == '.fa']
@@ -588,4 +595,4 @@ outputfile = 'PlotTargetsGoldMap_' + CNVFilter.capitalize() + '_' + chromos + '_
 print(outputfile)
 
 # save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')    
+fig.savefig(outputfile + extension, bbox_inches = 'tight')    

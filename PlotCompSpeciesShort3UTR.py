@@ -11,6 +11,7 @@ Created on Tue Aug  9 11:59:52 2016
 # plot a box plot for target sites in CDS and 5'UTR for CNV genes and for non-CNV genes
 
 # usage PlotCompSpeciesShort3UTR.py
+# [/pdf]: save as eps if no argument is provided or as PDF if pdf is given in the command
 
 # use Agg backend on server without X server
 import matplotlib as mpl
@@ -45,6 +46,12 @@ L = 7
 # CNV_size = 'long'
 # conservation = all_miRs
 
+# check the format of the figure (eps by default or pdf if specified)
+if len(sys.argv) == 1:
+    extension = '.eps'
+elif len(sys.argv) == 2:
+    assert sys.argv[1] == 'pdf'
+    extension = '.pdf'
 
 # get the number of target sites for CNV genes and for non-CNV genes in human and each other vertebrates
 
@@ -387,4 +394,4 @@ outputfile = 'PlotCompHumanSpeciesShort3UTR_' + chromos + '_' + cnv_length
 print(outputfile)
 
 # save figure
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+fig.savefig(outputfile + extension, bbox_inches = 'tight')
