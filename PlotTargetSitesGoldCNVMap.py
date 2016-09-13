@@ -36,9 +36,9 @@ assert CNVFilter in ['stringent', 'inclusive'], 'should use appropriate option'
 if len(sys.argv) == 2:
     extension = '.eps'
 elif len(sys.argv) == 3:
-    assert sys.argv[2] == 'pdf'
-    extension = '.pdf'
-
+    extension = sys.argv[2]
+    assert extension in ['pdf', 'ai', 'png']
+    extension = '.' + extension
 
 # make a list of fasta files
 files = [i for i in os.listdir('./GRCH37_genome') if i[-3:] == '.fa']

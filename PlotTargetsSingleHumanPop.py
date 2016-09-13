@@ -42,8 +42,9 @@ print(predictor)
 if len(sys.argv) == 3:
     extension = '.eps'
 elif len(sys.argv) == 4:
-    assert sys.argv[3] == 'pdf'
-    extension = '.pdf'
+    extension = sys.argv[3]
+    assert extension in ['pdf', 'ai', 'png']
+    extension = '.' + extension
 
 # keep genes on assembled chromsomes
 keep_valid_chromos = True

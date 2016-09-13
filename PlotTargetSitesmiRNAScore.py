@@ -34,9 +34,9 @@ from CNV_miRNAs import *
 if len(sys.argv) == 1:
     extension = '.eps'
 elif len(sys.argv) == 2:
-    assert sys.argv[1] == 'pdf'
-    extension = '.pdf'
-
+    extension = sys.argv[1]
+    assert extension in ['pdf', 'ai', 'png']
+    extension = '.' + extension
 
 # keep genes on assembled nuclear chromosomes
 chromos = 'valid_chromos'

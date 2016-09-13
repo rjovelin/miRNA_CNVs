@@ -42,8 +42,10 @@ print(L)
 if len(sys.argv) == 3:
     extension = '.eps'
 elif len(sys.argv) == 4:
-    assert sys.argv[3] == 'pdf'
-    extension = '.pdf'
+    extension = sys.argv[3]
+    assert extension in ['pdf', 'ai', 'png']
+    extension = '.' + extension
+
 
 # use all chromos (including unplaced, unlocated, and MT) or only valid chromos 
 # note: only CNVs on valid chromos are reported in DGV, so if all chromos are
