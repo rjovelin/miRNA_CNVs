@@ -204,9 +204,9 @@ newfile.write('\t'.join(['', 'CNV', 'Non-CNV', 'CNV', 'Non-CNV', '', 'CNV', 'Non
 newfile.write('\t'.join(['Sp', 'Na', 'Na', 'Mean', 'Mean', 'D (%)b', 'Mean', 'Mean', 'D (%)b']) + '\n')
 
 # make a list of species names to loop over
-species_names = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
+SpeciesNames = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
 
-for species in species_name:
+for species in SpeciesNames:
     # create the line to write 
     line = [species_codes[species], str(GeneNumbers[species][0]), str(GeneNumbers[species][1]),
             str(np.mean(SpeciesDataTargetscan[species][0])), str(np.mean(SpeciesDataTargetscan[species][1])),
