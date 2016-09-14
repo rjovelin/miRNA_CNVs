@@ -29,7 +29,7 @@ from CNV_miRNAs import *
 # usage python3 PlotTargetSitesShort3UTRsCNVnonCNV.py options
 # [5UTR/CDS]: use target sites in 5'UTR or CDS of short 3'UTR genes
 # [7/15]: 3'UTR length, genes with 3'UTR length < 7bp or < 15bp are considered short 3'UTR genes
-# [/pdf]: save as eps if no argument is provided or as PDF if pdf is given in the command
+# [pdf/ai/png]: save as eps if no argument is provided or as the format indicated by the argument
 
 # get the region to consider to predict target sites [5UTr or CDS]
 domain = sys.argv[1]

@@ -11,7 +11,7 @@ Created on Tue Aug  9 11:59:52 2016
 # plot a box plot for target sites in CDS and 5'UTR for CNV genes and for non-CNV genes
 
 # usage PlotCompSpeciesShort3UTR.py
-# [/pdf]: save as eps if no argument is provided or as PDF if pdf is given in the command
+# [pdf/ai/png]: save as eps if no argument is provided or as the format indicated by the argument
 
 # use Agg backend on server without X server
 import matplotlib as mpl

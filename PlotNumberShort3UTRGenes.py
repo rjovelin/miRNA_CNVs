@@ -9,7 +9,7 @@ Created on Fri Jul 22 16:45:59 2016
 
 # usage PlotNumberShort3UTRGenes.py [options]
 # [7/15]: 3'UTR length, genes with 3'UTR length < 7bp or < 15bp are considered short 3'UTR genes
-# [/pdf]: save as eps if no argument is provided or as PDF if pdf is given in the command
+# [pdf/ai/png]: save as eps if no argument is provided or as the format indicated by the argument
 
 # use Agg backend on server without X server
 import matplotlib as mpl

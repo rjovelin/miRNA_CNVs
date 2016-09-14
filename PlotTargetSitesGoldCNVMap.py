@@ -9,7 +9,7 @@ Created on Tue Aug 30 14:21:28 2016
 
 # usage PlotTargetSitesGoldCNVMap [options]
 # - [stringent/inclusive]: filter level to define CNVR
-# [/pdf]: save as eps if no argument is provided or as PDF if pdf is given in the command
+# [pdf/ai/png]: save as eps if no argument is provided or as the format indicated by the argument
 
 # use Agg backend on server without X server
 import matplotlib as mpl

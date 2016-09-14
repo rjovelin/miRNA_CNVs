@@ -30,7 +30,7 @@ from CNV_miRNAs import *
 # usage PlotTargetsSingleHumanPop.py [options]
 # [3UTR/5UTR/CDS] choose the region to analyse
 # -[targetscan/miranda] : the predictor algorithm used to predict target sites
-# [/pdf]: save as eps if no argument is provided or as PDF if pdf is given in the command
+# [pdf/ai/png]: save as eps if no argument is provided or as the format indicated by the argument
 
 # get the region to consider to predict target sites [3UTR or 5UTr or CDS]
 domain = sys.argv[1]

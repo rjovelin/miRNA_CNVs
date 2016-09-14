@@ -11,7 +11,7 @@ Created on Fri Aug  5 16:53:07 2016
 
 # usage PlotFreqStudies.py [options]
 # [3UTR/5UTR/CDS]: gene domain to consider
-# [/pdf]: save as eps if no argument is provided or as PDF if pdf is given in the command
+# [pdf/ai/png]: save as eps if no argument is provided or as the format indicated by the argument
 
 # use Agg backend on server without X server
 import matplotlib as mpl
