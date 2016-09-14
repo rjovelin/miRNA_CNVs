@@ -209,10 +209,10 @@ SpeciesNames = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taur
 for species in SpeciesNames:
     # create the line to write 
     line = [species_codes[species], str(GeneNumbers[species][0]), str(GeneNumbers[species][1]),
-            str(np.mean(SpeciesDataTargetscan[species][0])), str(np.mean(SpeciesDataTargetscan[species][1])),
-            str((1 - np.mean(SpeciesDataTargetscan[species][1])/np.mean(SpeciesDataTargetscan[species][0])) * 100) + Significance[species][0],
-            str(np.mean(SpeciesDataMiranda[species][0])), str(np.mean(SpeciesDataMiranda[species][1])),
-            str((1 - np.mean(SpeciesDataMiranda[species][1])/np.mean(SpeciesDataMiranda[species][0])) * 100) + Significance[species][1]] 
+            str(round(np.mean(SpeciesDataTargetscan[species][0]), 4)), str(round(np.mean(SpeciesDataTargetscan[species][1]), 4)),
+            str(round((1 - np.mean(SpeciesDataTargetscan[species][1])/np.mean(SpeciesDataTargetscan[species][0])) * 100, 2)) + Significance[species][0],
+            str(round(np.mean(SpeciesDataMiranda[species][0]), 4)), str(round(np.mean(SpeciesDataMiranda[species][1]), 4)),
+            str(round((1 - np.mean(SpeciesDataMiranda[species][1])/np.mean(SpeciesDataMiranda[species][0])) * 100), 2) + Significance[species][1]] 
     
     newfile.write('\t'.join(line) + '\n')
 
