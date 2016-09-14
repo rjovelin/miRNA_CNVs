@@ -18,6 +18,7 @@ from scipy import stats
 import math
 import os
 import sys
+import copy
 # import custom modules
 from CNV_miRNAs import *
 
@@ -74,9 +75,9 @@ for i in range(len(predictors)):
         print(filename)
         # get the release version
         release = filename[filename.index('GRCh37_')+len('GRCh37_'): filename.index('_CNV_')]
-        if release == '2013_05':
+        if release == '2013-05':
             release = '2013a'
-        elif release == '2013_07':
+        elif release == '2013-07':
             release = '2013b'
         
         # get CNV gene status
@@ -84,7 +85,7 @@ for i in range(len(predictors)):
         print('CNV status', len(CNV_status))
         
         # copy dictionary with predicted targets
-        targets = dict(PredictedTargets)
+        targets = copy.deepcopy(PredictedTargets)
                
         # add CNV status
         for gene in targets:
