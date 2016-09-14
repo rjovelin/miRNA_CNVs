@@ -96,14 +96,11 @@ for i in range(len(predictors)):
             targetscan[release] = {}
             for gene in targets:
                 targetscan[release][gene] = list(targets[gene])
-            print(release, len(targetscan[release][list(targetscan[release].keys())[0]]))
-            print('targets', len(PredictedTargets[list(PredictedTargets.keys())[0]]))
         elif i == 1:
             miranda[release] = {}
             for gene in targets:
                 miranda[release][gene] = list(targets[gene])
-            print(release, len(miranda[release][list(miranda[release].keys())[0]]))
-            print('targets', len(PredictedTargets[list(PredictedTargets.keys())[0]]))
+            
         
 # check that the same number of species are recorded for miranda and targetscan
 assert len(targetscan) == len(miranda), 'different number of species depending on predictor'
