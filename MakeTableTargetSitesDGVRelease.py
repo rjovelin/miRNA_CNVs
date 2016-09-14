@@ -67,7 +67,7 @@ for i in range(len(predictors)):
         PredictedTargets = parse_targetscan_output(seq_input_file, predicted_targets, 'all')
     elif i == 1:
         PredictedTargets = parse_miranda_output(seq_input_file, predicted_targets, 'all')
-    print('targets', len(targets))    
+    print('targets', len(PredictedTargets))    
     
     # loop over CNVFiles
     for filename in CNVFiles:
