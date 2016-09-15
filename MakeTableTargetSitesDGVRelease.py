@@ -130,7 +130,7 @@ for release in targetscan:
             DataTargetscan[release][1].append(targetscan[release][gene][0])
         elif counts == 'normalized' and targetscan[release][gene][-1] == 'not_CNV':
             DataTargetscan[release][1].append(targetscan[release][gene][2])
-for species in miranda:
+for release in miranda:
     # initialize list values
     DataMiranda[release] = [[], []]
     # populate inner lists with number of mirna target sites
