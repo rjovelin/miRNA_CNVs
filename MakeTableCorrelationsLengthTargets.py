@@ -97,7 +97,7 @@ newfile.write('\t'.join(['Species', '3\'UTR', '5\'UTR', 'CDS', '3\'UTR', '5\'UTR
 
 for species in SpeciesNames:
     # create the line to write to file
-    line = [species_code[species]]
+    line = [species_codes[species]]
     for domain in regions:
         line.append(str(round(CorrelTargetscan[species][domain], 4)))
     for domain in regions:
