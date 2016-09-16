@@ -76,62 +76,31 @@ for species in species_codes:
                     CorrelTargetscan[species][domain] = rho
             elif i == 1:
                 # check if species in dict
-                if species not in CorrelMiranada:
+                if species not in CorrelMiranda:
                     CorrelMiranda[species] = {}
                 else:
                     CorrelMiranda[species][domain] = rho
             
  
 # write results to file
-outputfile = 'TableRawCounts_' + domain + '_' + chromos + '_' + cnv_length + '.txt'
+outputfile = 'TableCorrelationLengthTargets_' + domain + '_' + chromos + '_' + cnv_length + '.txt'
 print(outputfile)
-
 
 # make a list of species names to loop over
 SpeciesNames = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
 
-
-
-	TargetScan		miRanda
-Species	3’UTR	5’UTR	CDS		3’UTR	5’UTR	CDS
-Hsa	0.9918	0.9935	0.9790		0.9667	0.9922	0.9629
-Ptr	0.98912	0.9825	0.9780		0.9659	0.9785	0.9490
-Mml	0.9902	0.9837	0.9855		0.9658	0.9821	0.9777
-Mmu	0.9924	0.9901	0.9842		0.9788	0.9906	0.9710
-Bta	0.9896	0.9850	0.9794		0.9667	0.9824	0.9577
-Gga	0.9883	0.9791	0.9831		0.9710	0.9800	0.9627
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # open file for writing
 newfile = open(outputfile, 'w')
 # write table header
-newfile.write('\t'.join(['', '', '', 'TargetScan', '', '', 'miRanda', '', '']) + '\n')
-newfile.write('\t'.join(['', 'CNV', 'Non-CNV', 'CNV', 'Non-CNV', '', 'CNV', 'Non-CNV', '']) + '\n')
-newfile.write('\t'.join(['Sp', 'Na', 'Na', 'Mean', 'Mean', 'D (%)b', 'Mean', 'Mean', 'D (%)b']) + '\n')
-
-
+newfile.write('\t'.join(['', 'TargetScan', '', '', 'miRanda', '', '']) + '\n')
+newfile.write('\t'.join(['Species', '3\'UTR', '5\'UTR', 'CDS', '3\'UTR', '5\'UTR', 'CDS']) + '\n')
 
 for species in SpeciesNames:
-    # create the line to write 
-    line = [species_codes[species], str(GeneNumbers[species][0]), str(GeneNumbers[species][1]),
-            str(round(np.mean(SpeciesDataTargetscan[species][0]), 4)), str(round(np.mean(SpeciesDataTargetscan[species][1]), 4)),
-            str(round((1 - np.mean(SpeciesDataTargetscan[species][1])/np.mean(SpeciesDataTargetscan[species][0])) * 100, 2)) + Significance[species][0],
-            str(round(np.mean(SpeciesDataMiranda[species][0]), 4)), str(round(np.mean(SpeciesDataMiranda[species][1]), 4)),
-            str(round((1 - np.mean(SpeciesDataMiranda[species][1])/np.mean(SpeciesDataMiranda[species][0])) * 100, 2)) + Significance[species][1]] 
-    
-    newfile.write('\t'.join(line) + '\n')
-
+    # create the line to write to file
+    line = [species_code[species]]
+    for domain in regions:
+        line.append(str(round(CorrelTargetscan[species][domain], 4)))
+    for domain in regions:
+        line.append(str(round(CorrelMiranda[species][domain], 4)))
+    newfile.write('\t'.join(line) + '\n')         
 newfile.close()
