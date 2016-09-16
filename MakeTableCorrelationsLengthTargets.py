@@ -72,14 +72,12 @@ for species in species_codes:
                 # check if species in dict
                 if species not in CorrelTargetscan:
                     CorrelTargetscan[species] = {}
-                else:
-                    CorrelTargetscan[species][domain] = rho
+                CorrelTargetscan[species][domain] = rho
             elif i == 1:
                 # check if species in dict
                 if species not in CorrelMiranda:
                     CorrelMiranda[species] = {}
-                else:
-                    CorrelMiranda[species][domain] = rho
+                CorrelMiranda[species][domain] = rho
             
  
 # write results to file
