@@ -136,7 +136,7 @@ ax.bar(xtickpos, non_cnv_genes, width=bar_width, bottom= cnv_genes, label = 'non
 FigFont = {'fontname':'Arial'} 
 
 # add labels to x axis ticks
-plt.xticks(xtickpos, labelnames, **FigFont)
+plt.xticks([0.25, 0.95, 1.65, 2.35, 3.05, 3.75], labelnames, **FigFont)
 
 # set axis labels
 ax.set_ylabel('Number of genes\nwith short 3\'UTR', size = 10, ha = 'center', color = 'black', **FigFont)
