@@ -141,6 +141,9 @@ plt.xticks(xtickpos, labelnames, **FigFont)
 # set axis labels
 ax.set_ylabel('Number of genes\nwith short 3\'UTR', size = 10, ha = 'center', color = 'black', **FigFont)
 
+# add limit to Y axis
+plt.ylim([0, 4500])
+
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
 ax.spines["bottom"].set_visible(True)    
@@ -171,7 +174,13 @@ plt.tick_params(
 # Set the tick labels font name
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')
-    
+
+
+# add legend
+C = mpatches.Patch(facecolor = '#ef8a62', edgecolor = 'black', linewidth = 1, label= 'CNV')
+N = mpatches.Patch(facecolor = '#67a9cf', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
+ax.legend(handles = [C, N], loc = (0, 1), fontsize = 8, frameon = False, ncol = 2)
+
 # create a margin around the x axis
 plt.margins(0.05)
 
