@@ -312,7 +312,7 @@ N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, la
 ax1.legend(handles = [C, N], loc = (0.2, 1.2), fontsize = 8, frameon = False, ncol = 2)
 
 # build outputfile with arguments
-outputfile = 'PlotWeightedTargets_' + domain + '_' + chromos + '_' + cnv_length
+outputfile = 'PlotWeightedTargets_' + chromos + '_' + cnv_length
 print(outputfile)
 
 
