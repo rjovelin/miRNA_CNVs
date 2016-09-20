@@ -26,6 +26,7 @@ from scipy import stats
 import math
 import os
 import sys
+import copy
 # import custom modules
 from CNV_miRNAs import *
 
@@ -66,8 +67,14 @@ regions = ['3UTR', '5UTR', 'CDS']
 # {species: [[3UTR CNV], [3UTR non-CNV], [5UTR CNV], [5UTR non-CNV], [CDS CNV], [CDS non-CNV]]}
 AllData = {}
 # create a dict to record the scores of each mature mirna for each species {species: {mature name: score}}
+# do not include Chimp because no expression is recorded for chimp in miRBase
+ChimpScores = TargetScore('P_troglodytes_miRBaseMatureAccession.txt', 1000, Genus['P_troglodytes'], miRBaseFile = 'miRNA.dat', ExpressionFile = 'mirna_read_count.txt')
+print('chimp mirna-score pairs: {0}'.format(len(ChimpScores)))
+
+
 for species in SpeciesNames:
-    AllData[species] = [[], [], [], [], [], []]
+    if species != 'P_troglodytes':
+        AllData[species] = [[], [], [], [], [], []]
 Scores = {}
 # loop over species
 for species in SpeciesNames:
@@ -79,7 +86,8 @@ for species in SpeciesNames:
     print('match scores to mature miRNAs', species, len(scores))
     # populate score dict
     if len(scores) != 0:
-        Scores[species] = dict(scores)
+        # make a copy of the dict
+        Scores[species] = copy.deepcopy(scores)
         # get the CNV file, use the DGV 2015 release for human
         if species == 'H_sapiens':
             CNV_file = 'H_sapiens_GRCh37_2015_CNV_all_length_valid_chromos.txt'
@@ -125,7 +133,6 @@ for species in SpeciesNames:
                     AllData[species][5].append(Targets[gene][2])
             print('generated lists of target sites for {0}'.format(species))
 print('generated lists of sites for CNV and non-CNV genes for all species')
-
 
 
 # create figure
@@ -248,12 +255,15 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YLabel, YMax, Domains
     return ax      
 
 Ylabel = 'Weighted number of\nsites / nt'
+domains = ['3\'UTR', '5\'UTR', 'CDS']
 # plot data, note that chimp has no expression data 
-ax1 = CreateAx(1, 5, 1, AllData[SpeciesNames[0]], fig, Genus[SpeciesNames[0]].replace('_', ' '), Ylabel, 12, regions, xtickpos, False)
-ax2 = CreateAx(1, 5, 2, AllData[SpeciesNames[2]], fig, Genus[SpeciesNames[2]].replace('_', ' '), Ylabel, 4, regions, xtickpos, False)
-ax3 = CreateAx(1, 5, 3, AllData[SpeciesNames[3]], fig, Genus[SpeciesNames[3]].replace('_', ' '), Ylabel, 8, regions, xtickpos, False)
-ax4 = CreateAx(1, 5, 4, AllData[SpeciesNames[4]], fig, Genus[SpeciesNames[4]].replace('_', ' '), Ylabel, 4, regions, xtickpos, False)
-ax5 = CreateAx(1, 5, 5, AllData[SpeciesNames[5]], fig, Genus[SpeciesNames[5]].replace('_', ' '), Ylabel, 6, regions, xtickpos, True)
+ax1 = CreateAx(1, 5, 1, AllData[SpeciesNames[0]], fig, Genus[SpeciesNames[0]].replace('_', ' '), Ylabel, 12, domains, xtickpos, False)
+ax2 = CreateAx(1, 5, 2, AllData[SpeciesNames[2]], fig, Genus[SpeciesNames[2]].replace('_', ' '), Ylabel, 4, domains, xtickpos, False)
+ax3 = CreateAx(1, 5, 3, AllData[SpeciesNames[3]], fig, Genus[SpeciesNames[3]].replace('_', ' '), Ylabel, 8, domains, xtickpos, False)
+ax4 = CreateAx(1, 5, 4, AllData[SpeciesNames[4]], fig, Genus[SpeciesNames[4]].replace('_', ' '), Ylabel, 4, domains, xtickpos, False)
+ax5 = CreateAx(1, 5, 5, AllData[SpeciesNames[5]], fig, Genus[SpeciesNames[5]].replace('_', ' '), Ylabel, 6, domains, xtickpos, True)
+print('created figures axes')
+
 
 # perform statistical tests between CNV and non-CNV genes
 Pval = {}
@@ -261,7 +271,7 @@ for species in AllData:
     # initialize list value
     Pval[species] = []
     for i in range(0, 6, 2):
-        P = stats.ranksums(AllData[species][i], AllData[species][i+1])[1]    
+        P = stats.ranksums(AllData[species][i], AllData[species][i+1])[1] 
         Pval[species].append(P)
 print('compared CNV and non-CNV genes')
 
