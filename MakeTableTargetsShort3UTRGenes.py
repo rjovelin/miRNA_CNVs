@@ -27,9 +27,6 @@ L = int(sys.argv[1])
 assert L in [15, 7], 'minimum 3UTR length is not correct'
 print(L)
 
-
-
-
 # use all chromos (including unplaced, unlocated, and MT) or only valid chromos 
 # note: only CNVs on valid chromos are reported in DGV, so if all chromos are
 # used it may introduce a bias by calling non CNV genes genes that cannot be detected
@@ -43,25 +40,34 @@ cnv_length = 'CNV_all_length'
 species_codes = {'H_sapiens': 'Hsa', 'P_troglodytes': 'Ptr', 'M_mulatta': 'Mml',
                  'M_musculus': 'Mmu', 'B_taurus': 'Bta', 'G_gallus':'Gga'}
 
-# make a dictionnary {species: {gene: [N_targets, Sequence_length, N_targets_normalized, CNV_status}}
+# make a dictionnary {species: {domain: {gene: [N_targets, Sequence_length, N_targets_normalized, CNV_status]}}}
 # for each predictor, targetscan and miranda
 targetscan, miranda = {}, {}
 
+# make lists of predictors and regions
 predictors = ['targetscan', 'miranda']
+regions = ['5UTR', 'CDS']
+
 # loop over predictors
 for i in range(len(predictors)):
     # loop over species names
     for species in species_codes:
-        print(species)
+        # loop over domain
+        for domain in regions:
+            print(predictors[i], species, domain)      
+        
+        
+        
+        
+        
+        
         
         # get the seq input file
         seq_input_file = species + '_' + domain + '_' + chromos + '_targetscan.txt'
         print(seq_input_file)
-        
         # get the predicted targets output file
         predicted_targets = species + '_' + domain + '_' + chromos + '_predicted_sites_' + predictors[i] + '.txt'
         print(predicted_targets)
-        
         # parse the predictor outputfile to get a dict {gene: [targets, seq_length, normalized_targets]}
         if i == 0:
             targets = parse_targetscan_output(seq_input_file, predicted_targets, 'all')
@@ -105,6 +111,9 @@ for i in range(len(predictors)):
                 # record gene with short 3'UTR
                 if gene in UTR_length and UTR_length[gene] == 'short':
                     miranda[species][gene] = list(targets[gene])
+
+
+
         
 # check that the same number of species are recorded for miranda and targetscan
 assert len(targetscan) == len(miranda), 'different number of species depending on predictor'
@@ -184,109 +193,6 @@ xtickpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
 Names = [species_codes[i] for i in species_names]
 print(Names)
 
-# create a function to format the subplots
-def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, SpeciesNames, XScale):
-    '''
-    (int, int, int, list, figure_object, str, int, list, list)
-    Take the number of a column, and rows in the figure object and the position of
-    the ax in figure, a list of data, a title, a maximum value for the Y axis,
-    a list with species names and list of X axis tick positions and return an
-    ax instance in the figure
-    '''    
-    
-    
-    # create subplot in figure
-    # add a plot to figure (N row, N column, plot N)
-    ax = figure.add_subplot(Rows, Columns, Position)
-    # create a list of positions for the box plot    
-    BoxPositions = [0, 0.4, 0.9, 1.3, 1.8, 2.2, 2.7, 3.1, 3.6, 4, 4.5, 4.9]
-    # use a boxplot
-    bp = ax.boxplot(Data, showmeans = True, showfliers = False, widths = 0.3,
-                    positions = BoxPositions, patch_artist = True) 
-    
-    # color CNV and non-CNV boxes differently
-    i = 0    
-    # change box, whisker color to black
-    for box in bp['boxes']:
-        # change line color
-        box.set(color = 'black')
-        if i % 2 == 0:
-            # CNV data, color box in grey
-            box.set(facecolor = '#a6cee3')
-        else:
-            box.set(facecolor = '#b2df8a')
-        i += 1
-    # change whisker color to black
-    for wk in bp['whiskers']:
-        wk.set(color = 'black', linestyle = '-')
-    # change color of the caps
-    for cap in bp['caps']:
-        cap.set(color = 'black')
-    # change the color and line width of the medians
-    for median in bp['medians']:
-        median.set(color = 'black')
-    # change the mean marker and marker
-    for mean in bp['means']:
-        mean.set(marker = 'o', markeredgecolor = 'black', markerfacecolor = 'black', markersize = 3)
-    
-    
-    # write title   
-    ax.set_title(Title, size = 8)
-    
-    # set font for all text in figure
-    FigFont = {'fontname':'Arial'}   
-    
-    # write label for y axis
-    ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 8, ha = 'center', **FigFont)
-
-    # write label for x axis
-    plt.xticks(XScale, SpeciesNames, ha = 'center', fontsize = 8, **FigFont)
-
-    # add a range for the Y axis
-    plt.ylim([0, YMax])
-    
-    plt.xlim([-0.25, 5.15])
-    
-    # do not show lines around figure  
-    ax.spines["top"].set_visible(False)    
-    ax.spines["bottom"].set_visible(True)    
-    ax.spines["right"].set_visible(False)    
-    ax.spines["left"].set_visible(False)  
-    # offset the spines
-    for spine in ax.spines.values():
-        spine.set_position(('outward', 5))
-    
-    # add a light grey horizontal grid to the plot, semi-transparent, 
-    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
-    # hide these grids behind plot objects
-    ax.set_axisbelow(True)
-
-    # do not show ticks
-    plt.tick_params(
-        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-        which='both',      # both major and minor ticks are affected
-        bottom='on',      # ticks along the bottom edge are off
-        top='off',         # ticks along the top edge are off
-        right = 'off',
-        left = 'off',          
-        labelbottom='on', # labels along the bottom edge are on
-        colors = 'black',
-        labelsize = 8,
-        direction = 'out') # ticks are outside the frame when bottom = 'on'  
-      
-    # Set the tick labels font name
-    for label in ax.get_yticklabels():
-        label.set_fontname('Arial')
-    
-    # create a margin around the x axis
-    plt.margins(0.05)
-    
-    return ax      
-
-
-# plot data for targetscan
-ax1 = CreateAx(2, 1, 1, AllDataTargetscan, fig, 'TargetScan', 0.45, Names, xtickpos)
-ax2 = CreateAx(2, 1, 2, AllDataMiranda, fig, 'miRanda', 0.45, Names, xtickpos)
 
 # annotate Graph with significance level
 PvalTargetScan, PvalMiranda = [], []
@@ -310,62 +216,10 @@ for species in species_names:
         PvalMiranda.append('***')
 
 
-# create list of Y and X positions to annotate figure with significance level
-if domain == 'CDS':
-    # make a list of Y positions
-    YposTargetscan = [0.41, 0.11, 0.16, 0.28, 0.14, 0.21]
-    YposMiranda = [0.32, 0.08, 0.11, 0.19, 0.11, 0.16]
-    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
-elif domain == '5UTR':
-    # make a list of Y positions
-    YposTargetscan = [0.41, 0.12, 0.17, 0.30, 0.16, 0.24]
-    YposMiranda = [0.32, 0.09, 0.12, 0.21, 0.12, 0.17]
-    Xpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
-
-for i in range(len(PvalTargetScan)):
-    ax1.text(Xpos[i], YposTargetscan[i], PvalTargetScan[i], horizontalalignment = 'center',
-             verticalalignment = 'center', color = 'black', size = 8)
-for i in range(len(PvalMiranda)):
-    ax2.text(Xpos[i], YposMiranda[i], PvalMiranda[i], horizontalalignment = 'center',
-             verticalalignment = 'center', color = 'black', size = 8)
-
-# make sure subplots do not overlap
-plt.tight_layout()
-
-# get outputfile
-if L == 15:
-    outputfile = 'PlotShort3UTR_15bp_' + domain + '_' + chromos + '_' + cnv_length + '_NormalizedSites' 
-elif L == 7:
-    outputfile = 'PlotShort3UTR_7bp_' + domain + '_' + chromos + '_' + cnv_length + '_NormalizedSites' 
-print(outputfile)
-
-# save figure
-fig.savefig(outputfile + extension, bbox_inches = 'tight')
-       
-
-
-
-
-
 
 ########################
 
 
-
-
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Sep 13 13:46:09 2016
-
-@author: RJovelin
-"""
-
-
-# use this script to generate a table with target sites in CNV and non-CNv genes in each species
-
-# usage MakeTableTargetSitesCNVnonCNV.py [options]
-# [3UTR/5UTR/CDS]: gene domain to consider
-# [raw/normalized]: use raw or normalized target counts
 
 # import modules
 import numpy as np
