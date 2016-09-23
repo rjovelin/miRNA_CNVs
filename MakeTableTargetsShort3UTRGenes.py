@@ -130,7 +130,7 @@ for species in targetscan:
     # initialise inner dict
     DataTargetscan[species] = {}
     # loop over domain
-    for domain in targetscan[species][domain]:
+    for domain in targetscan[species]:
         # initialize list value
         DataTargetscan[species][domain] = [[], []]    
         # populate inner lists with number of miRNA target sites per nucleotide
@@ -143,7 +143,8 @@ for species in miranda:
     # initialize inner dict
     DataMiranda[species] = {}
     # loop over domain
-    for domain in miranda[species][domain]:
+    for domain in miranda[species]:
+        # initialize list value
         DataMiranda[species][domain] = [[], []]
         # populate inner lists with number of mirna target sites per nucleotide
         for gene in miranda[species][domain]:
@@ -203,31 +204,6 @@ for species in DataTargetscan:
         elif P < 0.001:
             PvalMiranda[species][domain] = '***'
 print('compared CNV and non-CNV genes')
-
-
-Supplementary Table S8. Comparison of the mean number of miRNA binding sites predicted by TargetScan and miRanda normalized by the length of the 5’UTR sequences between CNV and non-CNV genes that have short 3’UTRs. aN: number of genes. bD: percent difference between CNV and non-CNV genes. A negative D indicates a greater mean number of target sites for non-CNV genes and a positive D indicates a greater mean number of target sites for CNV genes. * P < 0.05, ** P < 0.01, *** P < 0.001, Wilcoxon rank-sum tests. 
-				TargetScan		miRanda
-	CNV	Non-CNV		CNV	Non-CNV			CNV	Non-CNV	
-Sp	Na	Na		Mean	Mean	D (%)b		Mean	Mean	D (%)b
-Hsa	62	51		0.2567	0.2814	-8.78		0.1515	0.1733	-12.61
-Ptr	17	733		0.0561	0.0576	-2.63		0.0337	0.0371	-9.28
-Mml	264	1074		0.0863	0.0871	-0.90		0.0533	0.0540	-1.23
-Mmu	51	285		0.1895	0.1939	-2.27		0.0968	0.1058	-8.52
-Bta	68	577		0.0821	0.0819	0.22		0.0536	0.0467	14.78*
-Gga	60	373		0.1113	0.1188	-6.27		0.0773	0.0751	2.88
-
-Supplementary Table S9. Comparison of the mean number of miRNA binding sites predicted by TargetScan and miRanda normalized by the length of the CDS sequences between CNV and non-CNV genes that have short 3’UTRs. aN: number of genes. bD: percent difference between CNV and non-CNV genes. A negative D indicates a greater mean number of target sites for non-CNV genes and a positive D indicates a greater mean number of target sites for CNV genes. * P < 0.05, ** P < 0.01, *** P < 0.001, Wilcoxon rank-sum tests. 
-				TargetScan		miRanda
-	CNV	Non-CNV		CNV	Non-CNV			CNV	Non-CNV	
-Sp	Na	Na		Mean	Mean	D (%)b		Mean	Mean	D (%)b
-Hsa	473	140		0.2643	0.2958	-10.65***		0.1793	0.2041	-12.16***
-Ptr	32	1813		0.0669	0.0669	-0.05		0.0462	0.0436	6.09
-Mml	654	3760		0.1036	0.1010	2.54***		0.0633	0.0640	-1.05
-Mmu	411	1443		0.2041	0.2054	-0.63		0.1289	0.1273	1.23
-Bta	197	2151		0.0856	0.0897	-4.59***		0.0586	0.0587	-0.18
-Gga	227	806		0.1317	0.1366	-3.59*		0.0837	0.0894	-6.37***
-
-########################
 
 
 # write output to file
