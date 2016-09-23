@@ -120,8 +120,6 @@ for species in targetscan:
             assert len(miranda[species][domain][gene]) == 4, 'gene in miranda does not have all required values'
 
 
-
-
 # create a dict of {species name : {domain: [CNV], [non-CNV]]}}
 DataTargetscan, DataMiranda = {}, {}
 
@@ -154,35 +152,33 @@ for species in miranda:
 print('generated lists of target sites for CNV and non-CNV genes')
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 # perform stattistical tests between CNV and non-CNV genes
-# create a dict to store results {species: P-value}
-CompTargetscan, CompMiranda = {}, {}
-for species in SpeciesDataTargetscan:
-    P = stats.ranksums(SpeciesDataTargetscan[species][0], SpeciesDataTargetscan[species][1])[1]
-    CompTargetscan[species] = P
-for species in SpeciesDataMiranda:
-    P = stats.ranksums(SpeciesDataMiranda[species][0], SpeciesDataMiranda[species][1])[1]    
-    CompMiranda[species] = P
+# create a dict to store results {species: {domain: significance level}}
+PvalTargetscan, PvalMiranda = {}, {}
+for species in DataTargetscan:
+    PvalTargetscan[species], PvalMiranda[species] = {}, {}
+    for domain in DataTargetscan[species]:
+        P = stats.ranksums(DataTargetscan[species][domain][0], DataTargetscan[species][domain][1])[1]
+        if P >= 0.05:
+            PvalTargetscan[species][domain] = ''
+        elif P < 0.05 and P >= 0.01:
+            PvalTargetscan[species][domain] = '*'
+        elif P < 0.01 and P >= 0.001:
+            PvalTargetscan[species][domain] = '**'
+        elif P < 0.001:
+            PvalTargetscan[species][domain] = '***'
+    for domain in DataMiranda[species]:
+        P = stats.ranksums(DataMiranda[species][domain][0], DataMiranda[species][domain][1])[1]
+        if P >= 0.05:
+            PvalMiranda[species][domain] = ''
+        elif P < 0.05 and P >= 0.01:
+            PvalMiranda[species][domain] = '*'
+        elif P < 0.01 and P >= 0.001:
+            PvalMiranda[species][domain] = '**'
+        elif P < 0.001:
+            PvalMiranda[species][domain] = '***'
 print('compared CNV and non-CNV genes')
 
-# print P-values
-for species in CompTargetscan:
-    print('targetscan', species, CompTargetscan[species])
-for species in CompMiranda:
-    print('miranda', species, CompMiranda[species])
 
 
 
@@ -246,36 +242,6 @@ for species in species_names:
 print('data consolidated in array')
 
 
-# create figure
-fig = plt.figure(1, figsize = (8, 3))
-
-# create list of labels and tick positions for the X axis
-#xtickpos = [0.35, 1.25, 2.15, 3.05, 3.95, 4.85]
-xtickpos = [0.2, 1.1, 2, 2.9, 3.8, 4.7]
-Names = [species_codes[i] for i in species_names]
-print(Names)
-
-
-# annotate Graph with significance level
-PvalTargetScan, PvalMiranda = [], []
-for species in species_names:
-    if CompTargetscan[species] >= 0.05:
-        PvalTargetScan.append('')
-    elif CompTargetscan[species] < 0.05 and CompTargetscan[species] >= 0.01:
-        PvalTargetScan.append('*')
-    elif CompTargetscan[species] < 0.01 and CompTargetscan[species] >= 0.001:
-        PvalTargetScan.append('**')
-    elif CompTargetscan[species] < 0.001:
-        PvalTargetScan.append('***')
-for species in species_names:
-    if CompMiranda[species] >= 0.05:
-        PvalMiranda.append('')
-    elif CompMiranda[species] < 0.05 and CompMiranda[species] >= 0.01:
-        PvalMiranda.append('*')
-    elif CompMiranda[species] < 0.01 and CompMiranda[species] >= 0.001:
-        PvalMiranda.append('**')
-    elif CompMiranda[species] < 0.001:
-        PvalMiranda.append('***')
 
 
 
