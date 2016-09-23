@@ -47,6 +47,8 @@ targetscan, miranda = {}, {}
 # make lists of predictors and regions
 predictors = ['targetscan', 'miranda']
 regions = ['5UTR', 'CDS']
+# make a list of species names to loop from
+SpeciesNames = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
 
 
 # loop over species names
@@ -152,6 +154,29 @@ for species in miranda:
 print('generated lists of target sites for CNV and non-CNV genes')
 
 
+# create a dict with gene numbers {species: {domain: [N CNV genes targetscan, N CNV genes miranda]}}
+GeneNumbersTargetscan, GeneNumbersMiranda = {}, {}
+for species in targetscan:
+    GeneNumbersTargetscan[species] = {}
+    for domain in targetscan[species]:
+        GeneNumbersTargetscan[species][domain] = [0, 0]
+        for gene in targetscan[species][domain]:
+            if targetscan[species][domain][gene][-1] == 'CNV':
+                GeneNumbersTargetscan[species][domain][0] += 1
+            elif targetscan[species][domain][gene][-1] == 'not_CNV':
+                GeneNumbersTargetscan[species][domain][1] += 1
+for species in miranda:
+    GeneNumbersMiranda[species] = {}
+    for domain in miranda[species]:
+        GeneNumbersMiranda[species][domain] = [0, 0]
+        for gene in miranda[species][domain]:
+            if miranda[species][domain][gene][-1] == 'CNV':
+                GeneNumbersMiranda[species][domain][0] += 1
+            elif miranda[species][domain][gene][-1] == 'not_CNV':
+                GeneNumbersMiranda[species][domain][1] += 1
+print('counted CNV and non-CNV genes')
+            
+            
 # perform stattistical tests between CNV and non-CNV genes
 # create a dict to store results {species: {domain: significance level}}
 PvalTargetscan, PvalMiranda = {}, {}
@@ -180,13 +205,6 @@ for species in DataTargetscan:
 print('compared CNV and non-CNV genes')
 
 
-
-
-
-
-
-
-
 Supplementary Table S8. Comparison of the mean number of miRNA binding sites predicted by TargetScan and miRanda normalized by the length of the 5’UTR sequences between CNV and non-CNV genes that have short 3’UTRs. aN: number of genes. bD: percent difference between CNV and non-CNV genes. A negative D indicates a greater mean number of target sites for non-CNV genes and a positive D indicates a greater mean number of target sites for CNV genes. * P < 0.05, ** P < 0.01, *** P < 0.001, Wilcoxon rank-sum tests. 
 				TargetScan		miRanda
 	CNV	Non-CNV		CNV	Non-CNV			CNV	Non-CNV	
@@ -209,150 +227,29 @@ Mmu	411	1443		0.2041	0.2054	-0.63		0.1289	0.1273	1.23
 Bta	197	2151		0.0856	0.0897	-4.59***		0.0586	0.0587	-0.18
 Gga	227	806		0.1317	0.1366	-3.59*		0.0837	0.0894	-6.37***
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# make a list of data for each predictor
-AllDataTargetscan, AllDataMiranda = [], []
-
-# make a list of species names to loop from
-species_names = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
-# loop over species in species names list and populate data lists, keeping the same order for targetscan and miranda
-for species in species_names:
-    # append list of target sites for CNV genes
-    AllDataTargetscan.append(SpeciesDataTargetscan[species][0])
-    AllDataMiranda.append(SpeciesDataMiranda[species][0])
-    # append list of target sites for non-CNV genes
-    AllDataTargetscan.append(SpeciesDataTargetscan[species][1])
-    AllDataMiranda.append(SpeciesDataMiranda[species][1])
-print('data consolidated in array')
-
-
-
-
-
 ########################
 
 
-# create a dicts with species as keys and list of targets for CNV and non-CNV genes,
-# {species name : [[CNV], [non-CNV]]}
-SpeciesDataTargetscan, SpeciesDataMiranda  = {}, {}
-
-# loop over species names, get the number of sites for CNV and non-CNV genes
-for species in targetscan:
-    # initialise list value
-    SpeciesDataTargetscan[species] = [[], []]
-    # populate inner lists with number of miRNA target sites
-    for gene in targetscan[species]:
-        if counts == 'raw' and targetscan[species][gene][-1] == 'CNV':
-            SpeciesDataTargetscan[species][0].append(targetscan[species][gene][0])
-        elif counts == 'normalized' and targetscan[species][gene][-1] == 'CNV':
-            SpeciesDataTargetscan[species][0].append(targetscan[species][gene][2])
-        elif counts == 'raw' and targetscan[species][gene][-1] == 'not_CNV':
-            SpeciesDataTargetscan[species][1].append(targetscan[species][gene][0])
-        elif counts == 'normalized' and targetscan[species][gene][-1] == 'not_CNV':
-            SpeciesDataTargetscan[species][1].append(targetscan[species][gene][2])
-for species in miranda:
-    # initialize list values
-    SpeciesDataMiranda[species] = [[], []]
-    # populate inner lists with number of mirna target sites
-    for gene in miranda[species]:
-        if counts == 'raw' and miranda[species][gene][-1] == 'CNV':
-            SpeciesDataMiranda[species][0].append(miranda[species][gene][0])
-        elif counts == 'normalized' and miranda[species][gene][-1] == 'CNV':
-            SpeciesDataMiranda[species][0].append(miranda[species][gene][2])
-        elif counts == 'raw' and miranda[species][gene][-1] == 'not_CNV':
-            SpeciesDataMiranda[species][1].append(miranda[species][gene][0])
-        elif counts == 'normalized' and miranda[species][gene][-1] == 'not_CNV':
-            SpeciesDataMiranda[species][1].append(miranda[species][gene][2])
-print('generated lists of target sites for CNV and non-CNV genes')
-
-# generate dicts with gene counts {species name: [N_CNV_genes, N_nonCNV_genes]}
-GeneNumbers = {}
-for species in targetscan:
-    # initialise counters
-    i, j, k, l = 0, 0, 0, 0
-    # update counters
-    for gene in targetscan[species]:
-        if targetscan[species][gene][-1] == 'CNV':
-            i += 1
-        elif targetscan[species][gene][-1] == 'not_CNV':
-            j += 1
-    for gene in miranda[species]:
-        if miranda[species][gene][-1] == 'CNV':
-            k += 1
-        elif miranda[species][gene][-1] == 'not_CNV':
-            l += 1
-    # check that numbers match
-    assert i == k, 'CNV genes should match between miranda and targetscan'
-    assert j == l, 'non-CNV genes should match between miranda and targetscan'
-    # populate dict
-    GeneNumbers[species] = [i, j]
-print('counted CNV and non-CNV genes for each species')
-
-# perform stattistical tests between CNV and non-CNV genes
-# create dicts to store results {species: [P-value targetscan, P-value mirnada]}
-CompTargets = {}
-for species in SpeciesDataTargetscan:
-    Ptargetscan = stats.ranksums(SpeciesDataTargetscan[species][0], SpeciesDataTargetscan[species][1])[1]
-    Pmiranda = stats.ranksums(SpeciesDataMiranda[species][0], SpeciesDataMiranda[species][1])[1]
-    CompTargets[species] = [Ptargetscan, Pmiranda]
-print('compared CNV and non-CNV genes')
-# get the significance level
-Significance = {}
-for species in CompTargets:
-    Significance[species] = []
-    for i in range(len(CompTargets[species])):
-        if CompTargets[species][i] >= 0.05:
-            Significance[species].append('')
-        elif CompTargets[species][i] < 0.05 and CompTargets[species][i] >= 0.01:
-            Significance[species].append('*')
-        elif CompTargets[species][i] < 0.01 and CompTargets[species][i] >= 0.001:
-            Significance[species].append('**')
-        elif CompTargets[species][i] < 0.001:
-            Significance[species].append('***')
-
-
-# write results to file
+# write output to file
 # get outputfile name
-if counts == 'raw':
-    outputfile = 'TableRawCounts_' + domain + '_' + chromos + '_' + cnv_length + '.txt'
-elif counts == 'normalized':
-    outputfile = 'TableNormalizedCounts_' + domain + '_' + chromos + '_' + cnv_length + '.txt'
-print(outputfile)
-
+outputfile = 'TableTargetsShort3UTRgenes_' + str(L) + 'bp_' + chromos + '_' + cnv_length + '.txt'
 # open file for writing
 newfile = open(outputfile, 'w')
 # write table header
-newfile.write('\t'.join(['', '', '', 'TargetScan', '', '', 'miRanda', '', '']) + '\n')
-newfile.write('\t'.join(['', 'CNV', 'Non-CNV', 'CNV', 'Non-CNV', '', 'CNV', 'Non-CNV', '']) + '\n')
-newfile.write('\t'.join(['Sp', 'Na', 'Na', 'Mean', 'Mean', 'D (%)b', 'Mean', 'Mean', 'D (%)b']) + '\n')
+newfile.write('\t'.join(['', '', '', '', 'TargetScan', '', '', 'miRanda', '', '']) + '\n')
+newfile.write('\t'.join(['', '', 'CNV', 'Non-CNV', 'CNV', 'Non-CNV', '', 'CNV', 'Non-CNV', '']) + '\n')
+newfile.write('\t'.join(['Sp', 'Domain', 'Na', 'Na', 'Mean', 'Mean', 'D (%)b', 'Mean', 'Mean', 'D (%)b']) + '\n')
 
-# make a list of species names to loop over
-SpeciesNames = ['H_sapiens', 'P_troglodytes', 'M_mulatta', 'M_musculus', 'B_taurus', 'G_gallus']
-
-for species in SpeciesNames:
-    # create the line to write 
-    line = [species_codes[species], str(GeneNumbers[species][0]), str(GeneNumbers[species][1]),
-            str(round(np.mean(SpeciesDataTargetscan[species][0]), 4)), str(round(np.mean(SpeciesDataTargetscan[species][1]), 4)),
-            str(round((1 - np.mean(SpeciesDataTargetscan[species][1])/np.mean(SpeciesDataTargetscan[species][0])) * 100, 2)) + Significance[species][0],
-            str(round(np.mean(SpeciesDataMiranda[species][0]), 4)), str(round(np.mean(SpeciesDataMiranda[species][1]), 4)),
-            str(round((1 - np.mean(SpeciesDataMiranda[species][1])/np.mean(SpeciesDataMiranda[species][0])) * 100, 2)) + Significance[species][1]] 
-    
-    newfile.write('\t'.join(line) + '\n')
-
+# loop over domain
+for domain in regions:
+    # loop over species
+    for species in SpeciesNames:
+        # create the line to write
+        line = [species_codes[species], domain, str(GeneNumbersTargetscan[species][domain][0]), str(GeneNumbersTargetscan[species][domain][1]),
+                str(round(np.mean(DataTargetscan[species][domain][0]), 4)), str(round(np.mean(DataTargetscan[species][domain][1]), 4)),
+                str(round((1 - np.mean(DataTargetscan[species][domain][1])/np.mean(DataTargetscan[species][domain][0])) * 100, 2)) + PvalTargetscan[species][domain],
+                str(round(np.mean(DataMiranda[species][domain][0]), 4)), str(round(np.mean(DataMiranda[species][domain][1]), 4)),
+                str(round((1 - np.mean(DataMiranda[species][domain][1])/np.mean(DataMiranda[species][domain][0])) * 100, 2)) + PvalMiranda[species][domain]]
+                               
+        newfile.write('\t'.join(line) + '\n')        
 newfile.close()
