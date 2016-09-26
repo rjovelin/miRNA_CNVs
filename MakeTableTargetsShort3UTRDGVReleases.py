@@ -144,48 +144,41 @@ for release in targetscan:
                 DataTargetscan[release][domain][0].append(targetscan[release][domain][gene][2])
             elif targetscan[release][domain][gene][-1] == 'not_CNV':
                 DataTargetscan[release][domain][1].append(targetscan[release][domain][gene][2])
-
-
-
-
-
-
-for species in miranda:
+for release in miranda:
     # initialize inner dict
-    DataMiranda[species] = {}
+    DataMiranda[release] = {}
     # loop over domain
-    for domain in miranda[species]:
+    for domain in miranda[release]:
         # initialize list value
-        DataMiranda[species][domain] = [[], []]
-        # populate inner lists with number of mirna target sites per nucleotide
-        for gene in miranda[species][domain]:
-            if miranda[species][domain][gene][-1] == 'CNV':
-                DataMiranda[species][domain][0].append(miranda[species][domain][gene][2])
-            elif miranda[species][domain][gene][-1] == 'not_CNV':
-                DataMiranda[species][domain][1].append(miranda[species][domain][gene][2])
+        DataMiranda[release][domain] = [[], []]
+        # populate inner lists with number of mirna targets per nucleotide
+        for gene in miranda[release][domain]:
+            if miranda[release][domain][gene][-1] == 'CNV':
+                DataMiranda[release][domain][0].append(miranda[release][domain][gene][2])
+            elif miranda[release][domain][gene][-1] == 'not_CNV':
+                DataMiranda[release][domain][1].append(miranda[release][domain][gene][2])
 print('generated lists of target sites for CNV and non-CNV genes')
 
-
-# create a dict with gene numbers {species: {domain: [N CNV genes targetscan, N CNV genes miranda]}}
+# create a dict with gene numbers {release: {domain: [N CNV genes targetscan, N CNV genes miranda]}}
 GeneNumbersTargetscan, GeneNumbersMiranda = {}, {}
-for species in targetscan:
-    GeneNumbersTargetscan[species] = {}
-    for domain in targetscan[species]:
-        GeneNumbersTargetscan[species][domain] = [0, 0]
-        for gene in targetscan[species][domain]:
-            if targetscan[species][domain][gene][-1] == 'CNV':
-                GeneNumbersTargetscan[species][domain][0] += 1
-            elif targetscan[species][domain][gene][-1] == 'not_CNV':
-                GeneNumbersTargetscan[species][domain][1] += 1
-for species in miranda:
-    GeneNumbersMiranda[species] = {}
-    for domain in miranda[species]:
-        GeneNumbersMiranda[species][domain] = [0, 0]
-        for gene in miranda[species][domain]:
-            if miranda[species][domain][gene][-1] == 'CNV':
-                GeneNumbersMiranda[species][domain][0] += 1
-            elif miranda[species][domain][gene][-1] == 'not_CNV':
-                GeneNumbersMiranda[species][domain][1] += 1
+for release in targetscan:
+    GeneNumbersTargetscan[release] = {}
+    for domain in targetscan[release]:
+        GeneNumbersTargetscan[release][domain] = [0, 0]
+        for gene in targetscan[release][domain]:
+            if targetscan[release][domain][gene][-1] == 'CNV':
+                GeneNumbersTargetscan[release][domain][0] += 1
+            elif targetscan[release][domain][gene][-1] == 'not_CNV':
+                GeneNumbersTargetscan[release][domain][1] += 1
+for release in miranda:
+    GeneNumbersMiranda[release] = {}
+    for domain in miranda[release]:
+        GeneNumbersMiranda[release][domain] = [0, 0]
+        for gene in miranda[release][domain]:
+            if miranda[release][domain][gene][-1] == 'CNV':
+                GeneNumbersMiranda[release][domain][0] += 1
+            elif miranda[release][domain][gene][-1] == 'not_CNV':
+                GeneNumbersMiranda[release][domain][1] += 1
 print('counted CNV and non-CNV genes')
             
             
