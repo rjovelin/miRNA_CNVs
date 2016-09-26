@@ -181,82 +181,57 @@ for release in miranda:
                 GeneNumbersMiranda[release][domain][1] += 1
 print('counted CNV and non-CNV genes')
             
-            
 # perform stattistical tests between CNV and non-CNV genes
-# create a dict to store results {species: {domain: significance level}}
+# create a dict to store results {release: {domain: significance level}}
 PvalTargetscan, PvalMiranda = {}, {}
-for species in DataTargetscan:
-    PvalTargetscan[species], PvalMiranda[species] = {}, {}
-    for domain in DataTargetscan[species]:
-        P = stats.ranksums(DataTargetscan[species][domain][0], DataTargetscan[species][domain][1])[1]
+for release in DataTargetscan:
+    PvalTargetscan[release], PvalMiranda[release] = {}, {}
+    for domain in DataTargetscan[release]:
+        P = stats.ranksums(DataTargetscan[release][domain][0], DataTargetscan[release][domain][1])[1]
         if P >= 0.05:
-            PvalTargetscan[species][domain] = ''
+            PvalTargetscan[release][domain] = ''
         elif P < 0.05 and P >= 0.01:
-            PvalTargetscan[species][domain] = '*'
+            PvalTargetscan[release][domain] = '*'
         elif P < 0.01 and P >= 0.001:
-            PvalTargetscan[species][domain] = '**'
+            PvalTargetscan[release][domain] = '**'
         elif P < 0.001:
-            PvalTargetscan[species][domain] = '***'
-    for domain in DataMiranda[species]:
-        P = stats.ranksums(DataMiranda[species][domain][0], DataMiranda[species][domain][1])[1]
+            PvalTargetscan[release][domain] = '***'
+    for domain in DataMiranda[release]:
+        P = stats.ranksums(DataMiranda[release][domain][0], DataMiranda[release][domain][1])[1]
         if P >= 0.05:
-            PvalMiranda[species][domain] = ''
+            PvalMiranda[release][domain] = ''
         elif P < 0.05 and P >= 0.01:
-            PvalMiranda[species][domain] = '*'
+            PvalMiranda[release][domain] = '*'
         elif P < 0.01 and P >= 0.001:
-            PvalMiranda[species][domain] = '**'
+            PvalMiranda[release][domain] = '**'
         elif P < 0.001:
-            PvalMiranda[species][domain] = '***'
+            PvalMiranda[release][domain] = '***'
 print('compared CNV and non-CNV genes')
 
 
 # write output to file
 # get outputfile name
-outputfile = 'truc_' + str(L) + 'bp_' + chromos + '_' + cnv_length + '.txt'
+outputfile = 'TableTargetsShort3UTRDGV_' + str(L) + 'bp_' + chromos + '_' + cnv_length + '.txt'
 # open file for writing
 newfile = open(outputfile, 'w')
 # write table header
 newfile.write('\t'.join(['', '', '', '', 'TargetScan', '', '', 'miRanda', '', '']) + '\n')
 newfile.write('\t'.join(['', '', 'CNV', 'Non-CNV', 'CNV', 'Non-CNV', '', 'CNV', 'Non-CNV', '']) + '\n')
-newfile.write('\t'.join(['Sp', 'Domain', 'Na', 'Na', 'Mean', 'Mean', 'D (%)b', 'Mean', 'Mean', 'D (%)b']) + '\n')
+newfile.write('\t'.join(['Release', 'Domain', 'Na', 'Na', 'Mean', 'Mean', 'D (%)b', 'Mean', 'Mean', 'D (%)b']) + '\n')
 
-# loop over domain
-for domain in regions:
-    # loop over species
-    for species in SpeciesNames:
-        # create the line to write
-        line = [species_codes[species], domain, str(GeneNumbersTargetscan[species][domain][0]), str(GeneNumbersTargetscan[species][domain][1]),
-                str(round(np.mean(DataTargetscan[species][domain][0]), 4)), str(round(np.mean(DataTargetscan[species][domain][1]), 4)),
-                str(round((1 - np.mean(DataTargetscan[species][domain][1])/np.mean(DataTargetscan[species][domain][0])) * 100, 2)) + PvalTargetscan[species][domain],
-                str(round(np.mean(DataMiranda[species][domain][0]), 4)), str(round(np.mean(DataMiranda[species][domain][1]), 4)),
-                str(round((1 - np.mean(DataMiranda[species][domain][1])/np.mean(DataMiranda[species][domain][0])) * 100, 2)) + PvalMiranda[species][domain]]
-                               
-        newfile.write('\t'.join(line) + '\n')        
-newfile.close()
-
-
-
-
-# open file for writing
-newfile = open(outputfile, 'w')
-# write table header
-newfile.write('\t'.join(['', '', '', 'TargetScan', '', '', 'miRanda', '', '']) + '\n')
-newfile.write('\t'.join(['', 'CNV', 'Non-CNV', 'CNV', 'Non-CNV', '', 'CNV', 'Non-CNV', '']) + '\n')
-newfile.write('\t'.join(['DGV', 'Na', 'Na', 'Mean', 'Mean', 'D (%)b', 'Mean', 'Mean', 'D (%)b']) + '\n')
 
 # make a list of DGV releases loop over
 Versions = ['2013a', '2013b', '2014', '2015']
 
-for release in Versions:
-    # create the line to write 
-    line = [release, str(GeneNumbers[release][0]), str(GeneNumbers[release][1]),
-            str(round(np.mean(DataTargetscan[release][0]), 4)), str(round(np.mean(DataTargetscan[release][1]), 4)),
-            str(round((1 - np.mean(DataTargetscan[release][1])/np.mean(DataTargetscan[release][0])) * 100, 2)) + Significance[release][0],
-            str(round(np.mean(DataMiranda[release][0]), 4)), str(round(np.mean(DataMiranda[release][1]), 4)),
-            str(round((1 - np.mean(DataMiranda[release][1])/np.mean(DataMiranda[release][0])) * 100, 2)) + Significance[release][1]] 
-    
-    newfile.write('\t'.join(line) + '\n')
-
+# loop over domains
+for domain in regions:
+    # loop over releases
+    for release in Versions:
+        # create the line to write
+        line = [release, domain, str(GeneNumbersTargetscan[release][domain][0]), str(GeneNumbersTargetscan[release][domain][1]),
+                str(round(np.mean(DataTargetscan[release][domain][0]), 4)), str(round(np.mean(DataTargetscan[release][domain][1]), 4)),
+                str(round((1 - np.mean(DataTargetscan[release][domain][1])/np.mean(DataTargetscan[release][domain][0])) * 100, 2)) + PvalTargetscan[release][domain],
+                str(round(np.mean(DataMiranda[release][domain][0]), 4)), str(round(np.mean(DataMiranda[release][domain][1]), 4)),
+                str(round((1 - np.mean(DataMiranda[release][domain][1])/np.mean(DataMiranda[release][domain][0])) * 100, 2)) + PvalMiranda[release][domain]]
+        newfile.write('\t'.join(line) + '\n')        
 newfile.close()
-
-
