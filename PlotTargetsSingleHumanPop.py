@@ -23,26 +23,23 @@ import math
 import os
 import sys
 import random
+import copy
 # import custom modules
 from CNV_miRNAs import *
 
 
 # usage PlotTargetsSingleHumanPop.py [options]
 # [3UTR/5UTR/CDS] choose the region to analyse
-# -[targetscan/miranda] : the predictor algorithm used to predict target sites
 # [pdf/ai/png]: save as eps if no argument is provided or as the format indicated by the argument
 
 # get the region to consider to predict target sites [3UTR or 5UTr or CDS]
 domain = sys.argv[1]
 print(domain)
-# get predictor from command [targetscan or miranda]
-predictor = sys.argv[2]
-print(predictor)
 # check the format of the figure (eps by default or pdf if specified)
-if len(sys.argv) == 3:
+if len(sys.argv) == 2:
     extension = '.eps'
-elif len(sys.argv) == 4:
-    extension = sys.argv[3]
+elif len(sys.argv) == 3:
+    extension = sys.argv[2]
     assert extension in ['pdf', 'ai', 'png']
     extension = '.' + extension
 
@@ -61,15 +58,15 @@ print(UTR_file)
 # get targetscan sequence input file
 targetscan_seq_input_file = 'H_sapiens_' + domain + '_' + chromos + '_targetscan.txt'
 print(targetscan_seq_input_file)
-# get the outputfile with predicted target sites
-predicted_target_file = 'H_sapiens_' + domain + '_' + chromos + '_predicted_sites_' + predictor + '.txt'    
-print(predicted_target_file)
+# get the outputfiles with predicted target sites for targetscan and miranda
+TargetscanFile = 'H_sapiens_' + domain + '_' + chromos + '_predicted_sites_targetscan.txt'    
+MirandaFile = 'H_sapiens_' + domain + '_' + chromos + '_predicted_sites_miranda.txt'
+print(TargetscanFile, MirandaFile)
 # make a dictionary with {gene :[targets, seq_length, normalized_targets]}
-if predictor == 'targetscan':
-    predicted_targets = parse_targetscan_output(targetscan_seq_input_file, predicted_target_file, 'all')
-elif predictor == 'miranda':
-    predicted_targets = parse_miranda_output(targetscan_seq_input_file, predicted_target_file, 'all')
-print('# targets', len(predicted_targets))
+TargetscanTargets = parse_targetscan_output(targetscan_seq_input_file, TargetscanFile , 'all')
+MirandaTargets = parse_miranda_output(targetscan_seq_input_file, MirandaFile, 'all')
+print('# targetscan sites', len(TargetscanTargets))
+print('# miranda sites', len(MirandaTargets))
 
 
 # make a dictionary {reference: pubmedid} for studies reported in the CGV
@@ -133,51 +130,95 @@ for study in StudiesCNV:
 print('sorted genes according to CNV status')    
     
     
+# use this function to add the cnv status to each gene with predicted targets
+def CombineTargetsCNV(targets, CNV_status):
+    '''
+    (dict, dict) - > dict
+    Take a dictionary with predicted targets for each gene and a dictionary with
+    CNV status for each gene in each study and a return a dictionary with targets
+    and CNV status for each gene in each study     
+    '''
+    CNVTargets = {}
+    for study in CNV_status:
+        # initialize inner dict
+        CNVTargets[study] = {}
+        # loop over genes with CNV status for given study
+        for gene in CNV_status[study]:
+            # populate with list of targets
+            if gene in targets:
+                CNVTargets[study][gene] = copy.deepcopy(targets[gene])
+                # add CNV status
+                CNVTargets[study][gene].append(CNV_status[study][gene])
+    return CNVTargets
+
+
+# use this function count the number of CNV genes and non-CNV genes in each study
+def CountGenes(CNVTargets):
+    '''
+    (dict) -> dict
+    Take a dictionary with CNV status and predicted targets for each study
+    and return a dict with the counts of CNV and non_CNV genes in each study
+    '''
+    CNVNum = {}
+    for study in CNVTargets:
+        CNVNum[study] = [0, 0]
+        for gene in CNVTargets[study]:
+            if CNVTargets[study][gene][-1] == 'CNV':
+                CNVNum[study][0] += 1
+            elif CNVTargets[study][gene][-1] == 'not_CNV':
+                CNVNum[study][1] += 1
+    return CNVNum
+
+
+# use this function to combine the number of predicted targets in arrays
+def MakeTargetArray(CNVTargets):
+    '''
+    (dict) -> dict
+    Take a dict with the predicted targets and CNV status for each gene in each study
+    and return a dict with lists of targets for CNV and non-non-CNV genes in each study    
+    '''
+    # create a dict of {study : [[CNV], [non-CNV]]}
+    CNVData = {} 
+    # loop over studies, get the number of normalized sites for CNV and non-CNV genes
+    for study in CNVTargets:
+        # initialise list value
+        CNVData[study] = [[], []]
+        # populate inner lists with number of miRNA target sites per nucleotide
+        for gene in CNVTargets[study]:
+            if CNVTargets[study][gene][-1] == 'CNV':
+                CNVData[study][0].append(CNVTargets[study][gene][2])
+            elif CNVTargets[study][gene][-1] == 'not_CNV':
+                CNVData[study][1].append(CNVTargets[study][gene][2])
+    return CNVData
+    
+
+    
+
 # make a dictionary {study: {gene: [targets, seq_length, normalized_targets, CNV_status]}}
-CNVTargets = {}
-for study in CNV_status:
-    # initialize inner dict
-    CNVTargets[study] = {}
-    # loop over genes with CNV status for given study
-    for gene in CNV_status[study]:
-        # populate with list of targets
-        if gene in predicted_targets:
-            CNVTargets[study][gene] = list(predicted_targets[gene])
-            # add CNV status
-            CNVTargets[study][gene].append(CNV_status[study][gene])
+TargetscanCNVTargets = CombineTargetsCNV(TargetscanTargets, CNV_status)
+MirandaCNVTargets = CombineTargetsCNV(MirandaCNVTargets, CNV_status)
 print('combined targets and CNV status')
 
-
-# make a dict with the number of CNV genes and non-CNV genes for each study
-CNVNum = {}
-for study in CNVTargets:
-    CNVNum[study] = [0, 0]
-    for gene in CNVTargets[study]:
-        if CNVTargets[study][gene][-1] == 'CNV':
-            CNVNum[study][0] += 1
-        elif CNVTargets[study][gene][-1] == 'not_CNV':
-            CNVNum[study][1] += 1
+# count CNV and non-CNV genes in each study
+CNVNumTargetscan = CountGenes(TargetscanCNVTargets)
+CNVNumMiranda = CountGenes(MirandaCNVTargets)
 print('got CNV gene counts for each study')
-for study in CNVNum:
-    print(study, CNVNum[study][0], CNVNum[study][1])
+for study in CNVNumTargetscan:
+    print(study, CNVNumTargetscan[study][0], CNVNumTargetscan[study][1])
+    print(study, CNVNumMiranda[study][0], CNVNumMiranda[study][1])
 
-# create a dict of {species name : [[CNV], [non-CNV]]}
-CNVData = {} 
-# loop over studies, get the number of normalized sites for CNV and non-CNV genes
-for study in CNVTargets:
-    # initialise list value
-    CNVData[study] = [[], []]
-    # populate inner lists with number of miRNA target sites per nucleotide
-    for gene in CNVTargets[study]:
-        if CNVTargets[study][gene][-1] == 'CNV':
-            CNVData[study][0].append(CNVTargets[study][gene][2])
-        elif CNVTargets[study][gene][-1] == 'not_CNV':
-            CNVData[study][1].append(CNVTargets[study][gene][2])
+# create a dict of {study : [[CNV], [non-CNV]]}
+CNVDataTargetscan = MakeTargetArray(TargetscanCNVTargets)
+CNVDataMiranda = MakeTargetArray(MirandaCNVTargets) 
 print('generated lists of target sites for CNV and non-CNV genes')
 
 
+
+
+
+
 # make a list of all data for each study
-AllData = []
+AllDataTargetscan, AllDataMiranda = [], []
 # make a list of species names to loop from
 StudyNames = ['Suktitipat_et_al_2014', 'Alsmadi_et_al_2014', 'John_et_al_2014', 'Thareja_et_al_2015']
 Populations = ['$Thai^a$', '$Kuwaiti^b$', '$Kuwaiti^c$', '$Kuwaiti^d$']
@@ -185,37 +226,71 @@ Populations = ['$Thai^a$', '$Kuwaiti^b$', '$Kuwaiti^c$', '$Kuwaiti^d$']
 # loop over study in studies list and populate data lists, keeping the same order for targetscan and miranda
 for study in StudyNames:
     # append list of target sites for CNV genes
-    AllData.append(CNVData[study][0])
+    AllDataTargetscan.append(CNVDataTargetscan[study][0])
+    AllDataMiranda.append(CNVDataMiranda[study][0])    
     # append list of target sites for non-CNV genes
-    AllData.append(CNVData[study][1])
+    AllDataTargetscan.append(CNVDataTargetscan[study][1])
+    AllDataMiranda.append(CNVDataMiranda[study][1])
 print('data consolidated in array')
 
 
 # boostrap CNV and non-CNV genes to compare miRNA targets
 # create a dictionary {study: {CNV_status: {num: gene}}} 
-ToSampleFrom = {}
+ToSampleFromTargetscan, ToSampleFromMiranda = {}, {}
 # loop over studies
-for study in CNVTargets:
+for study in TargetscanCNVTargets:
     # initialize dict
-    ToSampleFrom[study] = {}
-    ToSampleFrom[study]['CNV'], ToSampleFrom[study]['not_CNV'] = {}, {}
+    ToSampleFromTargetscan[study] = {}
+    ToSampleFromTargetscan[study]['CNV'], ToSampleFromTargetscan[study]['not_CNV'] = {}, {}
     # initialize counters for CNV and non-CNV genes
     i, j = 0, 0
     # loop over genes for that study
-    for gene in CNVTargets[study]:
-        if CNVTargets[study][gene][-1] == 'CNV':
+    for gene in TargetscanCNVTargets[study]:
+        if TargetscanCNVTargets[study][gene][-1] == 'CNV':
             # populate dict with num : gene pair and update counter
-            ToSampleFrom[study]['CNV'][i] = gene
+            ToSampleFromTargetscan[study]['CNV'][i] = gene
             i += 1
-        elif CNVTargets[study][gene][-1] == 'not_CNV':
+        elif TargetscanCNVTargets[study][gene][-1] == 'not_CNV':
             # populate dict with num : gene pair and update counter
-            ToSampleFrom[study]['not_CNV'][j] = gene
+            ToSampleFromTargetscan[study]['not_CNV'][j] = gene
             j += 1
-              
+for study in MirandaCNVTargets:
+    # initialize dict
+    ToSampleFromMiranda[study] = {}
+    ToSampleFromMiranda[study]['CNV'], ToSampleFromMiranda[study]['not_CNV'] = {}, {}
+    # initialize counters for CNV and non-CNV genes
+    i, j = 0, 0
+    # loop over genes for that study
+    for gene in MirandaCNVTargets[study]:
+        if MirandaCNVTargets[study][gene][-1] == 'CNV':
+            # populate dict with num : gene pair and update counter
+            ToSampleFromMiranda[study]['CNV'][i] = gene
+            i += 1
+        elif MirandaCNVTargets[study][gene][-1] == 'not_CNV':
+            # populate dict with num : gene pair and update counter
+            ToSampleFromMiranda[study]['not_CNV'][j] = gene
+            j += 1
+print('assigned numbers to gene for sampling')
+
 # check that all genes have been assigned to a number
-for study in ToSampleFrom:
-    assert len(ToSampleFrom[study]['CNV']) == CNVNum[study][0], 'CNV genes counts do not match'
-    assert len(ToSampleFrom[study]['not_CNV']) == CNVNum[study][1], 'non-CNV genes counts do not match'
+for study in ToSampleFromTargetscan:
+    assert len(ToSampleFromTargetscan[study]['CNV']) == CNVNumTargetscan[study][0], 'targetscan CNV genes counts do not match'
+    assert len(ToSampleFromTargetscan[study]['not_CNV']) == CNVNumTargetscan[study][1], 'targetscan non-CNV genes counts do not match'
+    assert len(ToSampleFromMiranda[study]['CNV']) == CNVNumMiranda[study][0], 'miranda CNV genes counts do not match'
+    assert len(ToSampleFromMiranda[study]['not_CNV']) == CNVNumMiranda[study][1], 'miranda non-CNV genes counts do not match'
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # create a dict for each study with a list with numbers of each different outcomes when comparing targets in CNV and non-CNV genes
