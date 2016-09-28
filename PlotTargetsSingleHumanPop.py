@@ -192,6 +192,44 @@ def MakeTargetArray(CNVTargets):
     return CNVData
     
 
+# use this function to match gene to numbers for sampling
+def MatchGeneToNum(CNVTargets):
+    '''
+    (dict) -> dict
+    Take a dict with the predicted targets and CNV status for each gene in each study
+    and return a dict with number " gene pairs for each CNV and non-CNV gene in each study 
+    '''
+    # create a dictionary {study: {CNV_status: {num: gene}}} 
+    ToSampleFrom = {}
+    # loop over studies
+    for study in CNVTargets:
+        # initialize dict
+        ToSampleFrom[study] = {}
+        ToSampleFrom[study]['CNV'], ToSampleFrom[study]['not_CNV'] = {}, {}
+        # initialize counters for CNV and non-CNV genes
+        i, j = 0, 0
+        # loop over genes for that study
+        for gene in CNVTargets[study]:
+            if CNVTargets[study][gene][-1] == 'CNV':
+                # populate dict with num : gene pair and update counter
+                ToSampleFrom[study]['CNV'][i] = gene
+                i += 1
+            elif CNVTargets[study][gene][-1] == 'not_CNV':
+                # populate dict with num : gene pair and update counter
+                ToSampleFrom[study]['not_CNV'][j] = gene
+                j += 1
+    return ToSampleFrom
+
+
+
+
+
+
+
+
+
+
+
     
 
 # make a dictionary {study: {gene: [targets, seq_length, normalized_targets, CNV_status]}}
@@ -212,11 +250,6 @@ CNVDataTargetscan = MakeTargetArray(TargetscanCNVTargets)
 CNVDataMiranda = MakeTargetArray(MirandaCNVTargets) 
 print('generated lists of target sites for CNV and non-CNV genes')
 
-
-
-
-
-
 # make a list of all data for each study
 AllDataTargetscan, AllDataMiranda = [], []
 # make a list of species names to loop from
@@ -235,41 +268,9 @@ print('data consolidated in array')
 
 
 # boostrap CNV and non-CNV genes to compare miRNA targets
-# create a dictionary {study: {CNV_status: {num: gene}}} 
-ToSampleFromTargetscan, ToSampleFromMiranda = {}, {}
-# loop over studies
-for study in TargetscanCNVTargets:
-    # initialize dict
-    ToSampleFromTargetscan[study] = {}
-    ToSampleFromTargetscan[study]['CNV'], ToSampleFromTargetscan[study]['not_CNV'] = {}, {}
-    # initialize counters for CNV and non-CNV genes
-    i, j = 0, 0
-    # loop over genes for that study
-    for gene in TargetscanCNVTargets[study]:
-        if TargetscanCNVTargets[study][gene][-1] == 'CNV':
-            # populate dict with num : gene pair and update counter
-            ToSampleFromTargetscan[study]['CNV'][i] = gene
-            i += 1
-        elif TargetscanCNVTargets[study][gene][-1] == 'not_CNV':
-            # populate dict with num : gene pair and update counter
-            ToSampleFromTargetscan[study]['not_CNV'][j] = gene
-            j += 1
-for study in MirandaCNVTargets:
-    # initialize dict
-    ToSampleFromMiranda[study] = {}
-    ToSampleFromMiranda[study]['CNV'], ToSampleFromMiranda[study]['not_CNV'] = {}, {}
-    # initialize counters for CNV and non-CNV genes
-    i, j = 0, 0
-    # loop over genes for that study
-    for gene in MirandaCNVTargets[study]:
-        if MirandaCNVTargets[study][gene][-1] == 'CNV':
-            # populate dict with num : gene pair and update counter
-            ToSampleFromMiranda[study]['CNV'][i] = gene
-            i += 1
-        elif MirandaCNVTargets[study][gene][-1] == 'not_CNV':
-            # populate dict with num : gene pair and update counter
-            ToSampleFromMiranda[study]['not_CNV'][j] = gene
-            j += 1
+# create a dictionary for sampling {study: {CNV_status: {num: gene}}} 
+ToSampleFromTargetscan = MatchGeneToNum(TargetscanCNVTargets)
+ToSampleFromMiranda = MatchGeneToNum(MirandaCNVTargets)
 print('assigned numbers to gene for sampling')
 
 # check that all genes have been assigned to a number
