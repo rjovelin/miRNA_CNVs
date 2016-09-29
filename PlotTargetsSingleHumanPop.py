@@ -221,145 +221,110 @@ def MatchGeneToNum(CNVTargets):
     return ToSampleFrom
 
 
-
-
-
-
-
-
-
-
-
+# use this function to bootstrap CNV and non-CNV genes
+# and count the number of replicates with differences between CNV and non-CNV genes
+def BootstrapGenes(CNVTargets, ToSampleFrom, replicates, NGenes):
+    '''
+    (dict, dict, int, int) -> dict
+    Take the dictionary with predicted targets and CNV status for each gene
+    in each study, the dictionary with numbers: gene pairs, the number of bootstrap
+    replicates and the number of genes to sample and return a dictionary with the
+    the number of replicates in which CNV genes have more targets, less targets
+    and no significant differences    
+    '''
     
-
-# make a dictionary {study: {gene: [targets, seq_length, normalized_targets, CNV_status]}}
-TargetscanCNVTargets = CombineTargetsCNV(TargetscanTargets, CNV_status)
-MirandaCNVTargets = CombineTargetsCNV(MirandaCNVTargets, CNV_status)
-print('combined targets and CNV status')
-
-# count CNV and non-CNV genes in each study
-CNVNumTargetscan = CountGenes(TargetscanCNVTargets)
-CNVNumMiranda = CountGenes(MirandaCNVTargets)
-print('got CNV gene counts for each study')
-for study in CNVNumTargetscan:
-    print(study, CNVNumTargetscan[study][0], CNVNumTargetscan[study][1])
-    print(study, CNVNumMiranda[study][0], CNVNumMiranda[study][1])
-
-# create a dict of {study : [[CNV], [non-CNV]]}
-CNVDataTargetscan = MakeTargetArray(TargetscanCNVTargets)
-CNVDataMiranda = MakeTargetArray(MirandaCNVTargets) 
-print('generated lists of target sites for CNV and non-CNV genes')
-
-# make a list of all data for each study
-AllDataTargetscan, AllDataMiranda = [], []
-# make a list of species names to loop from
-StudyNames = ['Suktitipat_et_al_2014', 'Alsmadi_et_al_2014', 'John_et_al_2014', 'Thareja_et_al_2015']
-Populations = ['$Thai^a$', '$Kuwaiti^b$', '$Kuwaiti^c$', '$Kuwaiti^d$']
-
-# loop over study in studies list and populate data lists, keeping the same order for targetscan and miranda
-for study in StudyNames:
-    # append list of target sites for CNV genes
-    AllDataTargetscan.append(CNVDataTargetscan[study][0])
-    AllDataMiranda.append(CNVDataMiranda[study][0])    
-    # append list of target sites for non-CNV genes
-    AllDataTargetscan.append(CNVDataTargetscan[study][1])
-    AllDataMiranda.append(CNVDataMiranda[study][1])
-print('data consolidated in array')
-
-
-# boostrap CNV and non-CNV genes to compare miRNA targets
-# create a dictionary for sampling {study: {CNV_status: {num: gene}}} 
-ToSampleFromTargetscan = MatchGeneToNum(TargetscanCNVTargets)
-ToSampleFromMiranda = MatchGeneToNum(MirandaCNVTargets)
-print('assigned numbers to gene for sampling')
-
-# check that all genes have been assigned to a number
-for study in ToSampleFromTargetscan:
-    assert len(ToSampleFromTargetscan[study]['CNV']) == CNVNumTargetscan[study][0], 'targetscan CNV genes counts do not match'
-    assert len(ToSampleFromTargetscan[study]['not_CNV']) == CNVNumTargetscan[study][1], 'targetscan non-CNV genes counts do not match'
-    assert len(ToSampleFromMiranda[study]['CNV']) == CNVNumMiranda[study][0], 'miranda CNV genes counts do not match'
-    assert len(ToSampleFromMiranda[study]['not_CNV']) == CNVNumMiranda[study][1], 'miranda non-CNV genes counts do not match'
+    # create a dict for each study with a list with numbers of each different
+    # outcomes when comparing targets in CNV and non-CNV genes
+    # {study: [# replicates CNV > non-CNV, # replicates CNV < non-CNV, # replicates no differences]}
+    BootStrap = {}
+    # initialize list values
+    for study in ToSampleFrom:
+        BootStrap[study] = [0, 0, 0]
+    # loop over studies in dict to sample from
+    for study in ToSampleFrom:
+        while replicates != 0:
+            # make list of targets for CNV and non-CNV genes
+            repCNVtargets, repNonCNVtargets = [], []
+            # draw NGenes CNV genes and NGenes non-CNV genes with replacement
+            for i in range(NGenes):
+                # draw a random CNV gene
+                j = random.randint(0, len(ToSampleFrom[study]['CNV']) - 1)
+                k = random.randint(0, len(ToSampleFrom[study]['not_CNV']) - 1)
+                # get the corresponding genes
+                gene1 = ToSampleFrom[study]['CNV'][j]
+                gene2 = ToSampleFrom[study]['not_CNV'][k]            
+                # get the the number of targets for these 2 genes
+                assert CNVTargets[study][gene1][-1] == 'CNV', 'random gene should be CNV'
+                assert CNVTargets[study][gene2][-1] == 'not_CNV', 'random gene should be non-CNV'
+                repCNVtargets.append(CNVTargets[study][gene1][2])
+                repNonCNVtargets.append(CNVTargets[study][gene2][2])
+            # make sure that the correct numbers of genes is drawn
+            assert len(repCNVtargets) == NGenes, 'number of CNV genes is not correct'
+            assert len(repNonCNVtargets) == NGenes, 'number of non-CNV genes is not correct'
+            # compare CNV and non-CNV genes
+            Pval = stats.ranksums(repCNVtargets, repNonCNVtargets)[1]
+            # check significance
+            if Pval >= 0.05:
+                # difference is not significance
+                BootStrap[study][2] += 1
+            elif Pval < 0.05:
+                # difference is significance, check if CNV genes have a greater number of targets
+                if np.mean(repCNVtargets) > np.mean(repNonCNVtargets):
+                    BootStrap[study][0] += 1
+                elif np.mean(repCNVtargets) < np.mean(repNonCNVtargets):
+                    BootStrap[study][1] += 1
+                assert round(np.mean(repCNVtargets), 4) != round(np.mean(repNonCNVtargets), 4)
+            # update replicate number
+            replicates -= 1
+    return Bootstrap   
 
 
+# use this function to create parallel list of replicate proportions   
+def ReplicateProportions(Bootstrap):
+    '''
+    (dict) -> list
+    Take the dictionary with replicate counts and return a list
+    of lists with replicate proportions for each study
+    Precondition: the order of the lists follows a specific order    
+    '''
+    # make the list of study names a global variable
+    global StudyNames
+    # create parallel list of proportions 
+    Greater, Lower, Nodiff = [], [] ,[]
+    for study in StudyNames:
+        Greater.append(BootStrap[study][0] / sum(BootStrap[study]))
+        Lower.append(BootStrap[study][1] / sum(BootStrap[study]))
+        Nodiff.append(BootStrap[study][2] / sum(BootStrap[study]))
+    # create a list with all the proportion lists
+    Proportions = [Greater, Lower, Nodiff]
+    return Proportions
 
 
+# use this function to get the significance level
+def SignificanceLevel(CNVData):
+    '''
+    (dict) -> list
+    Take the dictionary with number of targets for CNV and non-CNV genes in each study
+    and return a list ordered by the study names with significance level of the 
+    mean target difference between CNV and non-CNV genes
+    '''
+    # make study name a global variable    
+    global StudyNames
+    # annotate Graph with significance level
+    Pvalues = []
+    for study in StudyNames:
+        # compare mirna targets between CNV and non-CNV genes
+        P = stats.ranksums(CNVData[study][0], CNVData[study][1])[1]
+        if P >= 0.05:
+            Pvalues.append('')
+        elif P < 0.05 and P >= 0.01:
+            Pvalues.append('*')
+        elif P < 0.01 and P >= 0.001:
+            Pvalues.append('**')
+        elif P < 0.001:
+            Pvalues.append('***')
+    return Pvalues
 
-
-
-
-
-
-
-
-
-
-
-# create a dict for each study with a list with numbers of each different outcomes when comparing targets in CNV and non-CNV genes
-# {study: [# replicates CNV > non-CNV, # replicates CNV < non-CNV, # replicates no differences]}
-BootStrap = {}
-# initialize list values
-for study in ToSampleFrom:
-    BootStrap[study] = [0, 0, 0]
-
-# loop over studies in dict to sample from
-for study in ToSampleFrom:
-    print('bootstraping', study)
-    # set number of replicates
-    replicates = 10000
-    while replicates != 0:
-        # make list of targets for CNV and non-CNV genes
-        repCNVtargets, repNonCNVtargets = [], []
-        # draw 800 CNV genes and 800 non-CNV genes with replacement
-        for i in range(800):
-            # draw a random CNV gene
-            j = random.randint(0, len(ToSampleFrom[study]['CNV']) - 1)
-            k = random.randint(0, len(ToSampleFrom[study]['not_CNV']) - 1)
-            # get the corresponding genes
-            gene1 = ToSampleFrom[study]['CNV'][j]
-            gene2 = ToSampleFrom[study]['not_CNV'][k]            
-            # get the the number of targets for these 2 genes
-            assert CNVTargets[study][gene1][-1] == 'CNV', 'random gene should be CNV'
-            assert CNVTargets[study][gene2][-1] == 'not_CNV', 'random gene should be non-CNV'
-            repCNVtargets.append(CNVTargets[study][gene1][2])
-            repNonCNVtargets.append(CNVTargets[study][gene2][2])
-        # make sure that the correct numbers of genes is drawn
-        assert len(repCNVtargets) == 800, '800 CNV genes should be drawn'
-        assert len(repNonCNVtargets) == 800, '800 non-CNV genes should be drawn'
-        # compare CNV and non-CNV genes
-        Pval = stats.ranksums(repCNVtargets, repNonCNVtargets)[1]
-        # check significance
-        if Pval >= 0.05:
-            # difference is not significance
-            BootStrap[study][2] += 1
-        elif Pval < 0.05:
-            # difference is significance, check if CNV genes have a greater number of targets
-            if np.mean(repCNVtargets) > np.mean(repNonCNVtargets):
-                BootStrap[study][0] += 1
-            elif np.mean(repCNVtargets) < np.mean(repNonCNVtargets):
-                BootStrap[study][1] += 1
-        # update replicate number
-        replicates -= 1
-print('done with boostraping')        
-
-      
-# create parallel list of proportions 
-Greater, Lower, Nodiff = [], [] ,[]
-for study in StudyNames:
-    Greater.append(BootStrap[study][0] / sum(BootStrap[study]))
-    Lower.append(BootStrap[study][1] / sum(BootStrap[study]))
-    Nodiff.append(BootStrap[study][2] / sum(BootStrap[study]))
-
-# create a list with all the proportion lists
-Proportions = [Greater, Lower, Nodiff]
-
-# print results to screen
-for study in BootStrap:
-    print(BootStrap[study])
-
-
-
-# create figure
-fig = plt.figure(1, figsize = (8, 3))
 
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XScale, GraphType):
@@ -491,50 +456,113 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
 
 
 
-# plot boxplots for predictor in 1st subplot
-# get title based on predictor algorithm
-if predictor == 'targetscan':
-    figtitle = 'TargetScan'
-elif predictor == 'miranda':
-    figtitle = 'miRanda'
-ax1 = CreateAx(2, 1, 1, AllData, fig, figtitle, 0.45, Populations, [0.2, 1.1, 2, 2.9], 'box')
+# make a dictionary {study: {gene: [targets, seq_length, normalized_targets, CNV_status]}}
+TargetscanCNVTargets = CombineTargetsCNV(TargetscanTargets, CNV_status)
+MirandaCNVTargets = CombineTargetsCNV(MirandaCNVTargets, CNV_status)
+print('combined targets and CNV status')
+
+# count CNV and non-CNV genes in each study
+CNVNumTargetscan = CountGenes(TargetscanCNVTargets)
+CNVNumMiranda = CountGenes(MirandaCNVTargets)
+print('got CNV gene counts for each study')
+for study in CNVNumTargetscan:
+    print(study, CNVNumTargetscan[study][0], CNVNumTargetscan[study][1])
+    print(study, CNVNumMiranda[study][0], CNVNumMiranda[study][1])
+
+# create a dict of {study : [[CNV], [non-CNV]]}
+CNVDataTargetscan = MakeTargetArray(TargetscanCNVTargets)
+CNVDataMiranda = MakeTargetArray(MirandaCNVTargets) 
+print('generated lists of target sites for CNV and non-CNV genes')
+
+# make a list of all data for each study
+AllDataTargetscan, AllDataMiranda = [], []
+# make a list of species names to loop from
+StudyNames = ['Suktitipat_et_al_2014', 'Alsmadi_et_al_2014', 'John_et_al_2014', 'Thareja_et_al_2015']
+Populations = ['$Thai^a$', '$Kuwaiti^b$', '$Kuwaiti^c$', '$Kuwaiti^d$']
+
+# loop over study in studies list and populate data lists, keeping the same order for targetscan and miranda
+for study in StudyNames:
+    # append list of target sites for CNV genes
+    AllDataTargetscan.append(CNVDataTargetscan[study][0])
+    AllDataMiranda.append(CNVDataMiranda[study][0])    
+    # append list of target sites for non-CNV genes
+    AllDataTargetscan.append(CNVDataTargetscan[study][1])
+    AllDataMiranda.append(CNVDataMiranda[study][1])
+print('data consolidated in array')
+
+# boostrap CNV and non-CNV genes to compare miRNA targets
+# create a dictionary for sampling {study: {CNV_status: {num: gene}}} 
+ToSampleFromTargetscan = MatchGeneToNum(TargetscanCNVTargets)
+ToSampleFromMiranda = MatchGeneToNum(MirandaCNVTargets)
+print('assigned numbers to gene for sampling')
+
+# check that all genes have been assigned to a number
+for study in ToSampleFromTargetscan:
+    assert len(ToSampleFromTargetscan[study]['CNV']) == CNVNumTargetscan[study][0], 'targetscan CNV genes counts do not match'
+    assert len(ToSampleFromTargetscan[study]['not_CNV']) == CNVNumTargetscan[study][1], 'targetscan non-CNV genes counts do not match'
+    assert len(ToSampleFromMiranda[study]['CNV']) == CNVNumMiranda[study][0], 'miranda CNV genes counts do not match'
+    assert len(ToSampleFromMiranda[study]['not_CNV']) == CNVNumMiranda[study][1], 'miranda non-CNV genes counts do not match'
+
+# create a dict for each study with a list with numbers of each different outcomes
+# when comparing targets in CNV and non-CNV genes
+# {study: [# replicates CNV > non-CNV, # replicates CNV < non-CNV, # replicates no differences]}
+BootstrapTargetscan = BootstrapGenes(TargetscanCNVTargets, ToSampleFromTargetscan, 10000, 800)
+BootstrapMiranda = BootstrapGenes(MirandaCNVTargets, ToSampleFromMiranda, 10000, 800)
+print('done with boostraping')        
+
+# create parallel list of proportions 
+ProportionsTargetscan = ReplicateProportions(BootstrapTargetscan)
+ProportionsMiranda = ReplicateProportions(BootstrapMiranda)
+print('made parallel lists of proportions')
+
+# print results to screen
+for study in BootstrapTargetscan:
+    print(BootstrapTargetscan[study])
+    print(BootstrapMiranda[study])
+
+
+# create figure
+fig = plt.figure(1, figsize = (8, 3))
+# plot boxes in 1st subplot
+ax1 = CreateAx(2, 2, 1, AllDataTargetscan, fig, 'TargetScan', 0.45, Populations, [0.2, 1.1, 2, 2.9], 'box')
 # plot bars in 2nd subplot
-ax2 = CreateAx(2, 1, 2, Proportions, fig, figtitle, 0.45, Populations, [0.15, 0.55, 0.95, 1.35], 'bar')
+ax2 = CreateAx(2, 2, 2, ProportionsTargetscan, fig, 'TargetScan', 0.45, Populations, [0.15, 0.55, 0.95, 1.35], 'bar')
+# plot boxes in 3rd subplot
+ax3 = CreateAx(2, 2, 3, AllDataMiranda, fig, 'miRanda', 0.45, Populations, [0.2, 1.1, 2, 2.9], 'box')
+# plot bars in 4th subplot
+ax4 = CreateAx(2, 2, 4, ProportionsMiranda, fig, 'miRanda', 0.45, Populations, [0.15, 0.55, 0.95, 1.35], 'bar')
 
 
 # annotate Graph with significance level
-Pvalues = []
-for study in StudyNames:
-    # compare mirna targets between CNV and non-CNV genes
-    P = stats.ranksums(CNVData[study][0], CNVData[study][1])[1]
-    if P >= 0.05:
-        Pvalues.append('')
-    elif P < 0.05 and P >= 0.01:
-        Pvalues.append('*')
-    elif P < 0.01 and P >= 0.001:
-        Pvalues.append('**')
-    elif P < 0.001:
-        Pvalues.append('***')
+PvaluesTargetscan = SignificanceLevel(CNVDataTargetscan)
+PvaluesMiranda = SignificanceLevel(CNVDataMiranda)
+print('determined significance levels')
+
 # create list of Y and X positions to annotate figure with significance level
 Ypos = [0.42, 0.42, 0.42, 0.42]
 Xpos = [0.2, 1.1, 2, 2.9]
-for i in range(len(Pvalues)):
-    ax1.text(Xpos[i], Ypos[i], Pvalues[i], horizontalalignment = 'center',
+for i in range(len(PvaluesTargetscan)):
+    ax1.text(Xpos[i], Ypos[i], PvaluesTargetscan[i], horizontalalignment = 'center',
              verticalalignment = 'center', color = 'black', size = 8)
-
+for i in range(len(PvaluesMiranda)):
+    ax3.text(Xpos[i], Ypos[i], PvaluesMiranda[i], horizontalalignment = 'center',
+             verticalalignment = 'center', color = 'black', size = 8)
 
 # add subplot label
 ax1.text(-1, 0.48, 'A', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
 ax1.text(3.5, 0.48, 'B', horizontalalignment = 'center',
          verticalalignment = 'center', color = 'black', size = 10)
-
+ax3.text(-1, 0.48, 'C', horizontalalignment = 'center',
+         verticalalignment = 'center', color = 'black', size = 10)
+ax3.text(3.5, 0.48, 'D', horizontalalignment = 'center',
+         verticalalignment = 'center', color = 'black', size = 10)
 
 # make sure subplots do not overlap
 plt.tight_layout()
 
 # get outputfile
-outputfile = 'PlotSinglePops_' + predictor + '_' + domain + '_' + chromos + '_' + cnv_length 
+outputfile = 'PlotSinglePops_' + domain + '_' + chromos + '_' + cnv_length 
 print(outputfile)
 
 # save figure
