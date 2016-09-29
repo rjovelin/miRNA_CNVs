@@ -223,7 +223,7 @@ def MatchGeneToNum(CNVTargets):
 
 # use this function to bootstrap CNV and non-CNV genes
 # and count the number of replicates with differences between CNV and non-CNV genes
-def BootstrapGenes(CNVTargets, ToSampleFrom, replicates, NGenes):
+def BootstrapGenes(CNVTargets, ToSampleFrom, Nsamples, NGenes):
     '''
     (dict, dict, int, int) -> dict
     Take the dictionary with predicted targets and CNV status for each gene
@@ -242,6 +242,7 @@ def BootstrapGenes(CNVTargets, ToSampleFrom, replicates, NGenes):
         BootStrap[study] = [0, 0, 0]
     # loop over studies in dict to sample from
     for study in ToSampleFrom:
+        replicates = Nsamples
         while replicates != 0:
             # make list of targets for CNV and non-CNV genes
             repCNVtargets, repNonCNVtargets = [], []
@@ -273,7 +274,7 @@ def BootstrapGenes(CNVTargets, ToSampleFrom, replicates, NGenes):
                     BootStrap[study][0] += 1
                 elif np.mean(repCNVtargets) < np.mean(repNonCNVtargets):
                     BootStrap[study][1] += 1
-                assert round(np.mean(repCNVtargets), 4) != round(np.mean(repNonCNVtargets), 4)
+                assert np.mean(repCNVtargets) != np.mean(repNonCNVtargets), 'means are equal but significantly different'
             # update replicate number
             replicates -= 1
     return BootStrap   
@@ -515,14 +516,9 @@ ProportionsTargetscan = ReplicateProportions(BootstrapTargetscan)
 ProportionsMiranda = ReplicateProportions(BootstrapMiranda)
 print('made parallel lists of proportions')
 
-# print results to screen
-for study in BootstrapTargetscan:
-    print(BootstrapTargetscan[study])
-    print(BootstrapMiranda[study])
-
 
 # create figure
-fig = plt.figure(1, figsize = (8, 3))
+fig = plt.figure(1, figsize = (8, 6))
 # plot boxes in 1st subplot
 ax1 = CreateAx(2, 2, 1, AllDataTargetscan, fig, 'TargetScan', 0.45, Populations, [0.2, 1.1, 2, 2.9], 'box')
 # plot bars in 2nd subplot
