@@ -458,7 +458,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
 
 # make a dictionary {study: {gene: [targets, seq_length, normalized_targets, CNV_status]}}
 TargetscanCNVTargets = CombineTargetsCNV(TargetscanTargets, CNV_status)
-MirandaCNVTargets = CombineTargetsCNV(MirandaCNVTargets, CNV_status)
+MirandaCNVTargets = CombineTargetsCNV(MirandaTargets, CNV_status)
 print('combined targets and CNV status')
 
 # count CNV and non-CNV genes in each study
