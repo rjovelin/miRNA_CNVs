@@ -276,7 +276,7 @@ def BootstrapGenes(CNVTargets, ToSampleFrom, replicates, NGenes):
                 assert round(np.mean(repCNVtargets), 4) != round(np.mean(repNonCNVtargets), 4)
             # update replicate number
             replicates -= 1
-    return Bootstrap   
+    return BootStrap   
 
 
 # use this function to create parallel list of replicate proportions   
