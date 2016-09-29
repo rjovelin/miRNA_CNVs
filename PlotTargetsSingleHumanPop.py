@@ -280,7 +280,7 @@ def BootstrapGenes(CNVTargets, ToSampleFrom, replicates, NGenes):
 
 
 # use this function to create parallel list of replicate proportions   
-def ReplicateProportions(Bootstrap):
+def ReplicateProportions(BootStrap):
     '''
     (dict) -> list
     Take the dictionary with replicate counts and return a list
