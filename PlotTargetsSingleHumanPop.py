@@ -397,7 +397,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
         N = mpatches.Patch(facecolor = '#f7f7f7' , edgecolor = 'black', linewidth = 1, label= 'No diff.')
         G = mpatches.Patch(facecolor = '#ef8a62' , edgecolor = 'black', linewidth = 1, label= 'CNV greater')
         L = mpatches.Patch(facecolor = '#67a9cf' , edgecolor = 'black', linewidth = 1, label= 'CNV lower')
-        plt.legend(handles = [N, G, L], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
+        plt.legend(handles = [N, G, L], loc = (-0.15, 1), fontsize = 8, frameon = False, ncol = 3)
 
     # write title   
     ax.set_title(Title + '\n\n', size = 8)
@@ -407,7 +407,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, LabelNames, XSc
     
     # write label for y axis
     if GraphType == 'box':
-        ax.set_ylabel('Normalized number of miRNA\nsites per gene', color = 'black',  size = 8, ha = 'center', **FigFont)
+        ax.set_ylabel('Number of miRNA\nsites / nucleotide', color = 'black',  size = 8, ha = 'center', **FigFont)
     elif GraphType == 'bar':
         ax.set_ylabel('Proportion of replicates', color = 'black', size = 8, ha = 'center', **FigFont)
 
@@ -518,7 +518,7 @@ print('made parallel lists of proportions')
 
 
 # create figure
-fig = plt.figure(1, figsize = (8, 6))
+fig = plt.figure(1, figsize = (6.7, 4.7))
 # plot boxes in 1st subplot
 ax1 = CreateAx(2, 2, 1, AllDataTargetscan, fig, 'TargetScan', 0.45, Populations, [0.2, 1.1, 2, 2.9], 'box')
 # plot bars in 2nd subplot
