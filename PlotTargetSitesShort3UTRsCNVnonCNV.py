@@ -346,6 +346,12 @@ for i in range(len(PvalMiranda)):
     ax2.text(Xpos[i], YposMiranda[i], PvalMiranda[i], horizontalalignment = 'center',
              verticalalignment = 'center', color = 'black', size = 8)
 
+# add legend relative to ax1 using ax1 coordinates
+C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
+N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
+ax1.legend(handles = [C, N], loc = (-0.25, 1.2), fontsize = 8, frameon = False, ncol = 2)
+\
+
 # make sure subplots do not overlap
 plt.tight_layout()
 
