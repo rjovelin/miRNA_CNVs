@@ -248,7 +248,7 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YMax, SpeciesNames, X
     
     
     # write title   
-    ax.set_title(Title, size = 8)
+    ax.set_title(Title + '\n\n', size = 8)
     
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
@@ -349,7 +349,7 @@ for i in range(len(PvalMiranda)):
 # add legend relative to ax1 using ax1 coordinates
 C = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'CNV')
 N = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'non-CNV')
-ax1.legend(handles = [C, N], loc = (-0.25, 1.2), fontsize = 8, frameon = False, ncol = 2)
+ax1.legend(handles = [C, N], loc = (0, 1), fontsize = 8, frameon = False, ncol = 2)
 \
 
 # make sure subplots do not overlap
