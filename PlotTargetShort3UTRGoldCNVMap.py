@@ -792,13 +792,13 @@ def GetSignificanceLevel(AllData):
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, Data, figure, Title, YAxisLine):
+def CreateAx(Columns, Rows, Position, Data, figure, Title, Ymax, YAxisLine):
     '''
-    (int, int, int, list, figure_object, str, str, bool)
+    (int, int, int, list, figure_object, str, str, float, bool)
     Take the number of a column, and rows in the figure object and the position of
     the ax in figure, the predictor algorithm used, a list of data, a title,
-    a boolean to specify if Y axis should be specified and return an
-    ax instance in the figure
+    the maximum value of the Y axis, a boolean to specify if Y axis should be
+    specified and return an ax instance in the figure
     '''    
     
     # create subplot in figure
@@ -847,15 +847,8 @@ def CreateAx(Columns, Rows, Position, Data, figure, Title, YAxisLine):
         # write label for x axis
         plt.xticks([0.2, 1.1], ['5\'UTR', 'CDS'], ha = 'center', fontsize = 8, **FigFont)
     
-    
-    
-#    # add a range for the Y axis
-#    if predictor == 'targetscan':
-#        plt.ylim([0.10, 0.46])
-#    elif predictor == 'miranda':
-#        plt.ylim([0, 0.36])
-#    plt.xlim([-0.25, 2.45])
-    
+    # add a range for the Y axis
+    plt.ylim([0, Ymax])
     
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
@@ -1224,12 +1217,12 @@ print('compared CNV and non-CNV genes')
 
 
 # create figure
-fig = plt.figure(1, figsize = (2.3, 3.1))
+fig = plt.figure(1, figsize = (3.5, 3))
 # plot data 
-ax1 = CreateAx(2, 2, 1, AllDataTargetScan7, fig, 'Targetscan', False)
-ax2 = CreateAx(2, 2, 2, AllDataMiranda7, fig, 'miRanda', False)
-ax3 = CreateAx(2, 2, 3, AllDataTargetScan15, fig, 'Targetscan', True)
-ax4 = CreateAx(2, 2, 4, AllDataMiranda15, fig, 'miRanda', True)
+ax1 = CreateAx(2, 2, 1, AllDataTargetScan7, fig, 'Targetscan', 0.45, False)
+ax2 = CreateAx(2, 2, 2, AllDataMiranda7, fig, 'miRanda', 0.45,  False)
+ax3 = CreateAx(2, 2, 3, AllDataTargetScan15, fig, 'Targetscan', 0.45, True)
+ax4 = CreateAx(2, 2, 4, AllDataMiranda15, fig, 'miRanda', 0.45, True)
 
 
 # annotate figure with significance level
