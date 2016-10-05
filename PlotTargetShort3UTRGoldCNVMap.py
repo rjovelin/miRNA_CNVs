@@ -609,7 +609,7 @@ ax1.legend(handles = [C, N], loc = (-0.25, 1.2), fontsize = 8, frameon = False, 
 plt.tight_layout()
 
 # build outputfile with arguments
-outputfile = 'PlotTargetShort3UTRGoldMap' + CNVFilter.capitalize() + '_CNVAllLength_ValidChromos'
+outputfile = 'PlotTargetShort3UTRGoldMapStringent_CNVAllLength_ValidChromos'
 print(outputfile)
 
 # save figure
