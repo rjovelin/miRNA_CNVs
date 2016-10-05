@@ -609,10 +609,10 @@ ax1.legend(handles = [C, N], loc = (-0.25, 1.2), fontsize = 8, frameon = False, 
 plt.tight_layout()
 
 # add subplot label
-ax1.text(-1, 0.48, 'A', horizontalalignment = 'center',
-         verticalalignment = 'center', color = 'black', size = 10)
-ax3.text(-1, 0.48, 'B', horizontalalignment = 'center',
-         verticalalignment = 'center', color = 'black', size = 10)   
+ax1.text(-1.2, 0.51, 'A', horizontalalignment = 'center',
+         verticalalignment = 'center', color = 'black', size = 8)
+ax3.text(-1.2, 0.51, 'B', horizontalalignment = 'center',
+         verticalalignment = 'center', color = 'black', size = 8)   
 
 # build outputfile with arguments
 outputfile = 'PlotTargetShort3UTRGoldMapStringent_CNVAllLength_ValidChromos'
