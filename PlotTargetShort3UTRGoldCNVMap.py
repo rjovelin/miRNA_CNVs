@@ -579,7 +579,7 @@ print('compared CNV and non-CNV genes')
 
 
 # create figure
-fig = plt.figure(1, figsize = (3.5, 3))
+fig = plt.figure(1, figsize = (3.4, 3))
 # plot data 
 ax1 = CreateAx(2, 2, 1, AllDataTargetScan7, fig, 'Targetscan', 0.45, False)
 ax2 = CreateAx(2, 2, 2, AllDataMiranda7, fig, 'miRanda', 0.45,  False)
@@ -608,14 +608,9 @@ ax1.legend(handles = [C, N], loc = (-0.25, 1.2), fontsize = 8, frameon = False, 
 # make sure subplots do not overlap
 plt.tight_layout()
 
-## build outputfile with arguments
-#if L == 7:
-#    outputfile = 'PlotTargetShort3UTRGoldMap' + CNVFilter.capitalize() + '_7bp_CNVAllLength_ValidChromos'
-#elif L == 15:
-#    outputfile = 'PlotTargetShort3UTRGoldMap' + CNVFilter.capitalize() + '_15bp_CNVAllLength_ValidChromos'
-#print(outputfile)
-
-outputfile = 'truc'
+# build outputfile with arguments
+outputfile = 'PlotTargetShort3UTRGoldMap' + CNVFilter.capitalize() + '_CNVAllLength_ValidChromos'
+print(outputfile)
 
 # save figure
 fig.savefig(outputfile + extension, bbox_inches = 'tight')    
