@@ -33,14 +33,13 @@ from CNV_miRNAs import *
 
 # get the correlation type from command
 correlation = sys.argv[1]
-assert correlation in ['spearman', 'perason'], 'correlation should be spearman or pearson'
+assert correlation in ['spearman', 'pearson'], 'correlation should be spearman or pearson'
 # get the variable to perform correlation
 miRvar = sys.argv[2]
 assert miRvar in ['mature', 'family', 'unique'], 'miRvar should be mature, family or unique'
 # get the minimum 3'UTR length
 L = int(sys.argv[3])
 assert L in [15, 7], 'minimum 3UTR length is not correct'
-print(L)
 
 # use all chromos (including unplaced, unlocated, and MT) or only valid chromos 
 # note: only CNVs on valid chromos are reported in DGV, so if all chromos are
@@ -117,7 +116,7 @@ for species in species_codes:
                     miranda[species_codes[species]] = {}
                 # populate dict with domain mean target pairs
                 miranda[species_codes[species]][domain] = np.mean(TargetNum)
-                
+print('recorded the mean number of targets')                
 
 # create parallel lists with mean number of targets and number of mirnas in each species
 TargetscanUTR, TargetscanCDS, MirandaUTR, MirandaCDS, mirnas = [], [], [], [], []
@@ -144,5 +143,19 @@ elif correlation == 'pearson':
     CorrelMirandaUTR = stats.pearsonr(MirandaUTR, mirnas)[0]
     CorrelTargetscanCDS = stats.pearsonr(TargetscanCDS, mirnas)[0]
     CorrelMirandaCDS = stats.pearsonr(MirandaCDS, mirnas)[0]
-    
-        
+print('performed correlations') 
+
+ 
+# print results to screen
+if miRvar == 'mature':
+    print('correlations between mean number of targets and number of mature miRNAs') 
+elif miRvar == 'family':
+    print('correlations between mean number of targets and number of miRNA families')
+elif miRvar == 'unique':
+    print('correlations between mean number of targets and number of unique miRNA families')
+print('\n')
+
+print('5UTR', 'targetscan', CorrelTargetscanUTR)
+print('5UTR', 'miranda', CorrelMirandaUTR)
+print('CDS', 'targetscan', CorrelTargetscanCDS)
+print('CDS', 'miranda', CorrelMirandaCDS)
