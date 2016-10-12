@@ -128,7 +128,7 @@ for species in miRNASpecies:
     elif miRvar == 'unique':
         mirnas.append(miRNASpecies[species][2])
     TargetscanUTR.append(targetscan[species]['5UTR'])
-    MirandaUTR.append(mirnada[species]['5UTR'])
+    MirandaUTR.append(miranda[species]['5UTR'])
     TargetscanCDS.append(targetscan[species]['CDS'])
     MirandaCDS.append(miranda[species]['CDS'])
         
