@@ -58,7 +58,9 @@ for line in infile:
     line = line.rstrip()
     if line != '':
         line = line.split()
-        miRNASpecies[line[0].capitalize()] = list(map(lambda x: int(x), line[1:]))
+        # do not record dog and rat because mirna data were discarded
+        if line[0].capitalize() not in ['Rno', 'Cfa']:
+            miRNASpecies[line[0].capitalize()] = list(map(lambda x: int(x), line[1:]))
 infile.close()
 print('recorded the number of miRNAs in each speacies')
 
