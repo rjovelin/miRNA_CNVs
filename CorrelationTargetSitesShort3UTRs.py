@@ -62,7 +62,7 @@ for line in infile:
         if line[0].capitalize() not in ['Rno', 'Cfa']:
             miRNASpecies[line[0].capitalize()] = list(map(lambda x: int(x), line[1:]))
 infile.close()
-print('recorded the number of miRNAs in each speacies')
+print('recorded the number of miRNAs in each species')
 
 
 # make a dictionary of species names : species code
